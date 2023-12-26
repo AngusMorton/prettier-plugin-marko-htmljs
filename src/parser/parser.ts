@@ -42,8 +42,6 @@ export function parse(code: string) {
   parser.parse(code);
   const program = builder.end();
 
-  console.log(program.static);
-
   return program;
 }
 

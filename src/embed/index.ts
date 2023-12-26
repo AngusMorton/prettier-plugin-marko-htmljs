@@ -5,6 +5,7 @@ import _doc from "prettier/doc";
 
 const {
   builders: { dedent, group, indent, hardline },
+  utils: { stripTrailingHardline },
 } = _doc;
 
 export function embed(
@@ -19,7 +20,6 @@ export function embed(
 
       if (node.block) {
         return [
-          hardline,
           group(["$ {", indent([hardline, body]), dedent([hardline, "}"])]),
           hardline,
         ];

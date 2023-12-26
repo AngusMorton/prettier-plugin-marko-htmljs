@@ -1,5 +1,11 @@
 import { type AstPath as AstP, type Doc } from "prettier";
-import { AnyNode, ChildNode, Tag, Text } from "../../parser/MarkoNode";
+import {
+  AnyNode,
+  ChildNode,
+  StaticNode,
+  Tag,
+  Text,
+} from "../../parser/MarkoNode";
 import { voidElements } from "../voidElements";
 
 export type PrintFn = (path: AstPath) => Doc;
@@ -10,11 +16,20 @@ export function isEmptyNode(node: AnyNode): boolean {
 }
 
 export function getChildren(node: AnyNode): ChildNode[] {
-  return isNodeWithChildren(node) ? (node as Tag).body ?? [] : [];
+  return isNodeWithChildren(node)
+    ? // @ts-ignore
+      node.body
+    : [];
 }
 
 function isNodeWithChildren(node: AnyNode): boolean {
-  return !!(node && node.type === "Tag" && node.body && node.body.length !== 0);
+  return !!(
+    node &&
+    "body" in node &&
+    node.body &&
+    Array.isArray(node.body) &&
+    node.body.length !== 0
+  );
 }
 
 export function isTextNodeStartingWithWhitespace(node: AnyNode): node is Text {
@@ -86,7 +101,7 @@ function forceBreakChildren(node: AnyNode): boolean {
     node.body &&
     node.body.length > 0 &&
     node.nameText &&
-    ["html", "head", "ul", "ol", "select"].includes(node.nameText)
+    ["html", "head", "body", "ul", "ol", "select"].includes(node.nameText)
   );
 }
 

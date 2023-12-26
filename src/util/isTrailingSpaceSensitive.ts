@@ -1,10 +1,10 @@
 import { Options } from "prettier";
-import { ChildNode } from "../parser/MarkoNode";
+import { ChildNode, StaticNode } from "../parser/MarkoNode";
 import { cssStyleDisplay } from "./cssStyleDisplay";
 import { nextSibling } from "./nextSibling";
 
 export function isTrailingSpaceSensitiveNode(
-  node: ChildNode,
+  node: ChildNode | StaticNode,
   options: Options
 ): boolean {
   const next = nextSibling(node);
@@ -13,13 +13,18 @@ export function isTrailingSpaceSensitiveNode(
   }
 
   const parentNode = node.parent;
-  if (!parentNode || cssStyleDisplay(parentNode, options) === "none") {
+  const parentDisplay = cssStyleDisplay(parentNode, options);
+  if (!parentNode || parentDisplay === "none") {
     // If it's display: none then it's not space sensitive.
     return false;
   }
 
-  const parentDisplay = cssStyleDisplay(parentNode, options);
-  if (!next && !isBlockLikeCssDisplay(parentDisplay)) {
+  if (!next && isBlockLikeCssDisplay(cssStyleDisplay(parentNode, options))) {
+    // If this is the last child and the parent tag is block-like then it's not space sensitive.
+    return false;
+  }
+
+  if (next && isBlockLikeCssDisplay(cssStyleDisplay(next, options))) {
     // If the parent tag is not block-like then it's not space sensitive.
 
     // TODO: If it's script-like, it's also not space sensitive.

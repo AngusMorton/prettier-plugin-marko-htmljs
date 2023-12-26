@@ -1,6 +1,6 @@
 import { AstPath, Doc, Options, ParserOptions, doc } from "prettier";
-import { AnyNode, Tag } from "../../parser/MarkoNode";
-import { PrintFn } from "../tag/utils";
+import { AnyNode, Program, Tag } from "../../parser/MarkoNode";
+import { PrintFn, getChildren } from "../tag/utils";
 import { forceBreakChildren } from "../../util/forceBreakContent";
 import { isTrailingSpaceSensitiveNode } from "../../util/isTrailingSpaceSensitive";
 import { hasTrailingSpaces } from "../../util/hasTrailingSpaces";
@@ -11,34 +11,15 @@ import { nextSibling } from "../../util/nextSibling";
 const { group, line, softline, hardline, ifBreak, breakParent } = doc.builders;
 
 export function printChildren(
-  path: AstPath<Tag>,
+  path: AstPath<AnyNode>,
   opts: ParserOptions,
   print: PrintFn
 ): Doc {
   const { node } = path;
-  const children = node.body;
-  if (!children) {
+  const children = getChildren(node);
+  if (!children || children.length === 0) {
     return "";
   }
-
-  // The Marko CST has a lot of whitespace nodes that we don't want to print
-  // because we want to add our own whitespace in. Before we get started we
-  // want to trim any leading or trailing whitespace from our children.
-  // const firstChild = children[0];
-  // if (firstChild && firstChild.type === "Text") {
-  //   firstChild.value = firstChild.value.trimStart();
-  // }
-
-  // const lastChild = children[children.length - 1];
-  // if (lastChild && lastChild.type === "Text") {
-  //   lastChild.value = lastChild.value.trimEnd();
-  // }
-
-  // for (const child of children) {
-  //   if (child.type === "Text") {
-  //     child.value = child.value.replace("\n", "");
-  //   }
-  // }
 
   if (forceBreakChildren(node)) {
     const children = path.map((childPath) => {
@@ -54,8 +35,6 @@ export function printChildren(
             prevBetweenLine,
             previousChild && forceNextEmptyLine(previousChild) ? hardline : "",
           ];
-
-      console.log("Printing childNode", childNode.type, previousLine);
       return [previousLine, print(childPath)];
     }, "body");
 

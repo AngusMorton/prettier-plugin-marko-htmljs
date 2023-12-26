@@ -1,6 +1,6 @@
 import { AstPath, Doc, Options, ParserOptions, doc } from "prettier";
 import { PrintFn, forceBreakContent, getChildren, isVoidTag } from "./utils";
-import { AnyNode, Tag } from "../../parser/MarkoNode";
+import { AnyNode, ChildNode, StaticNode, Tag } from "../../parser/MarkoNode";
 import { hasLeadingSpaces } from "../../util/hasLeadingSpaces";
 import { hasTrailingSpaces } from "../../util/hasTrailingSpaces";
 import { isLeadingSpaceSensitiveNode } from "../../util/isLeadingSpaceSensitive";
@@ -26,12 +26,15 @@ export function printTag(
   const { node } = path;
 
   const children = getChildren(node);
-  const firstChild: AnyNode | undefined = children[0];
-  const lastChild: AnyNode | undefined = children[children.length - 1];
+  const firstChild: ChildNode | StaticNode | undefined = children[0];
+  const lastChild: ChildNode | StaticNode | undefined =
+    children[children.length - 1];
   const shouldHugContent =
     children.length === 1 &&
+    firstChild &&
     isLeadingSpaceSensitiveNode(firstChild, opts) &&
     !hasLeadingSpaces(firstChild) &&
+    lastChild &&
     isTrailingSpaceSensitiveNode(lastChild, opts) &&
     !hasTrailingSpaces(lastChild);
 
@@ -82,9 +85,6 @@ export function printTag(
     return softline;
   };
 
-  if (node.nameText === "body") {
-    console.log("Break content: ", forceBreakContent(node));
-  }
   const result = printTag([
     forceBreakContent(node) ? breakParent : "",
     printChildrenDoc([

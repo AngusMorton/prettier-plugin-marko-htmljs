@@ -1,10 +1,12 @@
 // https://prettier.io/docs/en/plugins.html#print
-import { type Doc, type ParserOptions } from "prettier";
-import { AstPath, PrintFn, isEmptyTextNode } from "./tag/utils";
-import { Tag } from "../parser/MarkoNode";
-import { AstPath as APath } from "prettier";
+import { type AstPath, type Doc, type ParserOptions } from "prettier";
+import { PrintFn, isEmptyTextNode } from "./tag/utils";
+import { Program, Tag } from "../parser/MarkoNode";
 import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
+import { printChildren } from "./children/children";
+import { previousSibling } from "../util/previousSibling";
+import { forceNextEmptyLine } from "./children/utils";
 const {
   builders: {
     breakParent,
@@ -29,7 +31,7 @@ export function print(path: AstPath, opts: ParserOptions, print: PrintFn): Doc {
 
   switch (node.type) {
     case "Program":
-      return [stripTrailingHardline(path.map(print, "body")), hardline];
+      return printProgram(path as AstPath<Program>, opts, print);
     case "DocType":
       // https://www.w3.org/wiki/Doctypes_and_markup_styles
       return ["<!doctype html>", hardline];
@@ -75,10 +77,32 @@ export function print(path: AstPath, opts: ParserOptions, print: PrintFn): Doc {
       }
       return node.value.trim();
     case "Tag":
-      return printTag(path as APath<Tag>, opts, print);
+      return printTag(path as AstPath<Tag>, opts, print);
     default:
       console.error("Unhandled NodeType:", node.type);
   }
 
   return "";
+}
+
+function printProgram(
+  path: AstPath<Program>,
+  opts: ParserOptions,
+  print: PrintFn
+) {
+  const parentNode = path.node;
+  const children = path.map((childPath, childIndex) => {
+    const childNode = childPath.node;
+    const nextNode = parentNode.body[childIndex + 1];
+
+    const result: Doc[] = [print(childPath)];
+    if (nextNode) {
+      if (nextNode.sourceSpan.start.line - childNode.sourceSpan.end.line > 1) {
+        result.push(hardline);
+      }
+    }
+    return result;
+  }, "body");
+
+  return [stripTrailingHardline(children), hardline];
 }
