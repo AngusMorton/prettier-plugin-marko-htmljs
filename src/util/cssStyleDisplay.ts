@@ -1,6 +1,7 @@
 import { Options } from "prettier";
 import { AnyNode } from "../parser/MarkoNode";
 
+// TODO: Merge with htmlElements.ts
 const CSS_DISPLAY_TAGS: Record<string, string> = {
   area: "none",
   base: "none",
@@ -89,6 +90,12 @@ const CSS_DISPLAY_TAGS: Record<string, string> = {
 
   // Missing
   search: "block",
+
+  // Marko built-in components
+  if: "block",
+  "if-else": "block",
+  else: "block",
+  for: "block",
 };
 
 const CSS_DISPLAY_DEFAULT = "inline";
@@ -98,14 +105,15 @@ const CSS_DISPLAY_DEFAULT = "inline";
 // Generally, we only care if an element is "block" but we return the full
 // class name just in case we want to alter the logic down the track.
 export function cssStyleDisplay(node: AnyNode, options: Options): string {
-  switch (options.htmlWhitespaceSensitivity) {
-    case "strict":
-      return "inline";
-    case "ignore":
-      return "block";
-    default:
-      const nodeDisplay =
-        node.type === "Tag" && node.nameText && CSS_DISPLAY_TAGS[node.nameText];
-      return nodeDisplay || CSS_DISPLAY_DEFAULT;
-  }
+  return "block";
+  // switch (options.htmlWhitespaceSensitivity) {
+  //   case "strict":
+  //     return "inline";
+  //   case "ignore":
+  //     return "block";
+  //   default:
+  //     const nodeDisplay =
+  //       node.type === "Tag" && node.nameText && CSS_DISPLAY_TAGS[node.nameText];
+  //     return nodeDisplay || CSS_DISPLAY_DEFAULT;
+  // }
 }

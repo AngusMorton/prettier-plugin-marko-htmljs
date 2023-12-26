@@ -1,0 +1,69 @@
+export interface Input<T> {
+  options: T[];
+  onSelect: (newVal: T) => unknown;
+}
+
+// htmljs can't parse the following type aliases when formatted,
+// the fix is to wrap the type alias in parenthesis so that
+// htmljs can parse the full expression.
+//
+// There are two options I can  think of:
+// 1. Inspect the AST and wrap the type alias in parenthesis if it breaks, even if it would parse correctly without?
+// 2. Convert it into a static block if it breaks. (static { ...})?
+//
+// static type A2BSearchHeader<T> = Omit<
+//   Input<T>,
+//   "title" | "destination" | "origin"
+// > & {
+//   routes: string[];
+//   destination: Input<T> & {
+//     countryName: string;
+//   };
+//   origin: Input<T> & {
+//     countryName: string;
+//   };
+// };
+static type A2BSearchHeader2<T> = (Omit<
+  Input<T>,
+  "title" | "destination" | "origin"
+> & {
+  routes: string[];
+  destination: Input<T> & {
+    countryName: string;
+  };
+  origin: Input<T> & {
+    countryName: string;
+  };
+});
+
+static {
+  type A2BSearchHeader3<T> = Omit<
+    Input<T>,
+    "title" | "destination" | "origin"
+  > & {
+    routes: string[];
+    destination: Input<T> & {
+      countryName: string;
+    };
+    origin: Input<T> & {
+      countryName: string;
+    };
+  };
+}
+
+// When scriptlets break and the scriptlet is a variable declaration
+// it would be good to wrap the expression in parenthesis instead 
+// of converting the scriptlet to a block.
+// $ const isWebpSupported = $global.request.headers.get("accept")?.includes("image/webp");
+// 
+// Should be formatted to something like:
+$ const isWebpSupported = ($global.request.headers
+    .get("accept")
+    ?.includes("image/webp")
+);
+
+// The following isn't formatted correctly.
+<div 
+  data-test=("test") // Comments can be between attributes.
+  data-test2=("test2") // Comments can be between attributes.
+></div>

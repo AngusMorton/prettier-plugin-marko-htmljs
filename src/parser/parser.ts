@@ -18,6 +18,9 @@ import type {
   ParentNode,
   HasChildren,
 } from "./MarkoNode";
+import * as prettierPluginBabel from "prettier/plugins/babel";
+import { Parser } from "prettier";
+import { type File } from "@babel/types"
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
@@ -32,6 +35,8 @@ export {
   type Location,
 } from "htmljs-parser";
 
+export const jsParser: Parser<File> = prettierPluginBabel.parsers["babel-ts"];
+
 export type Parsed = ReturnType<typeof parse>;
 
 export function parse(code: string) {
@@ -42,14 +47,13 @@ export function parse(code: string) {
   parser.parse(code);
   const program = builder.end();
 
-  console.log(program.static);
-
   return program;
 }
 
+type ParserHandlers = Parameters<typeof createParser>[0];
 type MarkoParser = ReturnType<typeof createParser>;
 
-class Builder {
+class Builder implements ParserHandlers {
   #code: string;
   #program: Program;
   #openTagStart: Range | undefined;
@@ -134,21 +138,28 @@ class Builder {
       type: "Comment",
       parent: this.#parentNode,
       value: range.value,
-      valueLiteral: this.#code.slice(range.value.start, range.value.end),
+      valueLiteral: this.#code.slice(range.start, range.end),
       start: range.start,
       end: range.end,
+      leading: false,
+      // Comments are trailing by default, but are made leading if they are the found before
+      // another node.
+      trailing: true,
+      printed: false,
+      sourceSpan: this.#parser.locationAt(range),
     };
-    if (this.#comments) {
-      this.#comments.push(comment);
-    } else {
-      this.#comments = [comment];
-    }
+    // if (this.#comments) {
+    //   this.#comments.push(comment);
+    // } else {
+    //   this.#comments = [comment];
+    // }
+    pushBody(this.#parentNode, comment);
   }
   onPlaceholder(range: Ranges.Placeholder) {
     pushBody(this.#parentNode, {
       type: "Placeholder",
       parent: this.#parentNode,
-      comments: this.#comments,
+      comments: makeCommentsLeading(this.#comments),
       value: range.value,
       valueLiteral: this.#code.slice(range.value.start, range.value.end),
       escape: range.escape,
@@ -160,14 +171,19 @@ class Builder {
     this.#comments = undefined;
   }
   onScriptlet(range: Ranges.Scriptlet) {
+    const body = this.#code.slice(range.value.start, range.value.end);
+    // TODO: Do something similar... but not as hacky.
+    // @ts-expect-error
+    const bodyAst = jsParser.parse(body) as File;
     pushBody(this.#parentNode, {
       type: "Scriptlet",
       parent: this.#parentNode,
-      comments: this.#comments,
+      comments: makeCommentsLeading(this.#comments),
       value: range.value,
-      valueLiteral: this.#code.slice(range.value.start, range.value.end),
+      valueLiteral: body,
       block: range.block,
       start: range.start,
+      jsAst: bodyAst.program.body,
       end: range.end,
       sourceSpan: this.#parser.locationAt(range),
     });
@@ -202,7 +218,7 @@ class Builder {
               (this.#staticNode = {
                 type: "Style",
                 parent: this.#program,
-                comments: this.#comments,
+                comments: makeCommentsLeading(this.#comments),
                 ext: ext || undefined,
                 value: {
                   start: range.end + length,
@@ -233,7 +249,7 @@ class Builder {
             (this.#staticNode = {
               type: "Class",
               parent: this.#program,
-              comments: this.#comments,
+              comments: makeCommentsLeading(this.#comments),
               start: range.start,
               end: UNFINISHED,
               valueLiteral: "UNFINISHED",
@@ -254,7 +270,7 @@ class Builder {
             (this.#staticNode = {
               type: "Export",
               parent: this.#program,
-              comments: this.#comments,
+              comments: makeCommentsLeading(this.#comments),
               start: range.start,
               end: UNFINISHED,
               valueLiteral: "UNFINISHED",
@@ -275,7 +291,7 @@ class Builder {
             (this.#staticNode = {
               type: "Import",
               parent: this.#program,
-              comments: this.#comments,
+              comments: makeCommentsLeading(this.#comments),
               start: range.start,
               end: UNFINISHED,
               valueLiteral: "UNFINISHED",
@@ -296,7 +312,7 @@ class Builder {
             (this.#staticNode = {
               type: "Static",
               parent: this.#program,
-              comments: this.#comments,
+              comments: makeCommentsLeading(this.#comments),
               start: range.start,
               end: UNFINISHED,
               valueLiteral: "UNFINISHED",
@@ -349,7 +365,10 @@ class Builder {
       type: "OpenTagName",
       parent: undefined as unknown as Tag,
       quasis: range.quasis,
-      expressions: range.expressions,
+      expressions: range.expressions.map((it) => ({
+        ...it,
+        valueLiteral: this.#code.slice(it.value.start, it.value.end),
+      })),
       start: range.start,
       end: range.end,
     };
@@ -359,7 +378,7 @@ class Builder {
         {
           type,
           parent,
-          comments: this.#comments,
+          comments: makeCommentsLeading(this.#comments),
           owner: undefined,
           concise,
           selfClosed: false,
@@ -397,16 +416,15 @@ class Builder {
         case "AttrTag":
           tag.owner = parentTag.owner;
           parentTag.hasAttrTags = true;
-          nameText = `${parentTag.nameText}:${nameText}`;
+          nameText = `@${nameText}`;
           break;
         case "Tag":
           tag.owner = parentTag;
           parentTag.hasAttrTags = true;
-          nameText = `${parentTag.nameText || "*"}:${nameText}`;
+          nameText = `@${nameText}`;
           break;
       }
 
-      // This name includes the full ancestry of the attribute tag and can be used in `TaglibLookup.getTag`.
       tag.nameText = nameText;
     }
     pushBody(parent, tag);
@@ -610,9 +628,28 @@ class Builder {
   }
   onCloseTagEnd(range: Range) {
     const parent = this.#parentNode as ParentTag;
-    if (hasCloseTag(parent)) parent.close.end = range.end;
+    if (hasCloseTag(parent)) {
+      parent.close.end = range.end;
+    }
+    parent.sourceSpan.end = this.#parser.positionAt(range.end);
     parent.end = range.end;
     this.#parentNode = parent.parent;
+  }
+
+  onError(data: Ranges.Error): void {
+    const startPosition = this.#parser.positionAt(data.start);
+    const endPosition = this.#parser.positionAt(data.end);
+
+    const errorContextStart = startPosition.line - 2;
+    const errorContextEnd = endPosition.line + 2;
+
+    const errorContext = this.#code
+      .split("\n")
+      .slice(errorContextStart, errorContextEnd)
+      .join("\n");
+
+    const errorMessage = `Error ${data.code}: ${data.message}\n  at \n${errorContext}`;
+    throw Error(errorMessage);
   }
 }
 
@@ -652,4 +689,17 @@ function isControlFlowTag(node: Tag): node is ControlFlowTag {
     default:
       return false;
   }
+}
+
+function makeCommentsLeading(
+  comments: Repeatable<Comment>
+): Repeatable<Comment> {
+  if (comments) {
+    for (const comment of comments) {
+      comment.leading = true;
+      comment.trailing = false;
+    }
+  }
+
+  return comments;
 }

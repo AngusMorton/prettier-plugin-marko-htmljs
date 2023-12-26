@@ -1,0 +1,31 @@
+class      {
+  
+  declare state: {
+    name: string;
+    foo: number;
+
+  };
+
+  onCreate() {
+
+    this.state = {
+      name: "World",
+      foo: 123,
+    };
+  }
+
+  testPostPlsIgnore() {
+
+
+
+
+          console.log("Hello", this.state.name, this.state.foo, "!")
+  }
+}
+
+
+
+
+<button onclick("testPostPlsIgnore")>
+  ${state.name + state.foo}!
+</button>

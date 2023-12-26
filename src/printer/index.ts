@@ -1,27 +1,21 @@
 // https://prettier.io/docs/en/plugins.html#print
-import { type Doc, type ParserOptions } from "prettier";
-import { AstPath, PrintFn, isEmptyTextNode } from "./tag/utils";
-import { Tag } from "../parser/MarkoNode";
-import { AstPath as APath } from "prettier";
+import { type AstPath, type Doc, type ParserOptions } from "prettier";
+import { PrintFn, isEmptyTextNode } from "./tag/utils";
+import { AnyNode, Program, Tag, Comment, AttrTag } from "../parser/MarkoNode";
 import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
+import { printComment } from "./comment";
+import { isTextLike } from "../util/isTextLike";
 const {
-  builders: {
-    breakParent,
-    dedent,
-    fill,
-    group,
-    indent,
-    join,
-    line,
-    softline,
-    hardline,
-    literalline,
-  },
+  builders: { hardline, line, group, softline, ifBreak },
   utils: { stripTrailingHardline },
 } = _doc;
 
-export function print(path: AstPath, opts: ParserOptions, print: PrintFn): Doc {
+export function print(
+  path: AstPath<AnyNode>,
+  opts: ParserOptions,
+  print: PrintFn
+): Doc {
   const node = path.node;
   if (!node) {
     return "";
@@ -29,22 +23,22 @@ export function print(path: AstPath, opts: ParserOptions, print: PrintFn): Doc {
 
   switch (node.type) {
     case "Program":
-      return [stripTrailingHardline(path.map(print, "body")), hardline];
+      return printProgram(path as AstPath<Program>, opts, print);
     case "DocType":
       // https://www.w3.org/wiki/Doctypes_and_markup_styles
       return ["<!doctype html>", hardline];
-    case "AttrNamed":
-      const name = node.name.value;
-      if (node.value) {
-        switch (node.value.type) {
-          case "AttrValue":
-            return [name, "=", '"', node.value.valueLiteral.slice(1, -1), '"'];
-          default:
-            return [];
-        }
-      } else {
-        return [];
-      }
+    // case "AttrNamed":
+    //   const name = node.name.value;
+    //   if (node.value) {
+    //     switch (node.value.type) {
+    //       case "AttrValue":
+    //         return [name, "=", '"', node.value.valueLiteral.slice(1, -1), '"'];
+    //       default:
+    //         return [];
+    //     }
+    //   } else {
+    //     return [];
+    //   }
     case "Text":
       // Text nodes only exist as children to other nodes/tags.
       // So... I don't think we need to print them if they're whitespace only.
@@ -73,12 +67,49 @@ export function print(path: AstPath, opts: ParserOptions, print: PrintFn): Doc {
         // }
         return "";
       }
+
       return node.value.trim();
+    case "AttrTag":
+      return printTag(path as AstPath<AttrTag>, opts, print);
     case "Tag":
-      return printTag(path as APath<Tag>, opts, print);
+      return printTag(path as AstPath<Tag>, opts, print);
+    case "Comment":
+      return printComment(path as AstPath<Comment>, opts, print);
     default:
       console.error("Unhandled NodeType:", node.type);
+      console.error(node);
   }
 
   return "";
+}
+
+function printProgram(
+  path: AstPath<Program>,
+  opts: ParserOptions,
+  print: PrintFn
+) {
+  const parentNode = path.node;
+  const children = path.map((childPath, childIndex) => {
+    const childNode = childPath.node;
+    const nextNode = parentNode.body[childIndex + 1];
+
+    let result: Doc[] = [];
+    if (isTextLike(childNode) && childNode.type !== "Comment") {
+      result.push(
+        group(["--", line, print(childPath), ifBreak([softline, "--"])])
+      );
+    } else {
+      result.push(stripTrailingHardline(print(childPath)));
+    }
+    result.push(hardline);
+
+    if (nextNode) {
+      if (nextNode.sourceSpan.start.line - childNode.sourceSpan.end.line > 1) {
+        result.push(hardline);
+      }
+    }
+    return result;
+  }, "body");
+
+  return [stripTrailingHardline(children), hardline];
 }

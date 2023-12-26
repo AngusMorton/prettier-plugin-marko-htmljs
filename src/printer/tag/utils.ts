@@ -1,20 +1,28 @@
-import { type AstPath as AstP, type Doc } from "prettier";
-import { AnyNode, ChildNode, Tag, Text } from "../../parser/MarkoNode";
-import { voidElements } from "../voidElements";
+import { type AstPath, type Doc } from "prettier";
+import { AnyNode, AttrTag, ChildNode, Tag, Text } from "../../parser/MarkoNode";
+import { htmlElements } from "../htmlElements";
 
-export type PrintFn = (path: AstPath) => Doc;
-export type AstPath = AstP<AnyNode>;
+export type PrintFn = (path: AstPath<AnyNode | undefined>) => Doc;
 
 export function isEmptyNode(node: AnyNode): boolean {
   return !isNodeWithChildren(node) || (node as Tag).body!.length === 0;
 }
 
 export function getChildren(node: AnyNode): ChildNode[] {
-  return isNodeWithChildren(node) ? (node as Tag).body ?? [] : [];
+  return isNodeWithChildren(node)
+    ? // @ts-ignore
+      node.body
+    : [];
 }
 
 function isNodeWithChildren(node: AnyNode): boolean {
-  return !!(node && node.type === "Tag" && node.body && node.body.length !== 0);
+  return !!(
+    node &&
+    "body" in node &&
+    node.body &&
+    Array.isArray(node.body) &&
+    node.body.length !== 0
+  );
 }
 
 export function isTextNodeStartingWithWhitespace(node: AnyNode): node is Text {
@@ -86,10 +94,29 @@ function forceBreakChildren(node: AnyNode): boolean {
     node.body &&
     node.body.length > 0 &&
     node.nameText &&
-    ["html", "head", "ul", "ol", "select"].includes(node.nameText)
+    ["html", "head", "body", "ul", "ol", "select"].includes(node.nameText)
   );
 }
 
-export function isVoidTag(node: Tag): boolean {
-  return !!node.nameText && voidElements.has(node.nameText);
+export function isVoidTag(node: Tag | AttrTag): boolean {
+  if (getChildren(node).length > 0) {
+    // If a node has children, it cannot be a void tag.
+    return false;
+  }
+
+  if (node.nameText) {
+    const htmlElement = htmlElements[node.nameText];
+    if (htmlElement) {
+      return htmlElement.isVoid;
+    }
+  }
+
+  // If the node is not a known HTML element, then we leave it up
+  // to the author. This is to support custom tags e.g.
+  //
+  // * <my-autocomplete />
+  // * or <my-autocomplete>Some Content</my-autocomplete>
+  //
+  // Both could be valid.
+  return node.selfClosed;
 }

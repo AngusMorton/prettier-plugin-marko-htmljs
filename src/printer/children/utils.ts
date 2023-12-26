@@ -1,5 +1,5 @@
 import { Options } from "prettier";
-import { AnyNode, Text, ChildNode } from "../../parser/MarkoNode";
+import { AnyNode, Text, ChildNode, StaticNode } from "../../parser/MarkoNode";
 import { cssStyleDisplay } from "../../util/cssStyleDisplay";
 import { previousSibling } from "../../util/previousSibling";
 import {
@@ -26,17 +26,14 @@ export function preferHardlineAsLeadingSpaces(node: ChildNode) {
 }
 
 export function preferHardlineAsTrailingSpaces(node: AnyNode) {
-  return node.type === "Tag" && node.nameText === "br";
+  return (
+    (node.type === "Tag" && node.nameText === "br") || node.type === "Comment"
+  );
 }
 
-export function forceNextEmptyLine(node: ChildNode) {
+export function forceNextEmptyLine(node: ChildNode | StaticNode) {
   const next = nextSibling(node);
-  if (!next) {
-    return false;
-  }
-
-  const lineDifference = node.sourceSpan.end.line - next.sourceSpan.start.line;
-  return lineDifference > 2;
+  return !!next && node.sourceSpan.end.line + 1 < next.sourceSpan.start.line;
 }
 
 function hasSurroundingLineBreak(node: Text) {

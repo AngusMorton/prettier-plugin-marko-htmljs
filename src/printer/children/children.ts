@@ -1,6 +1,6 @@
-import { AstPath, Doc, Options, ParserOptions, doc } from "prettier";
-import { AnyNode, Tag } from "../../parser/MarkoNode";
-import { PrintFn } from "../tag/utils";
+import { AstPath, Doc, Options, doc } from "prettier";
+import { AnyNode, ChildNode, StaticNode } from "../../parser/MarkoNode";
+import { PrintFn, getChildren } from "../tag/utils";
 import { forceBreakChildren } from "../../util/forceBreakContent";
 import { isTrailingSpaceSensitiveNode } from "../../util/isTrailingSpaceSensitive";
 import { hasTrailingSpaces } from "../../util/hasTrailingSpaces";
@@ -8,37 +8,20 @@ import { hasLeadingSpaces } from "../../util/hasLeadingSpaces";
 import { previousSibling } from "../../util/previousSibling";
 import { forceNextEmptyLine, preferHardlineAsLeadingSpaces } from "./utils";
 import { nextSibling } from "../../util/nextSibling";
+import { isTextLike } from "../../util/isTextLike";
 const { group, line, softline, hardline, ifBreak, breakParent } = doc.builders;
+const { stripTrailingHardline } = doc.utils;
 
 export function printChildren(
-  path: AstPath<Tag>,
-  opts: ParserOptions,
+  path: AstPath<AnyNode>,
+  opts: Options,
   print: PrintFn
 ): Doc {
   const { node } = path;
-  const children = node.body;
-  if (!children) {
+  const children = getChildren(node);
+  if (!children || children.length === 0) {
     return "";
   }
-
-  // The Marko CST has a lot of whitespace nodes that we don't want to print
-  // because we want to add our own whitespace in. Before we get started we
-  // want to trim any leading or trailing whitespace from our children.
-  // const firstChild = children[0];
-  // if (firstChild && firstChild.type === "Text") {
-  //   firstChild.value = firstChild.value.trimStart();
-  // }
-
-  // const lastChild = children[children.length - 1];
-  // if (lastChild && lastChild.type === "Text") {
-  //   lastChild.value = lastChild.value.trimEnd();
-  // }
-
-  // for (const child of children) {
-  //   if (child.type === "Text") {
-  //     child.value = child.value.replace("\n", "");
-  //   }
-  // }
 
   if (forceBreakChildren(node)) {
     const children = path.map((childPath) => {
@@ -54,23 +37,21 @@ export function printChildren(
             prevBetweenLine,
             previousChild && forceNextEmptyLine(previousChild) ? hardline : "",
           ];
-
-      console.log("Printing childNode", childNode.type, previousLine);
-      return [previousLine, print(childPath)];
+      return [previousLine, printChild(childPath, opts, print)];
     }, "body");
 
     return [breakParent, ...children];
   }
-
   // If the parent doesn't force a break, then we need to group the children
   // and break if needed.
+
   const groupIds = children.map(() => Symbol(""));
   return path.map((childPath, childIndex) => {
     const childNode = childPath.node;
     const previousChild = previousSibling(childNode);
 
-    if (childNode.type === "Text") {
-      if (previousChild && previousChild.type === "Text") {
+    if (isTextLike(childNode)) {
+      if (previousChild && isTextLike(previousChild)) {
         const prevBetweenLine = printBetweenLine(
           previousChild,
           childNode,
@@ -78,12 +59,13 @@ export function printChildren(
         );
         if (prevBetweenLine) {
           if (forceNextEmptyLine(previousChild)) {
-            return [hardline, hardline, print(childPath)];
+            return [hardline, hardline, printChild(childPath, opts, print)];
           }
-          return [prevBetweenLine, print(childPath)];
+          return [prevBetweenLine, printChild(childPath, opts, print)];
         }
       }
-      return print(childPath);
+
+      return printChild(childPath, opts, print);
     }
 
     const prevParts = [];
@@ -100,7 +82,7 @@ export function printChildren(
         prevParts.push(hardline, hardline);
       } else if (prevBetweenLine === hardline) {
         prevParts.push(hardline);
-      } else if (previousChild?.type === "Text") {
+      } else if (previousChild && isTextLike(previousChild)) {
         leadingParts.push(prevBetweenLine);
       } else {
         leadingParts.push(
@@ -117,11 +99,11 @@ export function printChildren(
       : "";
     if (nextBetweenLine) {
       if (forceNextEmptyLine(childNode)) {
-        if (nextChild?.type === "Text") {
+        if (nextChild && isTextLike(nextChild)) {
           nextParts.push(hardline, hardline);
         }
       } else if (nextBetweenLine === hardline) {
-        if (nextChild?.type === "Text") {
+        if (nextChild && isTextLike(nextChild)) {
           nextParts.push(hardline);
         }
       } else {
@@ -133,7 +115,7 @@ export function printChildren(
       ...prevParts,
       group([
         ...leadingParts,
-        group([print(childPath), ...trailingParts], {
+        group([printChild(childPath, opts, print), ...trailingParts], {
           id: groupIds[childIndex],
         }),
       ]),
@@ -144,18 +126,37 @@ export function printChildren(
   }, "body");
 }
 
+function printChild(
+  path: AstPath<ChildNode | StaticNode>,
+  opts: Options,
+  print: PrintFn
+): Doc {
+  const result = print(path);
+  return stripTrailingHardline(result);
+}
+
 function printBetweenLine(prevNode: AnyNode, nextNode: AnyNode, opts: Options) {
-  return prevNode.type === "Text" && nextNode.type === "Text"
-    ? isTrailingSpaceSensitiveNode(prevNode, opts)
-      ? hasTrailingSpaces(prevNode)
-        ? preferHardlineAsLeadingSpaces(nextNode)
-          ? hardline
-          : line
-        : ""
-      : preferHardlineAsLeadingSpaces(nextNode)
-      ? hardline
-      : softline
-    : hasLeadingSpaces(nextNode)
-    ? line
-    : softline;
+  if (isTextLike(prevNode) && isTextLike(nextNode)) {
+    if (isTrailingSpaceSensitiveNode(prevNode, opts)) {
+      if (prevNode.type === "Comment" && nextNode.type === "Comment") {
+        return hardline;
+      } else if (hasTrailingSpaces(prevNode)) {
+        if (preferHardlineAsLeadingSpaces(nextNode)) {
+          return hardline;
+        } else {
+          return line;
+        }
+      } else {
+        return "";
+      }
+    } else if (preferHardlineAsLeadingSpaces(nextNode)) {
+      return hardline;
+    } else {
+      return softline;
+    }
+  } else if (hasLeadingSpaces(nextNode)) {
+    return line;
+  } else {
+    return softline;
+  }
 }

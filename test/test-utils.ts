@@ -2,6 +2,7 @@ import prettier from "prettier";
 import { expect, it } from "vitest";
 import { writeFileSync } from "fs";
 import { join } from "path";
+import { parse } from "../src/parser/parser";
 
 const plugins = [new URL("../dist/index.js", import.meta.url).href];
 
@@ -74,8 +75,14 @@ export function test(name: string, files: any, path: string) {
     writeFileSync(outPath, formatted, { flag: "w" });
     expect(formatted, "Incorrect formatting").toBe(output);
 
+    parse(formatted);
+
     // test that our formatting is idempotent
     const formattedTwice = await format(formatted, opts);
+    // For debugging, you can write the second output to see the differences...
+    // Really this should be a Vitest snapshot.
+    // const outPath2 = join("test/fixtures", path, "output-snapshot-2.marko");
+    // writeFileSync(outPath2, formattedTwice, { flag: "w" });
     expect(formatted === formattedTwice, "Formatting is not idempotent").toBe(
       true
     );

@@ -1,0 +1,38 @@
+// Top-level single-line comments.
+
+<!doctype html>
+/**
+ * But also multi-line comments.
+ * With more than one line
+ */
+/** Multiline might also start on the first line.
+ *
+ */
+/* Block comments and also be single-line */
+/** This should also still be a single line */
+
+<!-- HTML-style comment is converted to JS-style. -->
+<!-- Sometimes inline-ish HTML comments go on two lines
+because why not. -->
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 
+  HTML comments can be multiline, and will automatically become multi-line
+  JS comments because HTML comments are not used everywhere.
+ -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    // This is the document title.
+    <title>Document /*Document title*/</title>
+    // You can do multiple comments in a row
+    // You can do multiple comments in a row, these should be trailing the <title> tag,
+    // or leading the head end tag
+  </head>
+  // This is trailing the head, but before the body
+  <body>
+    // This is the document body.
+
+    <h1>Hello<b>world</b>!</h1>
+  </body>
+</html>
