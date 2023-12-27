@@ -1,25 +1,11 @@
 // https://prettier.io/docs/en/plugins.html#print
 import { type AstPath, type Doc, type ParserOptions } from "prettier";
 import { PrintFn, isEmptyTextNode } from "./tag/utils";
-import { Program, Tag } from "../parser/MarkoNode";
+import { AnyNode, Program, Tag } from "../parser/MarkoNode";
 import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
-import { printChildren } from "./children/children";
-import { previousSibling } from "../util/previousSibling";
-import { forceNextEmptyLine } from "./children/utils";
 const {
-  builders: {
-    breakParent,
-    dedent,
-    fill,
-    group,
-    indent,
-    join,
-    line,
-    softline,
-    hardline,
-    literalline,
-  },
+  builders: { hardline },
   utils: { stripTrailingHardline },
 } = _doc;
 
@@ -75,6 +61,7 @@ export function print(path: AstPath, opts: ParserOptions, print: PrintFn): Doc {
         // }
         return "";
       }
+
       return node.value.trim();
     case "Tag":
       return printTag(path as AstPath<Tag>, opts, print);

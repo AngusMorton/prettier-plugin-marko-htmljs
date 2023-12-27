@@ -207,9 +207,12 @@ export interface Declaration extends Ranges.Value, HasLocation {
   parent: ParentNode;
 }
 
-export interface Comment extends Ranges.Value {
+export interface Comment extends Ranges.Value, HasLocation {
   type: "Comment";
   parent: ParentNode;
+  leading: boolean;
+  trailing: boolean;
+  printed: boolean;
 }
 
 export interface Placeholder extends Ranges.Value, Commentable, HasLocation {

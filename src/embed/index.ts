@@ -1,10 +1,11 @@
 import { AstPath, Options } from "prettier";
-import { AnyNode } from "../parser/MarkoNode";
+import { AnyNode, Tag, Text } from "../parser/MarkoNode";
 import { HtmlJsPrinter } from "../HtmlJsPrinter";
 import _doc from "prettier/doc";
+import { printClosingTag, printOpeningTag } from "../printer/tag/tag";
 
 const {
-  builders: { dedent, group, indent, hardline },
+  builders: { dedent, group, indent, hardline, breakParent },
   utils: { stripTrailingHardline },
 } = _doc;
 
@@ -61,6 +62,82 @@ export function embed(
       }
 
       return [body, hardline];
+    };
+  }
+
+  if (node.type === "Tag" && node.nameText && node.nameText === "script") {
+    return async (textToDoc, print, path, options) => {
+      const textChild = node.body?.[0];
+      const attrGroupId = Symbol("attrGroupId");
+
+      if (!textChild) {
+        // We have no children, so print the script tag on a single line if possible.
+        return [
+          group(printOpeningTag(path as AstPath<Tag>, options, print), {
+            id: attrGroupId,
+          }),
+          printClosingTag(path, options, print),
+          hardline,
+        ];
+      }
+
+      if (textChild.type !== "Text") {
+        // The script tag can only have Text has children,
+        throw Error("Body of script tag is not Text " + textChild.type);
+      }
+
+      return group([
+        group(printOpeningTag(path as AstPath<Tag>, options, print), {
+          id: attrGroupId,
+        }),
+        indent([
+          hardline,
+          await textToDoc((textChild as Text).value, {
+            parser: "babel-ts",
+          }),
+        ]),
+        hardline,
+        printClosingTag(path, options, print),
+        hardline,
+      ]);
+    };
+  }
+
+  if (node.type === "Tag" && node.nameText && node.nameText === "style") {
+    return async (textToDoc, print, path, options) => {
+      const textChild = node.body?.[0];
+      const attrGroupId = Symbol("attrGroupId");
+
+      if (!textChild) {
+        // We have no children, so print the script tag on a single line if possible.
+        return [
+          group(printOpeningTag(path as AstPath<Tag>, options, print), {
+            id: attrGroupId,
+          }),
+          printClosingTag(path, options, print),
+          hardline,
+        ];
+      }
+
+      if (textChild.type !== "Text") {
+        // The script tag can only have Text has children,
+        throw Error("Body of script tag is not Text " + textChild.type);
+      }
+
+      return group([
+        group(printOpeningTag(path as AstPath<Tag>, options, print), {
+          id: attrGroupId,
+        }),
+        indent([
+          hardline,
+          await textToDoc((textChild as Text).value, {
+            parser: "css",
+          }),
+        ]),
+        hardline,
+        printClosingTag(path, options, print),
+        hardline,
+      ]);
     };
   }
 

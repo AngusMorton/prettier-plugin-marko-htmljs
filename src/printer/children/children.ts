@@ -1,5 +1,5 @@
-import { AstPath, Doc, Options, ParserOptions, doc } from "prettier";
-import { AnyNode, Program, Tag } from "../../parser/MarkoNode";
+import { AstPath, Doc, Options, doc } from "prettier";
+import { AnyNode } from "../../parser/MarkoNode";
 import { PrintFn, getChildren } from "../tag/utils";
 import { forceBreakChildren } from "../../util/forceBreakContent";
 import { isTrailingSpaceSensitiveNode } from "../../util/isTrailingSpaceSensitive";
@@ -8,11 +8,12 @@ import { hasLeadingSpaces } from "../../util/hasLeadingSpaces";
 import { previousSibling } from "../../util/previousSibling";
 import { forceNextEmptyLine, preferHardlineAsLeadingSpaces } from "./utils";
 import { nextSibling } from "../../util/nextSibling";
+import { isTextLike } from "../../util/isTextLike";
 const { group, line, softline, hardline, ifBreak, breakParent } = doc.builders;
 
 export function printChildren(
   path: AstPath<AnyNode>,
-  opts: ParserOptions,
+  opts: Options,
   print: PrintFn
 ): Doc {
   const { node } = path;
@@ -48,8 +49,8 @@ export function printChildren(
     const childNode = childPath.node;
     const previousChild = previousSibling(childNode);
 
-    if (childNode.type === "Text") {
-      if (previousChild && previousChild.type === "Text") {
+    if (isTextLike(childNode)) {
+      if (previousChild && isTextLike(previousChild)) {
         const prevBetweenLine = printBetweenLine(
           previousChild,
           childNode,
@@ -62,6 +63,7 @@ export function printChildren(
           return [prevBetweenLine, print(childPath)];
         }
       }
+
       return print(childPath);
     }
 
@@ -79,7 +81,7 @@ export function printChildren(
         prevParts.push(hardline, hardline);
       } else if (prevBetweenLine === hardline) {
         prevParts.push(hardline);
-      } else if (previousChild?.type === "Text") {
+      } else if (previousChild && isTextLike(previousChild)) {
         leadingParts.push(prevBetweenLine);
       } else {
         leadingParts.push(
@@ -96,11 +98,11 @@ export function printChildren(
       : "";
     if (nextBetweenLine) {
       if (forceNextEmptyLine(childNode)) {
-        if (nextChild?.type === "Text") {
+        if (nextChild && isTextLike(nextChild)) {
           nextParts.push(hardline, hardline);
         }
       } else if (nextBetweenLine === hardline) {
-        if (nextChild?.type === "Text") {
+        if (nextChild && isTextLike(nextChild)) {
           nextParts.push(hardline);
         }
       } else {
@@ -124,7 +126,7 @@ export function printChildren(
 }
 
 function printBetweenLine(prevNode: AnyNode, nextNode: AnyNode, opts: Options) {
-  return prevNode.type === "Text" && nextNode.type === "Text"
+  return isTextLike(prevNode) && isTextLike(nextNode)
     ? isTrailingSpaceSensitiveNode(prevNode, opts)
       ? hasTrailingSpaces(prevNode)
         ? preferHardlineAsLeadingSpaces(nextNode)

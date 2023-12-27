@@ -1,4 +1,4 @@
-import { AstPath, Doc, Options, ParserOptions, doc } from "prettier";
+import { AstPath, Doc, Options, ParserOptions, doc, util } from "prettier";
 import { PrintFn, forceBreakContent, getChildren, isVoidTag } from "./utils";
 import { AnyNode, ChildNode, StaticNode, Tag } from "../../parser/MarkoNode";
 import { hasLeadingSpaces } from "../../util/hasLeadingSpaces";
@@ -20,7 +20,7 @@ const {
 
 export function printTag(
   path: AstPath<Tag>,
-  opts: ParserOptions,
+  opts: Options,
   print: PrintFn
 ): Doc {
   const { node } = path;
@@ -68,6 +68,7 @@ export function printTag(
     ) {
       return line;
     }
+
     return softline;
   };
 
@@ -85,6 +86,10 @@ export function printTag(
     return softline;
   };
 
+  if (children.length === 0) {
+    return printTag(line);
+  }
+
   const result = printTag([
     forceBreakContent(node) ? breakParent : "",
     printChildrenDoc([
@@ -93,12 +98,13 @@ export function printTag(
     ]),
     printLineAfterChildren(),
   ]);
+
   return result;
 }
 
 export function printOpeningTag(
   path: AstPath<Tag>,
-  opts: ParserOptions,
+  opts: Options,
   print: PrintFn
 ): Doc {
   const node = path.node;
@@ -110,15 +116,11 @@ export function printOpeningTag(
   return [
     `<${printTagName(path, print)}`,
     printAttrs(path, opts, print),
-    node.selfClosed || isVoidTag(node) ? "" : ">",
+    isVoidTag(node) ? "" : ">",
   ];
 }
 
-export function printAttrs(
-  path: AstPath<Tag>,
-  opts: ParserOptions,
-  print: PrintFn
-) {
+export function printAttrs(path: AstPath<Tag>, opts: Options, print: PrintFn) {
   const node = path.node;
 
   if (!node) {
@@ -126,7 +128,7 @@ export function printAttrs(
   }
 
   if (node.attrs && node.attrs.length !== 0) {
-    return [" ", indent(join(line, path.map(print, "attrs")))];
+    return indent([line, join(line, path.map(print, "attrs"))]);
   } else {
     return "";
   }
@@ -134,7 +136,7 @@ export function printAttrs(
 
 export function printClosingTag(
   path: AstPath<Tag>,
-  opts: ParserOptions,
+  opts: Options,
   print: PrintFn
 ) {
   const node = path.node;
@@ -143,8 +145,8 @@ export function printClosingTag(
     return "";
   }
 
-  if (node.selfClosed || isVoidTag(node)) {
-    return " />";
+  if (isVoidTag(node)) {
+    return "/>";
   }
 
   return `</${printTagName(path, print)}>`;
