@@ -15,6 +15,7 @@ export async function format(
   try {
     return await prettier.format(contents, {
       parser: "htmljs",
+      htmlWhitespaceSensitivity: "ignore",
       plugins,
       ...options,
     });
@@ -76,6 +77,10 @@ export function test(name: string, files: any, path: string) {
 
     // test that our formatting is idempotent
     const formattedTwice = await format(formatted, opts);
+    // For debugging, you can write the second output to see the differences...
+    // Really this should be a Vitest snapshot.
+    // const outPath2 = join("test/fixtures", path, "output-snapshot-2.marko");
+    // writeFileSync(outPath2, formattedTwice, { flag: "w" });
     expect(formatted === formattedTwice, "Formatting is not idempotent").toBe(
       true
     );

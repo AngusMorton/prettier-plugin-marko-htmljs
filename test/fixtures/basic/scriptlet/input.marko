@@ -9,6 +9,9 @@ $ {
   var   foo: number =       123;
 }
 
+$ const isWebpSupported = $global.request.headers.get("accept")?.includes("image/webp");
+
+
 <h1>
   ${name +    foo}!
 </h1>

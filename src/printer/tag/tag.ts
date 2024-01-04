@@ -1,6 +1,6 @@
-import { AstPath, Doc, Options, ParserOptions, doc, util } from "prettier";
+import { AstPath, Doc, Options, doc } from "prettier";
 import { PrintFn, forceBreakContent, getChildren, isVoidTag } from "./utils";
-import { AnyNode, ChildNode, StaticNode, Tag } from "../../parser/MarkoNode";
+import { AttrTag, ChildNode, StaticNode, Tag } from "../../parser/MarkoNode";
 import { hasLeadingSpaces } from "../../util/hasLeadingSpaces";
 import { hasTrailingSpaces } from "../../util/hasTrailingSpaces";
 import { isLeadingSpaceSensitiveNode } from "../../util/isLeadingSpaceSensitive";
@@ -19,7 +19,7 @@ const {
 } = doc.builders;
 
 export function printTag(
-  path: AstPath<Tag>,
+  path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn
 ): Doc {
@@ -87,7 +87,7 @@ export function printTag(
   };
 
   if (children.length === 0) {
-    return printTag(line);
+    return printTag("");
   }
 
   const result = printTag([
@@ -103,7 +103,7 @@ export function printTag(
 }
 
 export function printOpeningTag(
-  path: AstPath<Tag>,
+  path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn
 ): Doc {
@@ -114,28 +114,72 @@ export function printOpeningTag(
   }
 
   return [
-    `<${printTagName(path, print)}`,
+    [`<`, printTagName(path, print)],
+    printTagArguments(path, opts, print),
+    printTagParams(path, opts, print),
     printAttrs(path, opts, print),
     isVoidTag(node) ? "" : ">",
   ];
 }
 
-export function printAttrs(path: AstPath<Tag>, opts: Options, print: PrintFn) {
+export function printTagParams(
+  path: AstPath<Tag | AttrTag>,
+  opts: Options,
+  print: PrintFn
+) {
+  if (path.node.params) {
+    return path.call(print, "params");
+  } else {
+    return "";
+  }
+}
+
+export function printTagArguments(
+  path: AstPath<Tag | AttrTag>,
+  opts: Options,
+  print: PrintFn
+) {
+  if (path.node.args) {
+    return path.call(print, "args");
+  } else {
+    return "";
+  }
+}
+
+export function printAttrs(
+  path: AstPath<Tag | AttrTag>,
+  opts: Options,
+  print: PrintFn
+) {
   const node = path.node;
 
   if (!node) {
     return "";
   }
 
-  if (node.attrs && node.attrs.length !== 0) {
-    return indent([line, join(line, path.map(print, "attrs"))]);
-  } else {
-    return "";
+  if (!node.attrs || node.attrs.length === 0) {
+    if (isVoidTag(node)) {
+      // <br />
+      //    ^
+      return " ";
+    } else {
+      return "";
+    }
   }
+
+  const attributeParts: Doc[] = [
+    indent([line, join(line, path.map(print, "attrs"))]),
+  ];
+  if (isVoidTag(node)) {
+    attributeParts.push(line);
+  } else {
+    attributeParts.push(softline);
+  }
+  return attributeParts;
 }
 
 export function printClosingTag(
-  path: AstPath<Tag>,
+  path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn
 ) {
@@ -149,10 +193,20 @@ export function printClosingTag(
     return "/>";
   }
 
-  return `</${printTagName(path, print)}>`;
+  if (node.nameText) {
+    return ["</", node.nameText, ">"];
+  } else {
+    // Dynamic tag names with children must be closed with </>.
+    // <${tagName}>...</>
+    //                 ^
+    return ["</>"];
+  }
 }
 
-export function printTagName(path: AstPath<Tag>, print: PrintFn): Doc {
+export function printTagName(
+  path: AstPath<Tag | AttrTag>,
+  print: PrintFn
+): Doc {
   const node = path.node;
 
   if (!node) {

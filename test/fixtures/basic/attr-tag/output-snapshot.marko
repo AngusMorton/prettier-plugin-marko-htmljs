@@ -1,0 +1,25 @@
+<layout>
+  <@heading><h1>Hello Marko</h1></@heading>
+  <@content><p>...</p></@content>
+</layout>
+
+<fancy-table data=people>
+  <@column|person|>Name: ${person.name}</@column>
+  <@column|person|>Age: ${person.age}</@column>
+</fancy-table>
+
+<fancy-table>
+  <@column|person| heading="Name">${person.name}</@column>
+  <@column|person| heading="Age">${person.age}</@column>
+</fancy-table>
+
+<fancy-table>
+  <@column>
+    <@heading><app-icon type="profile" /> Name</@heading>
+    <@cell|person|>${person.name}</@cell>
+  </@column>
+  <@column>
+    <@heading><app-icon type="calendar" /> Age</@heading>
+    <@cell|person|>${person.age}</@cell>
+  </@column>
+</fancy-table>

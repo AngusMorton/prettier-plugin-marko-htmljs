@@ -1,104 +1,58 @@
 import {
-  AstPath,
-  Doc,
   doc,
-  type Options,
+  SupportLanguage,
   type Parser,
   type Printer,
+  SupportOptions,
 } from "prettier";
+import * as prettierPluginBabel from "prettier/plugins/babel";
 import { parse } from "./parser/parser";
 import { print } from "./printer";
-import type { AnyNode, Comment } from "./parser/MarkoNode";
+import type { AnyNode } from "./parser/MarkoNode";
 import { embed } from "./embed";
-const { join, hardline } = doc.builders;
+import { getVisitorKeys } from "./printer/getVisitorKeys";
 
+export const languages: SupportLanguage[] = [
+  {
+    name: "marko",
+    aceMode: "text",
+    parsers: ["htmljs"],
+    aliases: ["markojs"],
+    tmScope: "text.marko",
+    codemirrorMode: "htmlmixed",
+    vscodeLanguageIds: ["marko"],
+    linguistLanguageId: 932782397,
+    codemirrorMimeType: "text/html",
+    extensions: [".marko"],
+  },
+];
+
+export const options: SupportOptions = {};
+
+const babelParser = prettierPluginBabel.parsers["__ts_expression"];
 export const parsers: Record<string, Parser<AnyNode>> = {
   htmljs: {
     parse: (source) => parse(source),
-    astFormat: "htmljs",
+    astFormat: "htmljs-ast",
     locStart: (node: AnyNode) => node.start,
     locEnd: (node: AnyNode) => node.end,
+  },
+  htmljsExpressionParser: {
+    ...babelParser,
+    // parse: (text: string, options: any) => {
+    //   const ast = babelParser.parse(text, options);
+    //   return { ...ast, program: ast.program.body[0].expression };
+    // },
   },
 };
 
 // https://prettier.io/docs/en/plugins.html#printers
 export const printers: Record<string, Printer> = {
-  htmljs: {
+  "htmljs-ast": {
     print,
     embed,
-    getCommentChildNodes,
-    printComment,
-    // canAttachComment,
-    willPrintOwnComments: () => false,
+    getVisitorKeys,
+    // getCommentChildNodes,
+    // printComment,
   },
 };
-
-function printComment(
-  // Path to the current comment node
-  commentPath: AstPath<Comment>,
-  // Current options
-  options: Options
-): Doc {
-  const commentText = commentPath.node.valueLiteral;
-  console.log("Printing comment", commentText);
-
-  if (commentText.startsWith("<!--")) {
-    // Convert HTML comment to JS comment.
-    if (commentText.includes("\n")) {
-      // It's a block comment, so convert it to a JS block comment.
-      const lines = commentText.split(/\r?\n/g);
-      return join(
-        hardline,
-        lines.map((line: string, index: number) => {
-          const leading =
-            index === 0 ? "/**" : index === lines.length - 1 ? " */" : " * ";
-
-          if (index === 0) {
-            line = line.slice(4);
-          } else if (index === lines.length - 1) {
-            line = line.slice(undefined, -3);
-          }
-          return leading + line.trim();
-        })
-      );
-    } else {
-      // It's a single line comment, so convert it to a JS single line comment.
-      return ["//", commentText.slice(4, -3)];
-    }
-  } else if (commentText.startsWith("/**")) {
-    const lines = commentText.split(/\r?\n/g);
-    if (
-      lines
-        .slice(1, lines.length - 1)
-        .every((line: string) => line.trim()[0] === "*")
-    ) {
-      return join(
-        hardline,
-        lines.map(
-          (line: string, index: number) =>
-            (index > 0 ? " " : "") +
-            (index < lines.length - 1 ? line.trim() : line.trimStart())
-        )
-      );
-    }
-  }
-  return [commentPath.node.valueLiteral];
-}
-
-function getCommentChildNodes(
-  // The node whose children should be returned.
-  node: AnyNode,
-  // Current options
-  options: Options
-): AnyNode[] | undefined {
-  console.log("Returning comment nodes");
-  if ("comments" in node) {
-    return node.comments ?? [];
-  } else {
-    return [];
-  }
-}
-
-function canAttachComment(node: AnyNode) {
-  return node.type && node.type !== "Comment";
-}

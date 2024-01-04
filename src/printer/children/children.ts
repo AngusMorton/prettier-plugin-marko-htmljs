@@ -1,5 +1,5 @@
 import { AstPath, Doc, Options, doc } from "prettier";
-import { AnyNode } from "../../parser/MarkoNode";
+import { AnyNode, ChildNode, StaticNode } from "../../parser/MarkoNode";
 import { PrintFn, getChildren } from "../tag/utils";
 import { forceBreakChildren } from "../../util/forceBreakContent";
 import { isTrailingSpaceSensitiveNode } from "../../util/isTrailingSpaceSensitive";
@@ -10,6 +10,7 @@ import { forceNextEmptyLine, preferHardlineAsLeadingSpaces } from "./utils";
 import { nextSibling } from "../../util/nextSibling";
 import { isTextLike } from "../../util/isTextLike";
 const { group, line, softline, hardline, ifBreak, breakParent } = doc.builders;
+const { stripTrailingHardline } = doc.utils;
 
 export function printChildren(
   path: AstPath<AnyNode>,
@@ -36,14 +37,14 @@ export function printChildren(
             prevBetweenLine,
             previousChild && forceNextEmptyLine(previousChild) ? hardline : "",
           ];
-      return [previousLine, print(childPath)];
+      return [previousLine, printChild(childPath, opts, print)];
     }, "body");
 
     return [breakParent, ...children];
   }
-
   // If the parent doesn't force a break, then we need to group the children
   // and break if needed.
+
   const groupIds = children.map(() => Symbol(""));
   return path.map((childPath, childIndex) => {
     const childNode = childPath.node;
@@ -58,13 +59,13 @@ export function printChildren(
         );
         if (prevBetweenLine) {
           if (forceNextEmptyLine(previousChild)) {
-            return [hardline, hardline, print(childPath)];
+            return [hardline, hardline, printChild(childPath, opts, print)];
           }
-          return [prevBetweenLine, print(childPath)];
+          return [prevBetweenLine, printChild(childPath, opts, print)];
         }
       }
 
-      return print(childPath);
+      return printChild(childPath, opts, print);
     }
 
     const prevParts = [];
@@ -114,7 +115,7 @@ export function printChildren(
       ...prevParts,
       group([
         ...leadingParts,
-        group([print(childPath), ...trailingParts], {
+        group([printChild(childPath, opts, print), ...trailingParts], {
           id: groupIds[childIndex],
         }),
       ]),
@@ -125,18 +126,37 @@ export function printChildren(
   }, "body");
 }
 
+function printChild(
+  path: AstPath<ChildNode | StaticNode>,
+  opts: Options,
+  print: PrintFn
+): Doc {
+  const result = print(path);
+  return stripTrailingHardline(result);
+}
+
 function printBetweenLine(prevNode: AnyNode, nextNode: AnyNode, opts: Options) {
-  return isTextLike(prevNode) && isTextLike(nextNode)
-    ? isTrailingSpaceSensitiveNode(prevNode, opts)
-      ? hasTrailingSpaces(prevNode)
-        ? preferHardlineAsLeadingSpaces(nextNode)
-          ? hardline
-          : line
-        : ""
-      : preferHardlineAsLeadingSpaces(nextNode)
-      ? hardline
-      : softline
-    : hasLeadingSpaces(nextNode)
-    ? line
-    : softline;
+  if (isTextLike(prevNode) && isTextLike(nextNode)) {
+    if (isTrailingSpaceSensitiveNode(prevNode, opts)) {
+      if (prevNode.type === "Comment" && nextNode.type === "Comment") {
+        return hardline;
+      } else if (hasTrailingSpaces(prevNode)) {
+        if (preferHardlineAsLeadingSpaces(nextNode)) {
+          return hardline;
+        } else {
+          return line;
+        }
+      } else {
+        return "";
+      }
+    } else if (preferHardlineAsLeadingSpaces(nextNode)) {
+      return hardline;
+    } else {
+      return softline;
+    }
+  } else if (hasLeadingSpaces(nextNode)) {
+    return line;
+  } else {
+    return softline;
+  }
 }

@@ -26,7 +26,9 @@ export function preferHardlineAsLeadingSpaces(node: ChildNode) {
 }
 
 export function preferHardlineAsTrailingSpaces(node: AnyNode) {
-  return node.type === "Tag" && node.nameText === "br";
+  return (
+    (node.type === "Tag" && node.nameText === "br") || node.type === "Comment"
+  );
 }
 
 export function forceNextEmptyLine(node: ChildNode | StaticNode) {

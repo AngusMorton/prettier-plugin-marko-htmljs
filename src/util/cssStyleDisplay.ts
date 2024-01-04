@@ -89,6 +89,12 @@ const CSS_DISPLAY_TAGS: Record<string, string> = {
 
   // Missing
   search: "block",
+
+  // Marko built-in components
+  if: "block",
+  "if-else": "block",
+  else: "block",
+  for: "block",
 };
 
 const CSS_DISPLAY_DEFAULT = "inline";

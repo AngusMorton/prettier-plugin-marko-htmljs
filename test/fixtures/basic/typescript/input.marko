@@ -1,0 +1,9 @@
+
+<fancy-table data=people>
+    <@column|person: string|>
+        Name: ${person.name}
+    </@column>
+    <@column|person: string, anotherPerson: string, aThirdPerson: string, aFourthPerson: string|>
+        Age: ${person.age}
+    </@column>
+</fancy-table>

@@ -80,7 +80,8 @@ export type ChildNode =
   | Declaration
   | CDATA
   | Placeholder
-  | Scriptlet;
+  | Scriptlet
+  | Comment;
 
 export interface HasChildren {
   body: ChildNode[] | undefined;

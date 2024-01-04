@@ -143,11 +143,12 @@ class Builder implements ParserHandlers {
       printed: false,
       sourceSpan: this.#parser.locationAt(range),
     };
-    if (this.#comments) {
-      this.#comments.push(comment);
-    } else {
-      this.#comments = [comment];
-    }
+    // if (this.#comments) {
+    //   this.#comments.push(comment);
+    // } else {
+    //   this.#comments = [comment];
+    // }
+    pushBody(this.#parentNode, comment);
   }
   onPlaceholder(range: Ranges.Placeholder) {
     pushBody(this.#parentNode, {
@@ -354,7 +355,10 @@ class Builder implements ParserHandlers {
       type: "OpenTagName",
       parent: undefined as unknown as Tag,
       quasis: range.quasis,
-      expressions: range.expressions,
+      expressions: range.expressions.map((it) => ({
+        ...it,
+        valueLiteral: this.#code.slice(it.value.start, it.value.end),
+      })),
       start: range.start,
       end: range.end,
     };
@@ -402,16 +406,15 @@ class Builder implements ParserHandlers {
         case "AttrTag":
           tag.owner = parentTag.owner;
           parentTag.hasAttrTags = true;
-          nameText = `${parentTag.nameText}:${nameText}`;
+          nameText = `@${nameText}`;
           break;
         case "Tag":
           tag.owner = parentTag;
           parentTag.hasAttrTags = true;
-          nameText = `${parentTag.nameText || "*"}:${nameText}`;
+          nameText = `@${nameText}`;
           break;
       }
 
-      // This name includes the full ancestry of the attribute tag and can be used in `TaglibLookup.getTag`.
       tag.nameText = nameText;
     }
     pushBody(parent, tag);
@@ -684,6 +687,7 @@ function makeCommentsLeading(
   if (comments) {
     for (const comment of comments) {
       comment.leading = true;
+      comment.trailing = false;
     }
   }
 
