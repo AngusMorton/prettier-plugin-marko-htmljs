@@ -136,3 +136,100 @@ export function isEmptyGroup(group: Doc[]): boolean {
 export function removeParentheses(doc: Doc): Doc {
   return trim([doc], (_doc: Doc) => _doc === "(" || _doc === ")")[0];
 }
+
+export function endsWithBrace(doc: Doc): boolean {
+  if (typeof doc === "string") {
+    return doc[doc.length - 1] === "}";
+  }
+
+  if (!Array.isArray(doc)) {
+    switch (doc.type) {
+      case "align":
+      case "break-parent":
+      case "cursor":
+      case "fill":
+      case "if-break":
+      case "indent":
+      case "indent-if-break":
+      case "label":
+      case "line":
+      case "line-suffix":
+      case "line-suffix-boundary":
+      case "trim":
+        return false;
+      case "group":
+        return endsWithBrace(doc.contents);
+    }
+  }
+
+  for (let i = doc.length - 1; i >= 0; i--) {
+    if (endsWithBrace(doc[i])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function endsWithBracket(doc: Doc): boolean {
+  if (typeof doc === "string") {
+    return doc[doc.length - 1] === "]";
+  }
+
+  if (!Array.isArray(doc)) {
+    switch (doc.type) {
+      case "align":
+      case "break-parent":
+      case "cursor":
+      case "fill":
+      case "if-break":
+      case "indent":
+      case "indent-if-break":
+      case "label":
+      case "line":
+      case "line-suffix":
+      case "line-suffix-boundary":
+      case "trim":
+        return false;
+      case "group":
+        return endsWithBracket(doc.contents);
+    }
+  }
+
+  for (let i = doc.length - 1; i >= 0; i--) {
+    if (endsWithBracket(doc[i])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function isStringDoc(doc: Doc): boolean {
+  if (typeof doc === "string") {
+    return true;
+  }
+
+  if (!Array.isArray(doc)) {
+    switch (doc.type) {
+      case "align":
+      case "break-parent":
+      case "cursor":
+      case "fill":
+      case "if-break":
+      case "indent":
+      case "indent-if-break":
+      case "label":
+      case "line":
+      case "line-suffix":
+      case "line-suffix-boundary":
+      case "trim":
+        return false;
+      case "group":
+        // The group might be a group of a single string element.
+        return isStringDoc(doc.contents);
+    }
+  }
+
+  return doc.length === 1 && isStringDoc(doc[0]);
+}
