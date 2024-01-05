@@ -1,5 +1,4 @@
 import {
-  doc,
   SupportLanguage,
   type Parser,
   type Printer,
@@ -29,7 +28,7 @@ export const languages: SupportLanguage[] = [
 
 export const options: SupportOptions = {};
 
-const babelParser = prettierPluginBabel.parsers["__ts_expression"];
+const babelParser = prettierPluginBabel.parsers["babel-ts"];
 export const parsers: Record<string, Parser<AnyNode>> = {
   htmljs: {
     parse: (source) => parse(source),
@@ -39,10 +38,10 @@ export const parsers: Record<string, Parser<AnyNode>> = {
   },
   htmljsExpressionParser: {
     ...babelParser,
-    // parse: (text: string, options: any) => {
-    //   const ast = babelParser.parse(text, options);
-    //   return { ...ast, program: ast.program.body[0].expression };
-    // },
+    parse: (text: string, options: any) => {
+      const ast = babelParser.parse(text, options);
+      return { ...ast, program: ast.program.body[0].expression };
+    },
   },
 };
 

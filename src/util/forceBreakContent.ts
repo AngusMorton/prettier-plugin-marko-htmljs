@@ -50,6 +50,20 @@ export function forceBreakChildren(node: AnyNode) {
       return true;
     }
 
+    if (node.body?.find((it) => it.type === "Scriptlet")) {
+      // If the tag includes a scriptlet, we need to break so that we don't end up
+      // with the scriptlet merging with other tags.
+      //
+      // <h1>Hello World $ console.log("Hello World")</h1>
+      //                 ^
+      // Should be:
+      // <h1>
+      //   Hello World
+      //   $ console.log("Hello World")
+      // </h1>
+      return true;
+    }
+
     return (
       node.body &&
       node.body.length > 0 &&

@@ -11,9 +11,29 @@ $ const isLoggedIn = true;
 </else>
 
 <ul>
-  <for|color, index|
+  <for|color: string, index: number|
     of=["red", "blue", "green", "orange", "pink", "teal", "light-blue"]
   >
     <li>${index}: ${color}</li>
   </for>
 </ul>
+
+$ const canonicalUrl = "";
+<if(!canonicalUrl.startsWith("https://www.rome2rio.com"))>
+  /**
+   * If the URL for this page is not www then we don't want crawlers to index or crawl
+   * this subdomain because the site is probably lp-prod or another 'internal' environment.
+   */
+  <meta name="robots" content="noindex, nofollow" />
+</if>
+
+<if(
+  true ||
+    false ||
+    "long" ||
+    "breaking" ||
+    "should-break" ||
+    (200 > 10 && isLoggedIn),
+)>
+  Hmmm
+</if>

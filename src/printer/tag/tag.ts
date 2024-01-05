@@ -114,12 +114,38 @@ export function printOpeningTag(
   }
 
   return [
-    [`<`, printTagName(path, print)],
+    [`<`, printTagName(path, print), printTypeArgs(path, opts, print)],
+    node.typeArgs && node.typeParams ? softline : "",
+    printTypeParams(path, opts, print),
     printTagArguments(path, opts, print),
     printTagParams(path, opts, print),
     printAttrs(path, opts, print),
     isVoidTag(node) ? "" : ">",
   ];
+}
+
+export function printTypeArgs(
+  path: AstPath<Tag | AttrTag>,
+  opts: Options,
+  print: PrintFn
+) {
+  if (path.node.typeArgs) {
+    return path.call(print, "typeArgs");
+  } else {
+    return "";
+  }
+}
+
+export function printTypeParams(
+  path: AstPath<Tag | AttrTag>,
+  opts: Options,
+  print: PrintFn
+) {
+  if (path.node.typeParams) {
+    return path.call(print, "typeParams");
+  } else {
+    return "";
+  }
 }
 
 export function printTagParams(

@@ -14,6 +14,8 @@ import { embedImport } from "./internal/embedImport";
 import { embedExport } from "./internal/embedExport";
 import { embedStatic } from "./internal/embedStatic";
 import { embedOpenTagName } from "./internal/embedOpenTagName";
+import { embedTagTypeParams } from "./internal/embedTagTypeParams";
+import { embedTagTypeArgs } from "./internal/embedTagTypeArgs";
 
 export function embed(
   path: AstPath<AnyNode>,
@@ -67,6 +69,14 @@ export function embed(
 
   if (node.type === "OpenTagName") {
     return embedOpenTagName(node);
+  }
+
+  if (node.type === "TagTypeParams") {
+    return embedTagTypeParams(node);
+  }
+
+  if (node.type === "TagTypeArgs") {
+    return embedTagTypeArgs(node);
   }
 
   return null;

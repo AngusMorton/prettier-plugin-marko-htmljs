@@ -7,7 +7,8 @@ export function embedStatic(
   // "static" at the root level is not valid JS, so we need to remove it and add it back later.
   const statement = node.valueLiteral.replace(/static/, "");
   return async (textToDoc) => {
-    const doc = await textToDoc(statement, {
+    // @ts-expect-error
+    const doc: Doc[] = await textToDoc(statement, {
       parser: "babel-ts",
     });
 

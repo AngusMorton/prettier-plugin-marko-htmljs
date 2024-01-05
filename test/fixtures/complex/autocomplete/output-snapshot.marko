@@ -52,7 +52,7 @@ static const latestQueryIds = new Map<Symbol, number>();
     spellcheck="false"
     aria-describedby:scoped="place-autocomplete-label"
     aria-owns:scoped="place-autocomplete-listbox"
-    aria-expanded=resultsExpanded ? "true" : "false"
+    aria-expanded=(resultsExpanded ? "true" : "false")
     aria-autocomplete="list"
     on-input("onSearchBoxInput")
     on-focus("onSearchBoxFocused")
@@ -78,7 +78,7 @@ static const latestQueryIds = new Map<Symbol, number>();
         key=place.canonicalName
         tabindex=-1
         class="flex h-12 cursor-pointer items-center px-4 hover:bg-gray-100 aria-selected:bg-gray-100 md:px-8"
-        aria-selected=isResultHighlighted ? "true" : "false"
+        aria-selected=(isResultHighlighted ? "true" : "false")
         on-mousedown("onAutocompleteSelected", place, "Click", index)
       >
         ${place.longName}

@@ -14,4 +14,6 @@ $ const isWebpSupported = $global.request.headers.get("accept")?.includes("image
 
 <h1>
   ${name +    foo}!
+  $ console.log("I'm rendering the h1");
+  $ console.log("These two scriptlets should be on separate lines!")
 </h1>

@@ -1,21 +1,22 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
-import { TagArgs } from "../../parser/MarkoNode";
+import { TagTypeArgs } from "../../parser/MarkoNode";
+import _doc from "prettier/doc";
 
-export function embedTagArgs(
-  node: TagArgs
+export function embedTagTypeArgs(
+  node: TagTypeArgs
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
-  const value = node.valueLiteral;
+  const params = node.valueLiteral;
   return async (textToDoc, print, path, options) => {
     try {
       // We need to wrap the args in a fake function call so that babel-ts can
       // parse it. We also disable semicolons because we don't want to print
       // any semicolons because Marko doesn't use them in tag params.
-      let docs = await textToDoc(`_(${value});`, {
+      let docs = await textToDoc(`function _<${params}>(){}`, {
         parser: "babel-ts",
       });
 
       // @ts-expect-error - docs is always an array.
-      docs = docs[1];
+      docs = docs[1].contents;
 
       return docs;
     } catch (e) {
