@@ -1,10 +1,11 @@
+import { AstPath } from "prettier";
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Scriptlet } from "../../parser/MarkoNode";
 import { endsWithBrace } from "../util";
 import _doc from "prettier/doc";
 
 const {
-  builders: { group, indent, hardline, softline, ifBreak },
+  builders: { group, indent, hardline, softline, ifBreak, join },
 } = _doc;
 
 export function embedScriptlet(

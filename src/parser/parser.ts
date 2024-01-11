@@ -18,6 +18,8 @@ import type {
   ParentNode,
   HasChildren,
 } from "./MarkoNode";
+import * as prettierPluginBabel from "prettier/plugins/babel";
+import { Parser } from "prettier";
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
@@ -31,6 +33,8 @@ export {
   type Position,
   type Location,
 } from "htmljs-parser";
+
+export const jsParser: Parser = prettierPluginBabel.parsers["babel-ts"];
 
 export type Parsed = ReturnType<typeof parse>;
 
@@ -166,14 +170,19 @@ class Builder implements ParserHandlers {
     this.#comments = undefined;
   }
   onScriptlet(range: Ranges.Scriptlet) {
+    const body = this.#code.slice(range.value.start, range.value.end);
+    // TODO: Do something similar... but not as hacky.
+    // @ts-expect-error
+    const bodyAst = jsParser.parse(body);
     pushBody(this.#parentNode, {
       type: "Scriptlet",
       parent: this.#parentNode,
       comments: makeCommentsLeading(this.#comments),
       value: range.value,
-      valueLiteral: this.#code.slice(range.value.start, range.value.end),
+      valueLiteral: body,
       block: range.block,
       start: range.start,
+      jsAst: bodyAst.program.body,
       end: range.end,
       sourceSpan: this.#parser.locationAt(range),
     });

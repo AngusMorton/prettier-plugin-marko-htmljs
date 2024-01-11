@@ -226,6 +226,7 @@ export interface Scriptlet extends Ranges.Value, Commentable, HasLocation {
   type: "Scriptlet";
   parent: ParentNode;
   block: boolean;
+  jsAst: any;
 }
 
 export interface AttrNamed extends Range {
