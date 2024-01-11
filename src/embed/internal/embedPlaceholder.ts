@@ -9,6 +9,6 @@ export function embedPlaceholder(
     const body = await textToDoc(forceIntoExpression(node.valueLiteral), {
       parser: "htmljsExpressionParser",
     });
-    return ["${", body, "}"];
+    return ["$", node.escape ? "" : "!", "{", body, "}"];
   };
 }
