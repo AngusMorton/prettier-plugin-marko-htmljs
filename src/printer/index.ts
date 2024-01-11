@@ -5,8 +5,9 @@ import { AnyNode, Program, Tag, Comment, AttrTag } from "../parser/MarkoNode";
 import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
 import { printComment } from "./comment";
+import { isTextLike } from "../util/isTextLike";
 const {
-  builders: { hardline },
+  builders: { hardline, line, group, softline, ifBreak },
   utils: { stripTrailingHardline },
 } = _doc;
 
@@ -92,7 +93,16 @@ function printProgram(
     const childNode = childPath.node;
     const nextNode = parentNode.body[childIndex + 1];
 
-    const result: Doc[] = [stripTrailingHardline(print(childPath)), hardline];
+    let result: Doc[] = [];
+    if (isTextLike(childNode) && childNode.type !== "Comment") {
+      result.push(
+        group(["--", line, print(childPath), ifBreak([softline, "--"])])
+      );
+    } else {
+      result.push(stripTrailingHardline(print(childPath)));
+    }
+    result.push(hardline);
+
     if (nextNode) {
       if (nextNode.sourceSpan.start.line - childNode.sourceSpan.end.line > 1) {
         result.push(hardline);

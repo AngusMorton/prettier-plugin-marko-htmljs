@@ -1,4 +1,5 @@
 import { AnyNode, Tag } from "../parser/MarkoNode";
+import { htmlElements } from "../printer/htmlElements";
 import { getChildren } from "../printer/tag/utils";
 
 function forceBreakContent(node: Tag) {
@@ -36,6 +37,11 @@ function forceBreakContent(node: Tag) {
 
 export function forceBreakChildren(node: AnyNode) {
   if (node.type === "Tag" || node.type === "AttrTag") {
+    if (!node.body || node.body.length === 0) {
+      // If we have no children there is nothing to break.
+      return false;
+    }
+
     if (node.hasAttrTags) {
       // Nodes with attr tags should break because attr tags aren't
       // real HTML tags and they look weird when they hug.
@@ -64,9 +70,16 @@ export function forceBreakChildren(node: AnyNode) {
       return true;
     }
 
+    // TODO:
+    // if (node.nameText && !htmlElements[node.nameText]) {
+    //   // The tag is a custom tag, the "correct" behaviour here is not clear.
+    //   // We probably should err on the side of caution and assume the custom tag
+    //   // is whitespace sensitive and not break.
+    //   // But, for consistency with the prettier-plugin-marko, we'll break.
+    //   return true;
+    // }
+
     return (
-      node.body &&
-      node.body.length > 0 &&
       node.nameText &&
       [
         "html",

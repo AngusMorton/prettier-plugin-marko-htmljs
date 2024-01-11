@@ -76,7 +76,7 @@ export function test(name: string, files: any, path: string) {
     writeFileSync(outPath, formatted, { flag: "w" });
     expect(formatted, "Incorrect formatting").toBe(output);
 
-    // parse(formatted);
+    parse(formatted);
 
     // test that our formatting is idempotent
     const formattedTwice = await format(formatted, opts);

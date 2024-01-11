@@ -2,15 +2,7 @@ export interface Input<T> {
   options: T[];
   onSelect: (newVal: T) => unknown;
 }
-static type A2BSearchHeader<T> = Omit<Input<T>, "title" | "destination" | "origin"> & {
-  routes: string[];
-  destination: Input<T> & {
-    countryName: string;
-  };
-  origin: Input<T> & {
-    countryName: string;
-  };
-};
+
 static function staticFn() {
   // can NOT use `T` here
 }

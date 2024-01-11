@@ -30,3 +30,5 @@ test("Can format imports", files, "basic/imports");
 test("Can format exports", files, "basic/exports");
 
 test("Can format typescript", files, "basic/typescript");
+
+test("Can format text only templates", files, "basic/text-only-template");
