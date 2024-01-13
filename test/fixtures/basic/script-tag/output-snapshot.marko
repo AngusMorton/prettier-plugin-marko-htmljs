@@ -19,15 +19,12 @@
 
 // Placeholders within script tags should format.
 <script>
-  ${SOME_PLACEHOLDER_GOES_HERE};
-
-  window.gtag(
-    "config",
-    ${JSON.stringify(input)},
-    ${JSON.stringify({
-      ...input.customDimensions,
-      anonymize_ip: true,
-      transport_type: "beacon",
-    })},
-  );
+  ${SOME_PLACEHOLDER_GOES_HERE}window.gtag("config",
+  ${JSON.stringify(input)},
+  ${JSON.stringify({
+    ...input.customDimensions,
+    anonymize_ip: true,
+    transport_type: "beacon",
+  })},
+    );
 </script>

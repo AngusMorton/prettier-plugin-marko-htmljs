@@ -16,7 +16,6 @@ export async function format(
   try {
     return await prettier.format(contents, {
       parser: "htmljs",
-      htmlWhitespaceSensitivity: "ignore",
       plugins,
       ...options,
     });

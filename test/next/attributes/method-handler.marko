@@ -1,0 +1,8 @@
+class {
+  logChange(newTab) {
+    console.log(`changed to: ${newTab}`);
+  }
+}
+
+<my-tabs on-switch-tab("logChange")>
+</my-tabs>
