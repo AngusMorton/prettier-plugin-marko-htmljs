@@ -13,6 +13,8 @@ test("Can format custom tags", files, "basic/custom-tag");
 
 test("Can format control-flow", files, "basic/control-flow");
 
+test("Can format tag arguments", files, "basic/tag-arguments");
+
 test("Can format attr tags", files, "basic/attr-tag");
 
 test("Can format dynamic tags", files, "basic/dynamic-tag-name");

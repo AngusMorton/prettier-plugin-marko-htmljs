@@ -51,7 +51,5 @@ export const printers: Record<string, Printer> = {
     print,
     embed,
     getVisitorKeys,
-    // getCommentChildNodes,
-    // printComment,
   },
 };

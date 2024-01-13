@@ -6,6 +6,10 @@ export interface Input<T> {
 // htmljs can't parse the following type when formatted,
 // the fix is to wrap the type alias in parenthesis so that
 // htmljs can parse the full expression.
+//
+// To simplify the logic for ourselves, we should always wrap the
+// expression of a type declaration with braces if it breaks.
+//
 // static type A2BSearchHeader<T> = Omit<
 //   Input<T>,
 //   "title" | "destination" | "origin"
@@ -41,19 +45,3 @@ $ const isWebpSupported = ($global.request.headers
     .get("accept")
     ?.includes("image/webp")
 );
-
-// Spread props aren't printed.
-<div ...input />
-
-// Placeholders within script tags
-<script>
-    window.gtag(
-      "config",
-    ${JSON.stringify(input)},
-    ${JSON.stringify({
-      ...input.customDimensions,
-      anonymize_ip: true,
-      transport_type: "beacon",
-    })},
-    );
-  </script>

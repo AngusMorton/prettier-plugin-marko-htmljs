@@ -1,6 +1,7 @@
 import { Options } from "prettier";
 import { AnyNode } from "../parser/MarkoNode";
 
+// TODO: Merge with htmlElements.ts
 const CSS_DISPLAY_TAGS: Record<string, string> = {
   area: "none",
   base: "none",

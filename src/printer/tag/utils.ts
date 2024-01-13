@@ -117,6 +117,6 @@ export function isVoidTag(node: Tag | AttrTag): boolean {
   // * <my-autocomplete />
   // * or <my-autocomplete>Some Content</my-autocomplete>
   //
-  // Could both be valid.
+  // Both could be valid.
   return node.selfClosed;
 }

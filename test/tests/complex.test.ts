@@ -8,3 +8,5 @@ const files = import.meta.glob("/test/fixtures/complex/*/*", {
 test("Can format an autocomplete component", files, "complex/autocomplete");
 
 test("Can format a simple svg component", files, "complex/simple-svg");
+
+test("Can format macro components", files, "complex/macro");
