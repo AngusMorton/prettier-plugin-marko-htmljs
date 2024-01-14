@@ -1,7 +1,8 @@
 import prettier from "prettier";
 import { type Options } from "prettier";
-import { expect, test, it, describe } from "vitest";
-import { dirname, join, basename, relative } from "path";
+import { expect, it, describe } from "vitest";
+import { dirname, join, basename } from "path";
+import { parse } from "../src/parser/parser";
 
 const plugins = [new URL("../dist/index.js", import.meta.url).href];
 
@@ -25,6 +26,11 @@ describe.each(Object.keys(inputFiles))("%s", (path) => {
     );
     const idempotent = await format(result, {});
     expect(idempotent, "Formatting is not idempotent").toBe(result);
+
+    expect(
+      () => parse(result),
+      "Formatting is invalid and does not parse"
+    ).not.toThrow();
   });
 
   it("should format with strict html sensitivity", async () => {

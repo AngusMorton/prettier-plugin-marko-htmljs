@@ -1,0 +1,32 @@
+<if(true)>
+  <strong>Marko is awesome</strong>
+</if>
+
+<if(!isLoggedIn)>
+  <a href="/login">Log in</a>
+</if>
+<else-if(isLoggedIn)>
+  <a href="/logout">Log out</a>
+</else-if>
+<else>
+  Hey User!
+</else>
+
+<if(!canonicalUrl.startsWith("https://www.rome2rio.com"))>
+  /**
+   * If the URL for this page is not www then we don't want crawlers to index or crawl
+   * this subdomain because the site is probably lp-prod or another 'internal' environment.
+   */
+  <meta name="robots" content="noindex, nofollow" />
+</if>
+
+<if(
+  true ||
+    false ||
+    "long" ||
+    "breaking" ||
+    "should-break" ||
+    (200 > 10 && isLoggedIn),
+)>
+  Hmmm
+</if>
