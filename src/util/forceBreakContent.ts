@@ -93,6 +93,7 @@ export function forceBreakChildren(node: AnyNode) {
         "else",
         "while",
         "for",
+        "macro",
       ].includes(node.nameText)
     );
   }

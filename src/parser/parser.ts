@@ -20,6 +20,7 @@ import type {
 } from "./MarkoNode";
 import * as prettierPluginBabel from "prettier/plugins/babel";
 import { Parser } from "prettier";
+import { type File } from "@babel/types"
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
@@ -34,7 +35,7 @@ export {
   type Location,
 } from "htmljs-parser";
 
-export const jsParser: Parser = prettierPluginBabel.parsers["babel-ts"];
+export const jsParser: Parser<File> = prettierPluginBabel.parsers["babel-ts"];
 
 export type Parsed = ReturnType<typeof parse>;
 
@@ -173,7 +174,7 @@ class Builder implements ParserHandlers {
     const body = this.#code.slice(range.value.start, range.value.end);
     // TODO: Do something similar... but not as hacky.
     // @ts-expect-error
-    const bodyAst = jsParser.parse(body);
+    const bodyAst = jsParser.parse(body) as File;
     pushBody(this.#parentNode, {
       type: "Scriptlet",
       parent: this.#parentNode,

@@ -1,5 +1,5 @@
 import { AstPath, Options } from "prettier";
-import { AnyNode, Style } from "../parser/MarkoNode";
+import { AnyNode, Scriptlet, Style, Tag } from "../parser/MarkoNode";
 import { HtmlJsPrinter } from "../HtmlJsPrinter";
 import _doc from "prettier/doc";
 import { embedScriptlet } from "./internal/embedScriptlet";
@@ -26,7 +26,7 @@ export function embed(
   const node = path.node;
 
   if (node.type === "Scriptlet") {
-    return embedScriptlet(node);
+    return embedScriptlet(path as AstPath<Scriptlet>, options);
   }
 
   if (node.type === "Placeholder") {
@@ -38,7 +38,7 @@ export function embed(
   }
 
   if (node.type === "Tag" && node.nameText && node.nameText === "script") {
-    return embedScriptTag(path, options);
+    return embedScriptTag(path as AstPath<Tag>, options);
   }
 
   if (node.type === "Tag" && node.nameText && node.nameText === "style") {

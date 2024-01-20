@@ -1,3 +1,4 @@
+import { Statement } from "@babel/types";
 import { Location, Range, Ranges, TagType } from "htmljs-parser";
 
 export type Repeated<T> = [T, ...T[]] | [...T[], T] | [T, ...T[], T];
@@ -165,26 +166,31 @@ export interface ShorthandClassName extends Ranges.Template {
 export interface TagTypeArgs extends Ranges.Value {
   type: "TagTypeArgs";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface TagTypeParams extends Ranges.Value {
   type: "TagTypeParams";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface TagVar extends Ranges.Value {
   type: "TagVar";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface TagArgs extends Ranges.Value {
   type: "TagArgs";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface TagParams extends Ranges.Value {
   type: "TagParams";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface Text extends Range, HasLocation {
@@ -196,16 +202,19 @@ export interface Text extends Range, HasLocation {
 export interface CDATA extends Ranges.Value, HasLocation {
   type: "CDATA";
   parent: ParentNode;
+  valueLiteral: string;
 }
 
 export interface Doctype extends Ranges.Value, HasLocation {
   type: "DocType";
   parent: ParentNode;
+  valueLiteral: string;
 }
 
 export interface Declaration extends Ranges.Value, HasLocation {
   type: "Declaration";
   parent: ParentNode;
+  valueLiteral: string;
 }
 
 export interface Comment extends Ranges.Value, HasLocation {
@@ -214,19 +223,22 @@ export interface Comment extends Ranges.Value, HasLocation {
   leading: boolean;
   trailing: boolean;
   printed: boolean;
+  valueLiteral: string;
 }
 
 export interface Placeholder extends Ranges.Value, Commentable, HasLocation {
   type: "Placeholder";
   parent: ParentNode;
   escape: boolean;
+  valueLiteral: string;
 }
 
 export interface Scriptlet extends Ranges.Value, Commentable, HasLocation {
   type: "Scriptlet";
   parent: ParentNode;
   block: boolean;
-  jsAst: any;
+  valueLiteral: string;
+  jsAst: Statement[];
 }
 
 export interface AttrNamed extends Range {
@@ -246,6 +258,7 @@ export interface AttrName extends Range {
 export interface AttrArgs extends Ranges.Value {
   type: "AttrArgs";
   parent: AttrNamed;
+  valueLiteral: string;
 }
 
 export interface AttrValue extends Range {
@@ -267,6 +280,7 @@ export interface AttrMethod extends Range {
 export interface AttrSpread extends Ranges.Value {
   type: "AttrSpread";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface Import extends Range, Commentable, HasLocation {
