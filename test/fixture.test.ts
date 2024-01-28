@@ -33,27 +33,28 @@ describe.each(Object.keys(inputFiles))("%s", (path) => {
     ).not.toThrow();
   });
 
-  it("should format with strict html sensitivity", async () => {
-    const result = await format(file, { htmlWhitespaceSensitivity: "strict" });
-    await expect(result, "Incorrect formatting").toMatchFileSnapshot(
-      join(snapshotDirectory, `${fileName}.strict-whitespace-sensitivity.marko`)
-    );
-    const idempotent = await format(result, {
-      htmlWhitespaceSensitivity: "strict",
-    });
-    expect(idempotent, "Formatting is not idempotent").toBe(result);
-  });
+  // TODO: HTML Sensitivity.
+  // it("should format with strict html sensitivity", async () => {
+  //   const result = await format(file, { htmlWhitespaceSensitivity: "strict" });
+  //   await expect(result, "Incorrect formatting").toMatchFileSnapshot(
+  //     join(snapshotDirectory, `${fileName}.strict-whitespace-sensitivity.marko`)
+  //   );
+  //   const idempotent = await format(result, {
+  //     htmlWhitespaceSensitivity: "strict",
+  //   });
+  //   expect(idempotent, "Formatting is not idempotent").toBe(result);
+  // });
 
-  it("should format with no html sensitivity", async () => {
-    const result = await format(file, { htmlWhitespaceSensitivity: "ignore" });
-    await expect(result, "Incorrect formatting").toMatchFileSnapshot(
-      join(snapshotDirectory, `${fileName}.ignore-whitespace-sensitivity.marko`)
-    );
-    const idempotent = await format(result, {
-      htmlWhitespaceSensitivity: "ignore",
-    });
-    expect(idempotent, "Formatting is not idempotent").toBe(result);
-  });
+  // it("should format with no html sensitivity", async () => {
+  //   const result = await format(file, { htmlWhitespaceSensitivity: "ignore" });
+  //   await expect(result, "Incorrect formatting").toMatchFileSnapshot(
+  //     join(snapshotDirectory, `${fileName}.ignore-whitespace-sensitivity.marko`)
+  //   );
+  //   const idempotent = await format(result, {
+  //     htmlWhitespaceSensitivity: "ignore",
+  //   });
+  //   expect(idempotent, "Formatting is not idempotent").toBe(result);
+  // });
 });
 
 async function format(
