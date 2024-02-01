@@ -1,4 +1,4 @@
-## A Prettier Plugin for Marko
+## (An Incomplete) Prettier Plugin for Marko
 
 This is a prettier plugin for Marko that uses the htmljs parser instead of the `@marko/compiler` to parse the AST. The high-level goal of this plugin is to match the way Prettier formats HTML documents so that a plain HTML marko document formats identically to an HTML document.
 
