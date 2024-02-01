@@ -3,15 +3,13 @@ export interface Input<T> {
   onSelect: (newVal: T) => unknown;
 }
 
-// htmljs can't parse the following type when formatted,
+// htmljs can't parse the following type aliases when formatted,
 // the fix is to wrap the type alias in parenthesis so that
 // htmljs can parse the full expression.
 //
 // There are two options I can  think of:
-// 1. Wrap the type alias in parenthesis if it breaks, even if it would parse correctly.
-// 2. Convert it into a static block if it breaks. (static { ...}).
-//
-// #2 is the simplest and can be done without inspecting the AST of the body, so lets do that for now. 
+// 1. Inspect the AST and wrap the type alias in parenthesis if it breaks, even if it would parse correctly without?
+// 2. Convert it into a static block if it breaks. (static { ...})?
 //
 // static type A2BSearchHeader<T> = Omit<
 //   Input<T>,
@@ -63,3 +61,9 @@ $ const isWebpSupported = ($global.request.headers
     .get("accept")
     ?.includes("image/webp")
 );
+
+// The following isn't formatted correctly.
+<div 
+  data-test=("test") // Comments can be between attributes.
+  data-test2=("test2") // Comments can be between attributes.
+></div>

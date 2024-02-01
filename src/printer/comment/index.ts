@@ -13,30 +13,31 @@ export function printComment(
   const commentText = commentPath.node.valueLiteral;
 
   if (commentText.startsWith("<!--")) {
+    return commentText;
     // Convert HTML comment to JS comment.
-    if (commentText.includes("\n")) {
-      // It's a block comment, so convert it to a JS block comment.
-      const lines = commentText
-        .trim()
-        .slice(4, -3)
-        .split(/\r?\n/g)
-        .filter((it) => it.trim() !== "");
-      return [
-        "/**",
-        hardline,
-        join(
-          hardline,
-          lines.map((line: string, index: number) => {
-            return " * " + line.trim();
-          })
-        ),
-        hardline,
-        " */",
-      ];
-    } else {
-      // It's a single line comment, so convert it to a JS single line comment.
-      return ["//", commentText.slice(4, -3)];
-    }
+    // if (commentText.includes("\n")) {
+    //   // It's a block comment, so convert it to a JS block comment.
+    //   const lines = commentText
+    //     .trim()
+    //     .slice(4, -3)
+    //     .split(/\r?\n/g)
+    //     .filter((it) => it.trim() !== "");
+    //   return [
+    //     "/**",
+    //     hardline,
+    //     join(
+    //       hardline,
+    //       lines.map((line: string, index: number) => {
+    //         return " * " + line.trim();
+    //       })
+    //     ),
+    //     hardline,
+    //     " */",
+    //   ];
+    // } else {
+    //   // It's a single line comment, so convert it to a JS single line comment.
+    //   return ["//", commentText.slice(4, -3)];
+    // }
   } else if (commentText.startsWith("/*")) {
     const lines = commentText.split(/\r?\n/g);
     if (lines.length === 1) {

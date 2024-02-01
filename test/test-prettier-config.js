@@ -5,6 +5,6 @@ const htmljs = await import("../dist/index.js");
 /** @type {import("prettier").Config} */
 export default {
   parser: "htmljs",
-  htmlWhitespaceSensitivity: "css",
+  htmlWhitespaceSensitivity: "ignore",
   plugins: [htmljs],
 };

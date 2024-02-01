@@ -1,6 +1,7 @@
 import { AnyNode, Tag } from "../parser/MarkoNode";
 import { htmlElements } from "../printer/htmlElements";
 import { getChildren } from "../printer/tag/utils";
+import { isTextLike } from "./isTextLike";
 
 function forceBreakContent(node: Tag) {
   const firstChild = node.body?.[0];
@@ -42,9 +43,14 @@ export function forceBreakChildren(node: AnyNode) {
       return false;
     }
 
+    if (node.type === "AttrTag") {
+      // Break if the attr tag has non-text children.
+      return node.body.some((child) => !isTextLike(child));
+    }
+
     if (node.hasAttrTags) {
       // Nodes with attr tags should break because attr tags aren't
-      // real HTML tags and they look weird when they hug.
+      // real HTML tags and they look weird when they hug...
       // <layout>
       //    <@heading><h1>Hello Marko</h1></@heading>
       //    <@content><p>...</p></@content>
@@ -70,14 +76,13 @@ export function forceBreakChildren(node: AnyNode) {
       return true;
     }
 
-    // TODO:
-    // if (node.nameText && !htmlElements[node.nameText]) {
-    //   // The tag is a custom tag, the "correct" behaviour here is not clear.
-    //   // We probably should err on the side of caution and assume the custom tag
-    //   // is whitespace sensitive and not break.
-    //   // But, for consistency with the prettier-plugin-marko, we'll break.
-    //   return true;
-    // }
+    if (node.nameText && !htmlElements[node.nameText]) {
+      // The tag is a custom tag, the "correct" behaviour here is not clear.
+      // We probably should err on the side of caution and assume the custom tag
+      // is whitespace sensitive and not break.
+      // But, for consistency with the prettier-plugin-marko, we'll break.
+      return true;
+    }
 
     return (
       node.nameText &&
@@ -94,6 +99,7 @@ export function forceBreakChildren(node: AnyNode) {
         "while",
         "for",
         "macro",
+        "await",
       ].includes(node.nameText)
     );
   }
