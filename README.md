@@ -76,7 +76,7 @@ Converting the following to a JS-style comment breaks the HTML.
 </div>
 ```
 
-**Why? Because JS-style comments can be used and parsed everywhere and it's more consistent/uniform.**
+**Why? Because JS-style comments can be used and parsed everywhere.**
 
 ## TODO:
 
