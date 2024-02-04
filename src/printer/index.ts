@@ -28,18 +28,8 @@ export function print(
     case "DocType":
       // https://www.w3.org/wiki/Doctypes_and_markup_styles
       return ["<!doctype html>", hardline];
-    // case "AttrNamed":
-    //   const name = node.name.value;
-    //   if (node.value) {
-    //     switch (node.value.type) {
-    //       case "AttrValue":
-    //         return [name, "=", '"', node.value.valueLiteral.slice(1, -1), '"'];
-    //       default:
-    //         return [];
-    //     }
-    //   } else {
-    //     return [];
-    //   }
+    case "Declaration":
+      return ["<?", node.valueLiteral, "?>"];
     case "Text":
       // Text nodes only exist as children to other nodes/tags.
       // So... I don't think we need to print them if they're whitespace only.
