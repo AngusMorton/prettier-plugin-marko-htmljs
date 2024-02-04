@@ -6,9 +6,9 @@ import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
 import { printComment } from "./comment";
 import { isTextLike } from "../util/isTextLike";
-import asLiteralTextContent from "../util/asLiteralTextContent";
+import { splitTextToDocs } from "../util/splitTextToDocs";
 const {
-  builders: { hardline, line, group, softline, ifBreak },
+  builders: { hardline, line, group, softline, ifBreak, fill },
   utils: { stripTrailingHardline },
 } = _doc;
 
@@ -73,7 +73,7 @@ export function print(
         .replace(/(?<!\\)\\(?!\\)/, "\\\\")
         .replace(/\${/, "\\${")
         .replace(/\$\!{/, "\\$!{");
-      return text;
+      return fill(splitTextToDocs(text));
     case "AttrTag":
       return printTag(path as AstPath<AttrTag>, opts, print);
     case "Tag":
