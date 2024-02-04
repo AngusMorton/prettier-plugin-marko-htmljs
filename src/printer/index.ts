@@ -6,6 +6,7 @@ import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
 import { printComment } from "./comment";
 import { isTextLike } from "../util/isTextLike";
+import asLiteralTextContent from "../util/asLiteralTextContent";
 const {
   builders: { hardline, line, group, softline, ifBreak },
   utils: { stripTrailingHardline },
@@ -67,8 +68,12 @@ export function print(
         // }
         return "";
       }
-
-      return node.value.trim();
+      const text = node.value
+        .trim()
+        .replace(/(?<!\\)\\(?!\\)/, "\\\\")
+        .replace(/\${/, "\\${")
+        .replace(/\$\!{/, "\\$!{");
+      return text;
     case "AttrTag":
       return printTag(path as AstPath<AttrTag>, opts, print);
     case "Tag":
