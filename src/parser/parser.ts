@@ -20,7 +20,7 @@ import type {
 } from "./MarkoNode";
 import * as prettierPluginBabel from "prettier/plugins/babel";
 import { Parser } from "prettier";
-import { type File } from "@babel/types"
+import { type File } from "@babel/types";
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
