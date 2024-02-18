@@ -96,7 +96,6 @@ export function printTag(
       softline,
       group([">", body(), printClosingTag(path, opts, print)]),
     ];
-    console.log("huggedContent", huggedContent);
     return group([
       ...openingTag,
       isEmpty ? group(huggedContent) : group(indent(huggedContent)),
@@ -159,30 +158,6 @@ export function printTag(
     ]);
   }
 
-  console.log(
-    "node",
-    node.nameText,
-    noHugSeparatorStart,
-    noHugSeparatorEnd,
-    "hugStart",
-    hugStart,
-    "hugEnd",
-    hugEnd,
-    "opts.bracketSameLine",
-    opts.bracketSameLine,
-    "opts.singleAttributePerLine",
-    opts.singleAttributePerLine,
-    "firstChild",
-    firstChild.type,
-    "lastChild",
-    lastChild.type,
-    "isInlineTag",
-    isInlineTag,
-    "isSelfClosing",
-    isSelfClosing,
-    "isEmpty",
-    isEmpty
-  );
   return group([
     ...openingTag,
     ">",
@@ -337,6 +312,21 @@ function printChildren(
     return "";
   }
 
+  // Prepare children by removing empty Text nodes at the beginning and end
+  // whitespace at the beginning and end of a tag are handled separately.
+  if (children[0].type === "Text" && isEmptyTextNode(children[0])) {
+    children.shift();
+  }
+
+  if (
+    children[children.length - 1].type === "Text" &&
+    isEmptyTextNode(children[children.length - 1])
+  ) {
+    children.pop();
+  }
+
+  node.body = children;
+
   const childDocs: Doc[] = [];
   let handleWhitespaceOfPrevTextNode = false;
 
@@ -410,22 +400,13 @@ function printChildren(
 
   function handleTextChild(idx: number, childNode: Text) {
     handleWhitespaceOfPrevTextNode = false;
-    console.log(
-      "idx",
-      idx,
-      childNode.parent.nameText,
-      "childNode",
-      childNode.value
-    );
 
     if (idx === 0) {
       const childDoc = printChild(idx);
-      console.log("childDoc", childDoc);
       childDocs.push(printChild(idx));
       return;
     } else if (idx === children.length - 1) {
       const childDoc = printChild(idx);
-      console.log("childDoc", childDoc);
       childDocs.push(printChild(idx));
       return;
     }
@@ -438,12 +419,10 @@ function printChildren(
       // If node is empty, go straight through to checking the right end
       !isEmptyTextNode(childNode)
     ) {
-      console.log("Printing non-empty starting with whitespace");
       if (
         isInlineElement(prevNode, opts) &&
         !isTextNodeStartingWithLinebreak(childNode)
       ) {
-        console.log("Trimming left and appending line");
         trimTextNodeLeft(childNode);
         const lastChildDoc = childDocs.pop()!;
         childDocs.push(group([lastChildDoc, line]));
@@ -453,7 +432,6 @@ function printChildren(
         isBlockElement(prevNode, opts) &&
         !isTextNodeStartingWithLinebreak(childNode)
       ) {
-        console.log("Trimming left");
         trimTextNodeLeft(childNode);
       }
     }
