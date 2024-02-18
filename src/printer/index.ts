@@ -85,6 +85,11 @@ function printProgram(
     const childNode = childPath.node;
     let result: Doc[] = [];
     if (isTextLike(childNode) && childNode.type !== "Comment") {
+      if (childNode.type === "Text") {
+        // Remove leading or trailing whitespace from text nodes because
+        // we handle it ourselves.
+        childNode.value = childNode.value.trim();
+      }
       result.push(
         group(["--", line, print(childPath), ifBreak([softline, "--"])])
       );
