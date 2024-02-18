@@ -18,18 +18,15 @@ export function embedStatic(
     });
 
     if (!endsWithBrace(body)) {
-      return [
-        group([
-          "static ",
-          ifBreak("{"),
-          indent([softline, body]),
-          softline,
-          ifBreak("}"),
-        ]),
-        hardline,
-      ];
+      return group([
+        "static ",
+        ifBreak("{"),
+        indent([softline, body]),
+        softline,
+        ifBreak("}"),
+      ]);
     }
 
-    return ["static ", body, hardline];
+    return ["static ", body];
   };
 }

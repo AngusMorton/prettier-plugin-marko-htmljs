@@ -3,14 +3,12 @@
 </if>
 
 <if(!isLoggedIn)>
-  <a href="/login">Log in</a>
+  <a href="/login"> Log in </a>
 </if>
 <else-if(isLoggedIn)>
-  <a href="/logout">Log out</a>
+  <a href="/logout"> Log out </a>
 </else-if>
-<else>
-  Hey User!
-</else>
+<else>Hey User!</else>
 
 <if(!url.startsWith("https://"))>
   /**

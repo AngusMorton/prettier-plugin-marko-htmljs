@@ -11,12 +11,12 @@ const {
 
 export function embedScriptlet(
   path: AstPath<Scriptlet>,
-  options: Options,
+  options: Options
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
-  const node = path.node
+  const node = path.node;
   if (!node) {
-    return null
-  } 
+    return null;
+  }
 
   return async (textToDoc) => {
     const body = await textToDoc(node.valueLiteral, { parser: "babel-ts" });
@@ -31,18 +31,15 @@ export function embedScriptlet(
       //
       // Ideally, we would wrap the rhs of the assignment in braces, but we don't have the full
       // AST here, so we can't do that. Instead, we wrap the entire scriptlet in braces.
-      return [
-        group([
-          "$ ",
-          ifBreak("{"),
-          indent([softline, body]),
-          softline,
-          ifBreak("}"),
-        ]),
-        hardline,
-      ];
+      return group([
+        "$ ",
+        ifBreak("{"),
+        indent([softline, body]),
+        softline,
+        ifBreak("}"),
+      ]);
     }
 
-    return ["$ ", body, hardline];
+    return ["$ ", body];
   };
 }

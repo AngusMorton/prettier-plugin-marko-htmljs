@@ -1,11 +1,16 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Tag } from "../../parser/MarkoNode";
 import _doc from "prettier/doc";
-import { printClosingTag, printOpeningTag } from "../../printer/tag/tag";
+import {
+  printAttrs,
+  printClosingTag,
+  printOpeningTag,
+} from "../../printer/tag/tag";
 import { AstPath, Doc, Options } from "prettier";
+import { isEmptyNode } from "../../printer/tag/utils";
 
 const {
-  builders: { group, indent, hardline },
+  builders: { group, indent, hardline, dedent, softline },
   utils: { mapDoc },
 } = _doc;
 
@@ -21,13 +26,20 @@ export function embedScriptTag(
   return async (textToDoc, print, path, options) => {
     const attrGroupId = Symbol("attrGroupId");
     try {
-      if (!node.body?.length) {
+      if (isEmptyNode(node)) {
         // We have no children, so print the script tag on a single line if possible.
         return [
-          group(printOpeningTag(path as AstPath<Tag>, options, print), {
-            id: attrGroupId,
-          }),
-          printClosingTag(path, options, print),
+          group([
+            ...printOpeningTag(path as AstPath<Tag>, options, print),
+            indent(
+              group([
+                ...printAttrs(path, options, print),
+                options.bracketSameLine ? dedent(softline) : "",
+              ])
+            ),
+            ">",
+            printClosingTag(path, options, print),
+          ]),
           hardline,
         ];
       }
@@ -47,7 +59,6 @@ export function embedScriptTag(
         }
       }, "body");
 
-
       // Format the collected code and then replace any placeholders
       // with the printed docs so they are formatted correctly.
       // This ensures that things like placeholders format correctly.
@@ -60,9 +71,16 @@ export function embedScriptTag(
       );
 
       return group([
-        group(printOpeningTag(path as AstPath<Tag>, options, print), {
-          id: attrGroupId,
-        }),
+        group([
+          ...printOpeningTag(path as AstPath<Tag>, options, print),
+          indent(
+            group([
+              ...printAttrs(path, options, print),
+              options.bracketSameLine ? dedent(softline) : "",
+            ])
+          ),
+          ">",
+        ]),
         indent([hardline, replacedContent]),
         hardline,
         printClosingTag(path, options, print),

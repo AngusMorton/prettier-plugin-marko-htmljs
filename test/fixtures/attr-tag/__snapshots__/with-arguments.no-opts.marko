@@ -1,9 +1,17 @@
 <fancy-table data=people>
-  <@column|person|>Name: ${person.name}</@column>
-  <@column|person|>Age: ${person.age}</@column>
+  <@column|person|>
+    Name: ${person.name}
+  </@column>
+  <@column|person|>
+    Age: ${person.age}
+  </@column>
 </fancy-table>
 
 <fancy-table>
-  <@column|person| heading="Name">${person.name}</@column>
-  <@column|person| heading="Age">${person.age}</@column>
+  <@column|person| heading="Name">
+    ${person.name}
+  </@column>
+  <@column|person| heading="Age">
+    ${person.age}
+  </@column>
 </fancy-table>

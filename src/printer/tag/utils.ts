@@ -1,28 +1,24 @@
-import { type AstPath, type Doc } from "prettier";
+import { Options, type AstPath, type Doc } from "prettier";
 import { AnyNode, AttrTag, ChildNode, Tag, Text } from "../../parser/MarkoNode";
-import { htmlElements } from "../htmlElements";
+import {
+  TagName,
+  blockElements,
+  htmlElements,
+  selfClosingTags,
+} from "../htmlElements";
 
 export type PrintFn = (path: AstPath<AnyNode | undefined>) => Doc;
 
-export function isEmptyNode(node: AnyNode): boolean {
-  return !isNodeWithChildren(node) || (node as Tag).body!.length === 0;
+export function isEmptyNode(node: Tag | AttrTag): boolean {
+  return getChildren(node).every((child) => isEmptyTextNode(child));
 }
 
-export function getChildren(node: AnyNode): ChildNode[] {
-  return isNodeWithChildren(node)
-    ? // @ts-ignore
-      node.body
-    : [];
+export function isNodeWithChildren(node: Tag | AttrTag) {
+  return !!node.body;
 }
 
-function isNodeWithChildren(node: AnyNode): boolean {
-  return !!(
-    node &&
-    "body" in node &&
-    node.body &&
-    Array.isArray(node.body) &&
-    node.body.length !== 0
-  );
+export function getChildren(node: Tag | AttrTag): ChildNode[] {
+  return node.body ?? [];
 }
 
 export function isTextNodeStartingWithWhitespace(node: AnyNode): node is Text {
@@ -45,70 +41,66 @@ export function trimTextNodeRight(node: Text): void {
   node.value = node.value && node.value.trimEnd();
 }
 
-export function isTextNodeStartingWithLinebreak(node: Text): boolean {
-  return startsWithLinebreak(node.value);
+export function isTextNodeStartingWithLinebreak(
+  node: AnyNode,
+  nLines: number = 1
+): node is Text {
+  return node.type === "Text" && startsWithLinebreak(node.value, nLines);
 }
 
-export function isTextNodeEndingWithLinebreak(node: Text): boolean {
-  return endsWithLinebreak(node.value);
+export function isTextNodeEndingWithLinebreak(
+  node: AnyNode,
+  nLines: number = 1
+): node is Text {
+  return node.type === "Text" && endsWithLinebreak(node.value, nLines);
 }
 
-export function startsWithLinebreak(text: string): boolean {
-  return /^([\\t\\f\\r ]*\\n){1}/.test(text);
+export function startsWithLinebreak(text: string, nrLines = 1): boolean {
+  return new RegExp(`^([\\t\\f\\r ]*\\n){${nrLines}}`).test(text);
 }
 
-export function endsWithLinebreak(text: string): boolean {
-  return /`(\\n[\\t\\f\\r ]*){1}$/.test(text);
+export function endsWithLinebreak(text: string, nrLines = 1): boolean {
+  return new RegExp(`(\\n[\\t\\f\\r ]*){${nrLines}}$`).test(text);
 }
 
-export function forceBreakContent(node: AnyNode): boolean {
-  return !!(
-    forceBreakChildren(node) ||
-    (node.type === "Tag" &&
-      node.body &&
-      node.body.length > 0 &&
-      node.nameText &&
-      (["body", "script", "style"].includes(node.nameText) ||
-        node.body.some((child) => hasNonTextChild(child))))
-  );
-  // (node.firstChild &&
-  //   node.firstChild === node.lastChild &&
-  //   node.firstChild.type !== "text" &&
-  //   hasLeadingLineBreak(node.firstChild) &&
-  //   (!node.lastChild.isTrailingSpaceSensitive ||
-  //     hasTrailingLineBreak(node.lastChild)))
-}
-
-function hasNonTextChild(node: AnyNode) {
-  return (
-    node.type === "Tag" &&
-    node.body &&
-    node.body?.some((child) => child.type !== "Text")
-  );
-}
-
-/** spaces between children */
-function forceBreakChildren(node: AnyNode): boolean {
-  return !!(
-    node.type === "Tag" &&
-    node.body &&
-    node.body.length > 0 &&
-    node.nameText &&
-    ["html", "head", "body", "ul", "ol", "select"].includes(node.nameText)
-  );
-}
-
-export function isVoidTag(node: Tag | AttrTag): boolean {
-  if (getChildren(node).length > 0) {
-    // If a node has children, it cannot be a void tag.
+export function isInlineElement(node: AnyNode, options: Options): boolean {
+  if (node.type !== "AttrTag" && node.type !== "Tag") {
+    // Only Tag and AttrTag nodes can be inline elements.
     return false;
   }
 
-  if (node.nameText) {
-    const htmlElement = htmlElements[node.nameText];
-    if (htmlElement) {
-      return htmlElement.isVoid;
-    }
+  return !isBlockElement(node, options);
+}
+
+export function isBlockElement(node: AnyNode, options: Options): boolean {
+  if (node.type !== "AttrTag" && node.type !== "Tag") {
+    // Only Tag and AttrTag nodes can be block elements.
+    return false;
+  }
+
+  switch (options.htmlWhitespaceSensitivity) {
+    case "strict":
+      // In strict htmlWhitespaceSensitivity mode, everything is "inline".
+      return false;
+    case "ignore":
+      // In ignore htmlWhitespaceSensitivity mode, everything is "block".
+      return true;
+    case "css":
+    case undefined:
+      // If the tag has a dynamic nameText, then we treat it as block.
+      if (!node.nameText) {
+        // Treat dynamic tags (<${foo}>) as block tags for now. They should probably be treated as inline tags though just to be safe.
+        return true;
+      }
+
+      return blockElements.has(node.nameText as TagName);
+  }
+}
+
+export function isSelfClosingTag(node: Tag | AttrTag): boolean {
+  if (node.nameText && htmlElements.has(node.nameText as TagName)) {
+    // For known HTML elements, we follow the self-closing rules.
+    return selfClosingTags.has(node.nameText);
   }
 
   // If the node is not a known HTML element, then we leave it up
@@ -119,4 +111,48 @@ export function isVoidTag(node: Tag | AttrTag): boolean {
   //
   // Both could be valid.
   return node.selfClosed;
+}
+
+export function shouldHugStart(node: Tag | AttrTag, options: Options): boolean {
+  if (isBlockElement(node, options)) {
+    return false;
+  }
+
+  if (!isNodeWithChildren(node)) {
+    return false;
+  }
+
+  const children = getChildren(node);
+  if (children.length === 0) {
+    return true;
+  }
+
+  if (options.htmlWhitespaceSensitivity === "ignore") {
+    return false;
+  }
+
+  const firstChild = children[0];
+  return !isTextNodeStartingWithWhitespace(firstChild);
+}
+
+export function shouldHugEnd(node: Tag | AttrTag, options: Options): boolean {
+  if (isBlockElement(node, options)) {
+    return false;
+  }
+
+  if (!isNodeWithChildren(node)) {
+    return false;
+  }
+
+  const children = getChildren(node);
+  if (children.length === 0) {
+    return true;
+  }
+
+  if (options.htmlWhitespaceSensitivity === "ignore") {
+    return false;
+  }
+
+  const lastChild = children[children.length - 1];
+  return !isTextNodeEndingWithWhitespace(lastChild);
 }

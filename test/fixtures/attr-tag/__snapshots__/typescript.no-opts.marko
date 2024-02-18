@@ -1,12 +1,13 @@
 <fancy-table data=people>
-  <@column|person: string|>Name: ${person}</@column>
+  <@column|person: string|>
+    Name: ${person}
+  </@column>
   <@column|
     person: string,
     anotherPerson: string,
     aThirdPerson: string,
     aFourthPerson: string,
   |>
-    Age:
-    ${person}
+    Age: ${person}
   </@column>
 </fancy-table>
