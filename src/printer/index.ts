@@ -1,6 +1,6 @@
 // https://prettier.io/docs/en/plugins.html#print
 import { type AstPath, type Doc, type ParserOptions } from "prettier";
-import { PrintFn, isEmptyTextNode } from "./tag/utils";
+import { PrintFn, isEmptyTextNode, trimTextNodeLeft } from "./tag/utils";
 import { AnyNode, Program, Tag, Comment, AttrTag } from "../parser/MarkoNode";
 import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
@@ -27,7 +27,7 @@ export function print(
       return printProgram(path as AstPath<Program>, opts, print);
     case "DocType":
       // https://www.w3.org/wiki/Doctypes_and_markup_styles
-      return ["<!doctype html>", hardline];
+      return "<!doctype html>";
     case "Declaration":
       return ["<?", node.valueLiteral, "?>"];
     case "Text":
@@ -40,26 +40,23 @@ export function print(
       if (isEmptyTextNode(node)) {
         // TODO: Rules around preserving whitespace are complex.
         // https://prettier.io/docs/en/rationale.html#empty-lines
-        // const rawText = node.value;
-        // const hasTwoOrMoreNewlines = /\n\r?\s*\n\r?/.test(rawText);
-        // const hasOneOrMoreNewlines = /\n/.test(rawText);
-        // const hasWhiteSpace = rawText.trim().length < rawText.length;
+        const rawText = node.value;
+        const hasTwoOrMoreNewlines = /\n\r?\s*\n\r?/.test(rawText);
+        const hasOneOrMoreNewlines = /\n/.test(rawText);
+        const hasWhiteSpace = rawText.trim().length < rawText.length;
 
-        // if (hasTwoOrMoreNewlines) {
-        //   console.log("   - two hardlines");
-        //   return [hardline, hardline];
-        // }
-        // if (hasOneOrMoreNewlines) {
-        //   console.log("   - one hardline");
-        //   return hardline;
-        // }
-        // if (hasWhiteSpace) {
-        //   return line;
-        // }
+        if (hasTwoOrMoreNewlines) {
+          return [hardline, hardline];
+        }
+        if (hasOneOrMoreNewlines) {
+          return hardline;
+        }
+        if (hasWhiteSpace) {
+          return line;
+        }
         return "";
       }
       const text = node.value
-        .trim()
         .replace(/(?<!\\)\\(?!\\)/, "\\\\")
         .replace(/\${/, "\\${")
         .replace(/\$\!{/, "\\$!{");
@@ -86,18 +83,22 @@ function printProgram(
   const parentNode = path.node;
   const children = path.map((childPath, childIndex) => {
     const childNode = childPath.node;
-    const nextNode = parentNode.body[childIndex + 1];
-
     let result: Doc[] = [];
     if (isTextLike(childNode) && childNode.type !== "Comment") {
+      if (childNode.type === "Text") {
+        // Remove leading or trailing whitespace from text nodes because
+        // we handle it ourselves.
+        childNode.value = childNode.value.trim();
+      }
       result.push(
         group(["--", line, print(childPath), ifBreak([softline, "--"])])
       );
     } else {
-      result.push(stripTrailingHardline(print(childPath)));
+      result.push(print(childPath));
     }
     result.push(hardline);
 
+    const nextNode = parentNode.body[childIndex + 1];
     if (nextNode) {
       if (nextNode.sourceSpan.start.line - childNode.sourceSpan.end.line > 1) {
         result.push(hardline);

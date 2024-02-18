@@ -88,9 +88,6 @@ class Builder implements ParserHandlers {
   }
 
   onText(range: Range) {
-    const value = this.#code.slice(range.start, range.end);
-    if (value.trim() === "") return;
-
     pushBody(this.#parentNode, {
       type: "Text",
       parent: this.#parentNode,
@@ -374,7 +371,7 @@ class Builder implements ParserHandlers {
     };
     const tag =
       (this.#parentNode =
-      name.parent =
+        name.parent =
         {
           type,
           parent,
@@ -527,15 +524,15 @@ class Builder implements ParserHandlers {
     pushAttr(
       parent,
       (this.#attrNode = name.parent =
-        {
-          type: "AttrNamed",
-          parent,
-          name,
-          value: undefined,
-          args: undefined,
-          start: range.start,
-          end: range.end,
-        })
+      {
+        type: "AttrNamed",
+        parent,
+        name,
+        value: undefined,
+        args: undefined,
+        start: range.start,
+        end: range.end,
+      })
     );
   }
   onAttrArgs(range: Ranges.Value) {

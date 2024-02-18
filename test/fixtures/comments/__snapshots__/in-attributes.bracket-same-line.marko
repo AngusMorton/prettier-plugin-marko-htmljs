@@ -1,0 +1,24 @@
+<div
+  data-test=(
+    // This was important
+    "test")></div>
+
+<div
+  data-test="test" /* Comments can be between attributes.*/
+  data-test2="test2" /* Comments can be between attributes.*/></div>
+
+<!-- 
+  The following don't currently work, but could with some finessing to work well with the 
+  htmljs parser because the comments need to end in a whitespace. 
+-->
+<!-- <div 
+                data-test="test"            // Comments can be between attributes. 
+    data-test2="test2" // Comments can be between attributes. 
+/>
+
+<div
+    id="test" 
+    // Comments can also be multiline trailing like this. 
+    // But must end in a whitespace. 
+    data-test="test"
+/> -->

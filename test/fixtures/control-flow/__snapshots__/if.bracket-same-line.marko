@@ -1,0 +1,47 @@
+<if(true)><strong>Marko is awesome</strong></if>
+
+<if(!isLoggedIn)><a href="/login">Log in</a></if>
+<else-if(isLoggedIn)><a href="/logout">Log out</a></else-if>
+<else>Hey User!</else>
+
+<if(!url.startsWith("https://"))>
+  /**
+   * Comments can go inside if statements too.
+   */
+  <meta name="robots" content="noindex, nofollow" />
+</if>
+
+<if(
+  true ||
+    false ||
+    "long" ||
+    "breaking" ||
+    "should-break" ||
+    (200 > 10 && isLoggedIn),
+)>
+  Hmmm
+</if>
+
+<if(
+  thisPerson.address &&
+    thisPerson.phone &&
+    thisPerson.age &&
+    thisPerson.nationality,
+)>
+  <person-card
+    address=thisPerson.address
+    phone=thisPerson.phone
+    age=thisPerson.age />
+</if>
+
+<if(
+  thisPerson.address &&
+    thisPerson.phone &&
+    thisPerson.age &&
+    thisPerson.nationality,
+)>
+  <person-card
+    address=thisPerson.address
+    phone=thisPerson.phone
+    age=thisPerson.age />
+</if>
