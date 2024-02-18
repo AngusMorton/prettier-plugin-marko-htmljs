@@ -55,8 +55,9 @@ export function printTag(
   }
 
   const children = getChildren(node);
-  const firstChild = children[0];
-  const lastChild = children[children.length - 1];
+
+  let firstChild = children[0];
+  let lastChild = children[children.length - 1];
 
   const isInlineTag = isInlineElement(node, opts);
 
@@ -308,24 +309,36 @@ function printChildren(
   }
 
   const children = getChildren(node);
+
+  // The HTML-JS parser includes whitespace as Text nodes at the beginning and end
+  // of a tag, we need to remove them so we don't print extra whitespace.
+  //
+  // Prepare children by removing empty Text nodes at the beginning and end
+  // whitespace at the beginning and end of a tag are handled separately.
+  let firstChild = children[0];
+  if (firstChild.type === "Text") {
+    if (isEmptyTextNode(firstChild)) {
+      children.shift();
+      firstChild = children[0];
+    } else {
+      trimTextNodeLeft(firstChild);
+    }
+  }
+
+  let lastChild = children[children.length - 1];
+  if (lastChild.type === "Text") {
+    if (isEmptyTextNode(lastChild)) {
+      children.pop();
+      lastChild = children[children.length - 1];
+    } else {
+      trimTextNodeRight(lastChild);
+    }
+  }
+  node.body = children;
+
   if (!children || children.length === 0) {
     return "";
   }
-
-  // Prepare children by removing empty Text nodes at the beginning and end
-  // whitespace at the beginning and end of a tag are handled separately.
-  if (children[0].type === "Text" && isEmptyTextNode(children[0])) {
-    children.shift();
-  }
-
-  if (
-    children[children.length - 1].type === "Text" &&
-    isEmptyTextNode(children[children.length - 1])
-  ) {
-    children.pop();
-  }
-
-  node.body = children;
 
   const childDocs: Doc[] = [];
   let handleWhitespaceOfPrevTextNode = false;
