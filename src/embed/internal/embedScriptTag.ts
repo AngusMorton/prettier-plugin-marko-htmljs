@@ -40,7 +40,6 @@ export function embedScriptTag(
             ">",
             printClosingTag(path, options, print),
           ]),
-          hardline,
         ];
       }
 
@@ -84,7 +83,6 @@ export function embedScriptTag(
         indent([hardline, replacedContent]),
         hardline,
         printClosingTag(path, options, print),
-        hardline,
       ]);
     } catch (e) {
       console.log(e);
