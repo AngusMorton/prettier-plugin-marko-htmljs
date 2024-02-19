@@ -58,6 +58,29 @@ export function printTag(
 
   let firstChild = children[0];
   let lastChild = children[children.length - 1];
+  // The HTML-JS parser includes whitespace as Text nodes at the beginning and end
+  // of a tag, we need to remove them so we don't print extra whitespace.
+  //
+  // Prepare children by removing empty Text nodes at the beginning and end
+  // whitespace at the beginning and end of a tag are handled separately.
+  if (firstChild?.type === "Text") {
+    if (isEmptyTextNode(firstChild)) {
+      children.shift();
+      firstChild = children[0];
+    } else {
+      trimTextNodeLeft(firstChild);
+    }
+  }
+
+  if (lastChild?.type === "Text") {
+    if (isEmptyTextNode(lastChild)) {
+      children.pop();
+      lastChild = children[children.length - 1];
+    } else {
+      trimTextNodeRight(lastChild);
+    }
+  }
+  node.body = children;
 
   const isInlineTag = isInlineElement(node, opts);
 
@@ -309,33 +332,6 @@ function printChildren(
   }
 
   const children = getChildren(node);
-
-  // The HTML-JS parser includes whitespace as Text nodes at the beginning and end
-  // of a tag, we need to remove them so we don't print extra whitespace.
-  //
-  // Prepare children by removing empty Text nodes at the beginning and end
-  // whitespace at the beginning and end of a tag are handled separately.
-  let firstChild = children[0];
-  if (firstChild.type === "Text") {
-    if (isEmptyTextNode(firstChild)) {
-      children.shift();
-      firstChild = children[0];
-    } else {
-      trimTextNodeLeft(firstChild);
-    }
-  }
-
-  let lastChild = children[children.length - 1];
-  if (lastChild.type === "Text") {
-    if (isEmptyTextNode(lastChild)) {
-      children.pop();
-      lastChild = children[children.length - 1];
-    } else {
-      trimTextNodeRight(lastChild);
-    }
-  }
-  node.body = children;
-
   if (!children || children.length === 0) {
     return "";
   }
@@ -358,10 +354,8 @@ function printChildren(
   }
 
   const forceBreakContent =
-    children.length > 1 &&
-    children.some(
-      (child) => isBlockElement(child, opts) || child.type === "Scriptlet"
-    );
+    (children.length > 1 && children.some((it) => isBlockElement(it, opts))) ||
+    children.some((it) => it.type === "Scriptlet");
   if (forceBreakContent) {
     childDocs.push(breakParent);
   }

@@ -1,13 +1,7 @@
-<if(true)>
-  <strong>Marko is awesome</strong>
-</if>
+<if(true)><strong>Marko is awesome</strong></if>
 
-<if(!isLoggedIn)>
-  <a href="/login">Log in</a>
-</if>
-<else-if(isLoggedIn)>
-  <a href="/logout">Log out</a>
-</else-if>
+<if(!isLoggedIn)><a href="/login">Log in</a></if>
+<else-if(isLoggedIn)><a href="/logout">Log out</a></else-if>
 <else>Hey User!</else>
 
 <if(!url.startsWith("https://"))>

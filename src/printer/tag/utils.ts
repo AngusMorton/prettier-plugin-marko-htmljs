@@ -93,6 +93,14 @@ export function isBlockElement(node: AnyNode, options: Options): boolean {
         return true;
       }
 
+      if (!htmlElements.has(node.nameText as TagName)) {
+        // For easy migration/compat with the existing Marko Prettier Plugin,
+        // we treat custom tags as block elements.
+        // In the future, we should probably change this behaviour so that
+        // they are inline by default, but that will be a large breaking change.
+        return true;
+      }
+
       return blockElements.has(node.nameText as TagName);
   }
 }
