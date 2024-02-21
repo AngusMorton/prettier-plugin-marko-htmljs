@@ -17,6 +17,7 @@ import type {
   Tag,
   ParentNode,
   HasChildren,
+  AttrValue,
 } from "./MarkoNode";
 import * as prettierPluginBabel from "prettier/plugins/babel";
 import { Parser } from "prettier";
@@ -371,7 +372,7 @@ class Builder implements ParserHandlers {
     };
     const tag =
       (this.#parentNode =
-        name.parent =
+      name.parent =
         {
           type,
           parent,
@@ -430,14 +431,43 @@ class Builder implements ParserHandlers {
   }
   onTagShorthandId(range: Ranges.Template) {
     const parent = this.#parentNode as ParentTag;
-    parent.shorthandId = {
-      type: "ShorthandId",
+
+    const attrNamed: AttrNamed = {
+      type: "AttrNamed",
       parent,
-      quasis: range.quasis,
-      expressions: range.expressions,
+      name: undefined as unknown as AttrName,
+      value: undefined,
+      args: undefined,
       start: range.start,
       end: range.end,
     };
+
+    const name: AttrName = {
+      type: "AttrName",
+      parent: attrNamed,
+      value: "id",
+      start: range.start,
+      end: range.end,
+    };
+
+    const value: AttrValue = {
+      type: "AttrValue",
+      parent: attrNamed,
+      value: range,
+      bound: false,
+      // Wrap the value in backticks to make it a string literal that will be formatted correctly.
+      valueLiteral: `\"${this.#code.slice(range.start + 1, range.end)}\"`,
+      start: range.start,
+      end: range.end,
+    };
+
+    attrNamed.name = name
+    attrNamed.value = value;
+
+    pushAttr(
+      parent,
+      attrNamed,
+    );
   }
   onTagShorthandClass(range: Ranges.Template) {
     const parent = this.#parentNode as ParentTag;
@@ -448,6 +478,7 @@ class Builder implements ParserHandlers {
       expressions: range.expressions,
       start: range.start,
       end: range.end,
+      valueLiteral: this.#code.slice(range.start, range.end),
     };
 
     if (parent.shorthandClassNames) {
@@ -524,15 +555,15 @@ class Builder implements ParserHandlers {
     pushAttr(
       parent,
       (this.#attrNode = name.parent =
-      {
-        type: "AttrNamed",
-        parent,
-        name,
-        value: undefined,
-        args: undefined,
-        start: range.start,
-        end: range.end,
-      })
+        {
+          type: "AttrNamed",
+          parent,
+          name,
+          value: undefined,
+          args: undefined,
+          start: range.start,
+          end: range.end,
+        })
     );
   }
   onAttrArgs(range: Ranges.Value) {
