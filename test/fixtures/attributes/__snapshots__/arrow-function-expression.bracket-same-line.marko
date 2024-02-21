@@ -1,10 +1,10 @@
-<div data-foo=(() => a.b())></div>
+<div data-foo=() => a.b()></div>
 <div
   data-foo=() => {
     a.b();
     c.d();
   }></div>
-<div data-foo=((a) => b.c())></div>
+<div data-foo=(a) => b.c()></div>
 <div
   data-foo=(a, b) => {
     c.d();
