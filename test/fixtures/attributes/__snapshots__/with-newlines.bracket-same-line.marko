@@ -1,18 +1,20 @@
-<div class=(
-  [
-    "test-class",
-    input.mobile && input.thing !== false && "test-class-thing",
-    input.mobile && "test-class-mobile",
-  ]
-    .filter((className) => className)
-    .join(" ")
-)/>
-<div data-current-text=(
-  current &&
-  current
-    .replace("{page_number}", "{item_number}")
-    .replace("{current_page}", "{item_number}")
-)/>
+<div
+  class=(
+    [
+      "test-class",
+      input.mobile && input.thing !== false && "test-class-thing",
+      input.mobile && "test-class-mobile",
+    ]
+      .filter((className) => className)
+      .join(" ")
+  )></div>
+<div
+  data-current-text=(
+    current &&
+      current
+        .replace("{page_number}", "{item_number}")
+        .replace("{current_page}", "{item_number}")
+  )></div>
 
 <div
   class=(
@@ -26,8 +28,7 @@
   )
   data-current-text=(
     current &&
-    current
-      .replace("{page_number}", "{item_number}")
-      .replace("{current_page}", "{item_number}")
-  )
-/>
+      current
+        .replace("{page_number}", "{item_number}")
+        .replace("{current_page}", "{item_number}")
+  )></div>
