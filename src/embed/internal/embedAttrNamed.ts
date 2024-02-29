@@ -26,10 +26,17 @@ export function emebdAttrNamed(
       case "AttrValue":
         const value = node.value.valueLiteral;
         return async (textToDoc) => {
-          let formattedValue = await textToDoc(forceIntoExpression(value), {
-            parser: "htmljsExpressionParser",
-          });
-
+          // Remove parentheses and whitespace because we're going to add our own and we don't want to double up.
+          const valueWithNoParentheses = value.replace(
+            /^\s*\(\s*(.*?)\s*\)\s*$/,
+            "$1"
+          );
+          let formattedValue = await textToDoc(
+            forceIntoExpression(valueWithNoParentheses),
+            {
+              parser: "htmljsExpressionParser",
+            }
+          );
           // formattedValue = removeLeadingSemicolon(formattedValue);
           // Simple string docs don't need parenthesis because we don't break them even
           // though they exceed the line length.
@@ -38,11 +45,13 @@ export function emebdAttrNamed(
           return group([
             name,
             "=",
-            docNeedsParenthesis ? "(" : "",
-            docNeedsParenthesis
-              ? indent([softline, formattedValue])
-              : formattedValue,
-            docNeedsParenthesis ? ")" : "",
+            group([
+              docNeedsParenthesis ? "(" : "",
+              docNeedsParenthesis
+                ? indent([softline, formattedValue])
+                : formattedValue,
+              docNeedsParenthesis ? [softline, ")"] : "",
+            ]),
           ]);
         };
       case "AttrMethod":

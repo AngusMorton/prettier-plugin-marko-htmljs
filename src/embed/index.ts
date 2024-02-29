@@ -1,5 +1,5 @@
 import { AstPath, Options } from "prettier";
-import { AnyNode, Scriptlet, Style, Tag } from "../parser/MarkoNode";
+import { AnyNode, Scriptlet, Style, Tag, TagVar } from "../parser/MarkoNode";
 import { HtmlJsPrinter } from "../HtmlJsPrinter";
 import _doc from "prettier/doc";
 import { embedScriptlet } from "./internal/embedScriptlet";
@@ -18,6 +18,7 @@ import { embedTagTypeParams } from "./internal/embedTagTypeParams";
 import { embedTagTypeArgs } from "./internal/embedTagTypeArgs";
 import { embedAttrSpread } from "./internal/embedAttrSpread";
 import { embedStaticStyle } from "./internal/embedStaticStyle";
+import { embedTagVariable } from "./internal/embedTagVariable";
 
 export function embed(
   path: AstPath<AnyNode>,
@@ -87,6 +88,10 @@ export function embed(
 
   if (node.type === "Style") {
     return embedStaticStyle(path as AstPath<Style>, options)
+  }
+
+  if (node.type === "TagVar") {
+    return embedTagVariable(path as AstPath<TagVar>, options)
   }
   
   return null;

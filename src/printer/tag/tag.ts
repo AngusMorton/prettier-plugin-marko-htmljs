@@ -213,12 +213,11 @@ export function printOpeningTag(
 
   return [
     [`<`, printTagName(path, print), printTypeArgs(path, opts, print)],
-    node.typeArgs && node.typeParams ? softline : "",
+    node.typeParams && !node.typeArgs ? " " : "",
     printTypeParams(path, opts, print),
+    printTagVariables(path, opts, print),
     printTagArguments(path, opts, print),
     printTagParams(path, opts, print),
-    // printAttrs(path, opts, print),
-    // isVoidTag(node) ? "" : ">",
   ];
 }
 
@@ -229,6 +228,18 @@ export function printTypeArgs(
 ) {
   if (path.node.typeArgs) {
     return path.call(print, "typeArgs");
+  } else {
+    return "";
+  }
+}
+
+export function printTagVariables(
+  path: AstPath<Tag | AttrTag>,
+  opts: Options,
+  print: PrintFn
+) {
+  if (path.node.var) {
+    return path.call(print, "var");
   } else {
     return "";
   }

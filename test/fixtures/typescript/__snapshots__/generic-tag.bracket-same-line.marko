@@ -1,6 +1,6 @@
 <my-tag<MyType, MyOtherType> my-attr="my-string" />
-<my-tag<MyType, MyOtherType>|x| />
-<my-tag<MyType>|x| my-attr="my-string" />
+<my-tag <MyType, MyOtherType>|x| />
+<my-tag <MyType>|x| my-attr="my-string" />
 <my-tag<MyType>|x| />
 <my-tag<MyType1><MyOtherType>|x| />
 <my-tag<
@@ -19,8 +19,7 @@
   The,
   Next,
   Line,
->
-<
+><
   A,
   Whole,
   Bunch,
@@ -37,7 +36,7 @@
   Next,
   Line,
 >|x| />
-<my-tag<
+<my-tag <
   T extends
     keyof (typeof SuperLongImportedVariableName)["member1"]["member2"]["member3"],
   K extends T extends string
