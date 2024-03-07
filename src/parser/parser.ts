@@ -597,8 +597,11 @@ class Builder implements ParserHandlers {
       type: "AttrMethod",
       parent,
       typeParams: range.typeParams,
+      typeParamsLiteral: range.typeParams ? this.#code.slice(range.typeParams.start, range.typeParams.end) : undefined,
       params: range.params,
+      paramsLiteral: this.#code.slice(range.params.start, range.params.end),
       body: range.body,
+      bodyLiteral: this.#code.slice(range.body.start, range.body.end),
       start: range.start,
       end: range.end,
     };

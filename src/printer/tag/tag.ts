@@ -211,13 +211,20 @@ export function printOpeningTag(
     return [];
   }
 
+  const hasDefaultAttribute =
+    node.attrs &&
+    node.attrs.length > 0 &&
+    node.attrs[0].type === "AttrNamed" &&
+    node.attrs[0].name.value === "";
+
   return [
     [`<`, printTagName(path, print), printTypeArgs(path, opts, print)],
-    node.typeParams && !node.typeArgs ? " " : "",
+    !hasDefaultAttribute && node.typeParams && !node.typeArgs ? " " : "",
     printTypeParams(path, opts, print),
     printTagVariables(path, opts, print),
     printTagArguments(path, opts, print),
     printTagParams(path, opts, print),
+    hasDefaultAttribute ? path.call(print, "attrs", 0) : "",
   ];
 }
 
@@ -292,9 +299,21 @@ export function printAttrs(
     return "";
   }
 
+  const hasDefaultAttribute =
+    node.attrs &&
+    node.attrs.length > 0 &&
+    node.attrs[0].type === "AttrNamed" &&
+    node.attrs[0].name.value === "";
+
   const attributeLine =
     opts.singleAttributePerLine && node.attrs.length > 1 ? hardline : line;
-  return path.map((path) => [attributeLine, path.call(print)], "attrs");
+  return path.map((path, index) => {
+    if (index === 0 && hasDefaultAttribute) {
+      // We've already printed the default attribute, so skip it.
+      return "";
+    }
+    return [attributeLine, path.call(print)];
+  }, "attrs");
 }
 
 export function printClosingTag(
