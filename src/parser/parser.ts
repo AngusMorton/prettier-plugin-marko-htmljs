@@ -224,7 +224,7 @@ class Builder implements ParserHandlers {
                     line: UNFINISHED,
                   },
                 },
-              })
+              }),
             );
 
             this.#comments = undefined;
@@ -250,7 +250,7 @@ class Builder implements ParserHandlers {
                   line: UNFINISHED,
                 },
               },
-            })
+            }),
           );
 
           this.#comments = undefined;
@@ -271,7 +271,7 @@ class Builder implements ParserHandlers {
                   line: UNFINISHED,
                 },
               },
-            })
+            }),
           );
 
           this.#comments = undefined;
@@ -292,7 +292,7 @@ class Builder implements ParserHandlers {
                   line: UNFINISHED,
                 },
               },
-            })
+            }),
           );
 
           this.#comments = undefined;
@@ -313,7 +313,7 @@ class Builder implements ParserHandlers {
                   line: UNFINISHED,
                 },
               },
-            })
+            }),
           );
 
           this.#comments = undefined;
@@ -552,7 +552,7 @@ class Builder implements ParserHandlers {
           args: undefined,
           start: range.start,
           end: range.end,
-        })
+        }),
     );
   }
   onAttrArgs(range: Ranges.Value) {
@@ -622,7 +622,7 @@ class Builder implements ParserHandlers {
       });
       this.#staticNode.valueLiteral = this.#code.slice(
         this.#staticNode.start,
-        this.#staticNode.end
+        this.#staticNode.end,
       );
       this.#program.body.push(this.#staticNode);
       this.#staticNode = undefined;
@@ -714,7 +714,7 @@ function isControlFlowTag(node: Tag): node is ControlFlowTag {
 }
 
 function makeCommentsLeading(
-  comments: Repeatable<Comment>
+  comments: Repeatable<Comment>,
 ): Repeatable<Comment> {
   if (comments) {
     for (const comment of comments) {

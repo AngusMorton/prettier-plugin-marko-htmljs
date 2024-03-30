@@ -43,14 +43,14 @@ export function trimTextNodeRight(node: Text): void {
 
 export function isTextNodeStartingWithLinebreak(
   node: AnyNode,
-  nLines: number = 1
+  nLines: number = 1,
 ): node is Text {
   return node.type === "Text" && startsWithLinebreak(node.value, nLines);
 }
 
 export function isTextNodeEndingWithLinebreak(
   node: AnyNode,
-  nLines: number = 1
+  nLines: number = 1,
 ): node is Text {
   return node.type === "Text" && endsWithLinebreak(node.value, nLines);
 }

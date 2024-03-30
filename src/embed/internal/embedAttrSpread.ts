@@ -3,7 +3,7 @@ import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { forceIntoExpression } from "../forceIntoExpression";
 
 export function embedAttrSpread(
-  node: AttrSpread
+  node: AttrSpread,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   return async (textToDoc, print, path, options) => {
     try {

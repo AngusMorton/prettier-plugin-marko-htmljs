@@ -8,7 +8,7 @@ export function printComment(
   commentPath: AstPath<Comment>,
   // Current options
   options: Options,
-  print: PrintFn
+  print: PrintFn,
 ): Doc {
   const commentText = commentPath.node.valueLiteral;
 
@@ -58,8 +58,8 @@ export function printComment(
           lines.map(
             (line: string, index: number) =>
               (index > 0 ? " " : "") +
-              (index < lines.length - 1 ? line.trim() : line.trimStart())
-          )
+              (index < lines.length - 1 ? line.trim() : line.trimStart()),
+          ),
         ),
       ];
     }

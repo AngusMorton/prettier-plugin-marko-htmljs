@@ -1,7 +1,7 @@
 import { AnyNode, Text, Placeholder, Comment } from "../parser/MarkoNode";
 
 export function isTextLike(
-  node: AnyNode
+  node: AnyNode,
 ): node is Text | Placeholder | Comment {
   return (
     node.type === "Text" ||

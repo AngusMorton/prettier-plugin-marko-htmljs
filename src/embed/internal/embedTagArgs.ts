@@ -2,7 +2,7 @@ import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { TagArgs } from "../../parser/MarkoNode";
 
 export function embedTagArgs(
-  node: TagArgs
+  node: TagArgs,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const value = node.valueLiteral;
   return async (textToDoc, print, path, options) => {

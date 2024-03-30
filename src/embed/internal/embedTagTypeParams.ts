@@ -5,7 +5,7 @@ import { doc } from "prettier";
 const { join, line, group, ifBreak, indent, softline } = doc.builders;
 
 export function embedTagTypeParams(
-  node: TagTypeParams
+  node: TagTypeParams,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const params = node.valueLiteral;
   return async (textToDoc, print, path, options) => {

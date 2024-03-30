@@ -10,7 +10,7 @@ const {
 } = doc;
 
 export function emebdAttrNamed(
-  node: AttrNamed
+  node: AttrNamed,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const name = node.name.value;
   const isDefaultAttribute = !name;
@@ -24,13 +24,13 @@ export function emebdAttrNamed(
             // Remove parentheses and whitespace because we're going to add our own and we don't want to double up.
             const valueWithNoParentheses = value.replace(
               /^\s*\(\s*(.*?)\s*\)\s*$/,
-              "$1"
+              "$1",
             );
             let formattedValue = await textToDoc(
               forceIntoExpression(valueWithNoParentheses),
               {
                 parser: "marko-htmljs-expression-parser",
-              }
+              },
             );
             // formattedValue = removeLeadingSemicolon(formattedValue);
             // Simple string docs don't need parenthesis because we don't break them even

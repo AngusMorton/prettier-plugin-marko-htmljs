@@ -4,7 +4,7 @@ import { TagVar } from "../../parser/MarkoNode";
 
 export function embedTagVariable(
   path: AstPath<TagVar>,
-  options: Options
+  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {

@@ -2,7 +2,7 @@ import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Export } from "../../parser/MarkoNode";
 
 export function embedExport(
-  node: Export
+  node: Export,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const statement = node.valueLiteral;
   return async (textToDoc) => {

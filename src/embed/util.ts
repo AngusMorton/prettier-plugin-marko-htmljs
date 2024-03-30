@@ -13,10 +13,10 @@ export function trim(docs: Doc[], isWhitespace: (doc: Doc) => boolean): Doc[] {
  */
 export function trimLeft(
   group: Doc[],
-  isWhitespace: (doc: Doc) => boolean
+  isWhitespace: (doc: Doc) => boolean,
 ): void {
   let firstNonWhitespace = group.findIndex(
-    (doc) => !isEmptyDoc(doc) && !isWhitespace(doc)
+    (doc) => !isEmptyDoc(doc) && !isWhitespace(doc),
   );
 
   if (firstNonWhitespace < 0 && group.length) {
@@ -43,7 +43,7 @@ export function trimLeft(
  */
 export function trimRight(
   group: Doc[],
-  isWhitespace: (doc: Doc) => boolean
+  isWhitespace: (doc: Doc) => boolean,
 ): void {
   let lastNonWhitespace = group.length
     ? findLastIndex((doc) => !isEmptyDoc(doc) && !isWhitespace(doc), group)
@@ -65,7 +65,7 @@ export function trimRight(
 
 function findLastIndex<T>(
   isMatch: (item: T, idx: number) => boolean,
-  items: T[]
+  items: T[],
 ) {
   for (let i = items.length - 1; i >= 0; i--) {
     if (isMatch(items[i], i)) {

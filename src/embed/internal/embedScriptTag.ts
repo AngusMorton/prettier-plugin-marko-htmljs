@@ -16,7 +16,7 @@ const {
 
 export function embedScriptTag(
   path: AstPath<Tag>,
-  options: Options
+  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {
@@ -35,7 +35,7 @@ export function embedScriptTag(
               group([
                 ...printAttrs(path, options, print),
                 options.bracketSameLine ? dedent(softline) : "",
-              ])
+              ]),
             ),
             ">",
             printClosingTag(path, options, print),
@@ -66,7 +66,7 @@ export function embedScriptTag(
       });
       const replacedContent = replaceEmbeddedPlaceholders(
         content,
-        placeholders
+        placeholders,
       );
 
       return group([
@@ -76,7 +76,7 @@ export function embedScriptTag(
             group([
               ...printAttrs(path, options, print),
               options.bracketSameLine ? dedent(softline) : "",
-            ])
+            ]),
           ),
           ">",
         ]),

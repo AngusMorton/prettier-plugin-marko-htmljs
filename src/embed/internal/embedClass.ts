@@ -2,12 +2,12 @@ import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Class } from "../../parser/MarkoNode";
 
 export function embedClass(
-  node: Class
+  node: Class,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   // Mutate the class so that it's a valid class so that babel-ts can parse it.
   const mutatedClassBody = node.valueLiteral.replace(
     /class\s/,
-    "class __PLACEHOLDER__"
+    "class __PLACEHOLDER__",
   );
   return async (textToDoc) => {
     const body = await textToDoc(mutatedClassBody, {

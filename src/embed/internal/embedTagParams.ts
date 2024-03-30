@@ -8,7 +8,7 @@ const {
 } = doc;
 
 export function embedTagParams(
-  node: TagParams
+  node: TagParams,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const params = node.valueLiteral;
 

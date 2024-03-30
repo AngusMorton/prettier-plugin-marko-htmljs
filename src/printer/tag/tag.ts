@@ -33,7 +33,7 @@ const {
 export function printTag(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ): Doc {
   const node = path.node;
   if (!node) {
@@ -111,7 +111,7 @@ export function printTag(
           : !opts.bracketSameLine
             ? dedent(softline)
             : "",
-      ])
+      ]),
     ),
   ];
 
@@ -203,7 +203,7 @@ export function printTag(
 export function printOpeningTag(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ): Doc[] {
   const node = path.node;
 
@@ -231,7 +231,7 @@ export function printOpeningTag(
 export function printTypeArgs(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   if (path.node.typeArgs) {
     return path.call(print, "typeArgs");
@@ -243,7 +243,7 @@ export function printTypeArgs(
 export function printTagVariables(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   if (path.node.var) {
     return path.call(print, "var");
@@ -255,7 +255,7 @@ export function printTagVariables(
 export function printTypeParams(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   if (path.node.typeParams) {
     return path.call(print, "typeParams");
@@ -267,7 +267,7 @@ export function printTypeParams(
 export function printTagParams(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   if (path.node.params) {
     return path.call(print, "params");
@@ -279,7 +279,7 @@ export function printTagParams(
 export function printTagArguments(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   if (path.node.args) {
     return path.call(print, "args");
@@ -291,7 +291,7 @@ export function printTagArguments(
 export function printAttrs(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   const node = path.node;
 
@@ -319,7 +319,7 @@ export function printAttrs(
 export function printClosingTag(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   const node = path.node;
 
@@ -343,7 +343,7 @@ export function printClosingTag(
 
 export function printTagName(
   path: AstPath<Tag | AttrTag>,
-  print: PrintFn
+  print: PrintFn,
 ): Doc {
   const node = path.node;
 
@@ -363,7 +363,7 @@ export function printTagName(
 function printChildren(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
-  print: PrintFn
+  print: PrintFn,
 ) {
   const node = path.node;
   if (!node) {

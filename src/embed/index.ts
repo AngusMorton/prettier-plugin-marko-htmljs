@@ -21,7 +21,7 @@ import { embedTagVariable } from "./internal/embedTagVariable";
 
 export function embed(
   path: AstPath<AnyNode>,
-  options: Options
+  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
 

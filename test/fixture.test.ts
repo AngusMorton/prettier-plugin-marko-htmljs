@@ -11,7 +11,7 @@ const inputFiles = import.meta.glob(
   {
     eager: true,
     as: "raw",
-  }
+  },
 );
 
 describe.each(Object.keys(inputFiles))("%s", (path) => {
@@ -22,21 +22,24 @@ describe.each(Object.keys(inputFiles))("%s", (path) => {
   it("should format with no options", async () => {
     const result = await format(file, {});
     await expect(result, "Incorrect formatting").toMatchFileSnapshot(
-      join(snapshotDirectory, `${fileName}.no-opts.marko`)
+      join(snapshotDirectory, `${fileName}.no-opts.marko`),
     );
     const idempotent = await format(result, {});
     expect(idempotent, "Formatting is not idempotent").toBe(result);
 
     expect(
       () => parse(result),
-      "Formatting is invalid and does not parse"
+      "Formatting is invalid and does not parse",
     ).not.toThrow();
   });
 
   it("should format with no html sensitivity", async () => {
     const result = await format(file, { htmlWhitespaceSensitivity: "ignore" });
     await expect(result, "Incorrect formatting").toMatchFileSnapshot(
-      join(snapshotDirectory, `${fileName}.ignore-whitespace-sensitivity.marko`)
+      join(
+        snapshotDirectory,
+        `${fileName}.ignore-whitespace-sensitivity.marko`,
+      ),
     );
     const idempotent = await format(result, {
       htmlWhitespaceSensitivity: "ignore",
@@ -47,7 +50,7 @@ describe.each(Object.keys(inputFiles))("%s", (path) => {
   it("should format with brackets on the same line", async () => {
     const result = await format(file, { bracketSameLine: true });
     await expect(result, "Incorrect formatting").toMatchFileSnapshot(
-      join(snapshotDirectory, `${fileName}.bracket-same-line.marko`)
+      join(snapshotDirectory, `${fileName}.bracket-same-line.marko`),
     );
     const idempotent = await format(result, { bracketSameLine: true });
     expect(idempotent, "Formatting is not idempotent").toBe(result);
@@ -56,7 +59,7 @@ describe.each(Object.keys(inputFiles))("%s", (path) => {
 
 async function format(
   contents: string,
-  options: Options = {}
+  options: Options = {},
 ): Promise<string> {
   try {
     return await prettier.format(contents, {

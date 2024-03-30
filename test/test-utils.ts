@@ -11,7 +11,7 @@ const plugins = [new URL("../dist/plugin.mjs", import.meta.url).href];
  */
 export async function format(
   contents: string,
-  options: prettier.Options = {}
+  options: prettier.Options = {},
 ): Promise<string> {
   try {
     return await prettier.format(contents, {
@@ -84,7 +84,7 @@ export function test(name: string, files: any, path: string) {
     // const outPath2 = join("test/fixtures", path, "output-snapshot-2.marko");
     // writeFileSync(outPath2, formattedTwice, { flag: "w" });
     expect(formatted === formattedTwice, "Formatting is not idempotent").toBe(
-      true
+      true,
     );
   });
 }

@@ -2,7 +2,7 @@ import { ChildNode, StaticNode } from "../parser/MarkoNode";
 import { getChildren } from "../printer/tag/utils";
 
 export function previousSibling(
-  node: ChildNode | StaticNode
+  node: ChildNode | StaticNode,
 ): ChildNode | undefined {
   if (!node.parent) {
     return undefined;

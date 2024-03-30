@@ -14,7 +14,7 @@ const {
 export function print(
   path: AstPath<AnyNode>,
   opts: ParserOptions,
-  print: PrintFn
+  print: PrintFn,
 ): Doc {
   const node = path.node;
   if (!node) {
@@ -77,7 +77,7 @@ export function print(
 function printProgram(
   path: AstPath<Program>,
   opts: ParserOptions,
-  print: PrintFn
+  print: PrintFn,
 ) {
   const parentNode = path.node;
   const children = path.map((childPath, childIndex) => {
@@ -90,7 +90,7 @@ function printProgram(
         childNode.value = childNode.value.trim();
       }
       result.push(
-        group(["--", line, print(childPath), ifBreak([softline, "--"])])
+        group(["--", line, print(childPath), ifBreak([softline, "--"])]),
       );
     } else {
       result.push(print(childPath));

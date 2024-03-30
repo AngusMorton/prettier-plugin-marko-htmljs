@@ -18,6 +18,7 @@
   "scripts": {
     "build": "tsc -b && rollup -c",
     "dev": "rollup -c -w",
+    "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest -w"
   },

@@ -10,7 +10,7 @@ const {
 } = doc;
 
 export function embedStyleTag(
-  node: Tag
+  node: Tag,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   return async (textToDoc, print, path, options) => {
     if (isEmptyNode(node)) {

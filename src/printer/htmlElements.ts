@@ -1,5 +1,11 @@
 export type TagName = keyof HTMLElementTagNameMap | "svg";
-export type MarcoBuiltinTags = "if" | "if-else" | "else" | "for" | "macro" | "while";
+export type MarcoBuiltinTags =
+  | "if"
+  | "if-else"
+  | "else"
+  | "for"
+  | "macro"
+  | "while";
 // @see http://xahlee.info/js/html5_non-closing_tag.html
 export const selfClosingTags = new Set([
   "area",

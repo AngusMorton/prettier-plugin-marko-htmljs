@@ -9,7 +9,7 @@ const dontTraverse = new Set([
 
 export function getVisitorKeys(
   node: any,
-  nonTraversableKeys: Set<string>
+  nonTraversableKeys: Set<string>,
 ): string[] {
   return Object.keys(node).filter((key) => {
     return !nonTraversableKeys.has(key) && !dontTraverse.has(key);

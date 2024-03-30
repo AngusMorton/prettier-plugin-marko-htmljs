@@ -1,7 +1,7 @@
 import { ChildNode, StaticNode } from "../parser/MarkoNode";
 
 export function nextSibling(
-  node: ChildNode | StaticNode
+  node: ChildNode | StaticNode,
 ): ChildNode | undefined {
   if (!node.parent) {
     return undefined;

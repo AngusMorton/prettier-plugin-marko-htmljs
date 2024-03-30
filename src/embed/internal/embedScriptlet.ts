@@ -10,7 +10,7 @@ const {
 
 export function embedScriptlet(
   path: AstPath<Scriptlet>,
-  options: Options
+  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {
