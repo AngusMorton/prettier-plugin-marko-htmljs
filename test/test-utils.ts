@@ -4,7 +4,7 @@ import { writeFileSync } from "fs";
 import { join } from "path";
 import { parse } from "../src/parser/parser";
 
-const plugins = [new URL("../dist/index.js", import.meta.url).href];
+const plugins = [new URL("../dist/plugin.mjs", import.meta.url).href];
 
 /**
  * format the contents of an astro file
@@ -15,7 +15,7 @@ export async function format(
 ): Promise<string> {
   try {
     return await prettier.format(contents, {
-      parser: "htmljs",
+      parser: "marko-htmljs",
       plugins,
       ...options,
     });

@@ -1,9 +1,9 @@
-import { Doc } from "prettier";
-import _doc from "prettier/doc";
+import type { Doc } from "prettier";
+import { doc } from "prettier";
 
 const {
   builders: { group, indent, ifBreak, softline, hardline, join, line },
-} = _doc;
+} = doc;
 
 export function splitTextToDocs(text: string): Doc[] {
   const lines = text.split(/[\t\n\f\r ]+/);

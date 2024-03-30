@@ -1,8 +1,8 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { TagParams, TagTypeParams } from "../../parser/MarkoNode";
-import _doc from "prettier/doc";
+import { doc } from "prettier";
 
-const { join, line, group, ifBreak, indent, softline } = _doc.builders;
+const { join, line, group, ifBreak, indent, softline } = doc.builders;
 
 export function embedTagTypeParams(
   node: TagTypeParams

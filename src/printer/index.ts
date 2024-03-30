@@ -1,16 +1,15 @@
-// https://prettier.io/docs/en/plugins.html#print
 import { type AstPath, type Doc, type ParserOptions } from "prettier";
 import { PrintFn, isEmptyTextNode, trimTextNodeLeft } from "./tag/utils";
 import { AnyNode, Program, Tag, Comment, AttrTag } from "../parser/MarkoNode";
-import _doc from "prettier/doc";
 import { printTag } from "./tag/tag";
+import { doc } from "prettier";
 import { printComment } from "./comment";
 import { isTextLike } from "../util/isTextLike";
 import { splitTextToDocs } from "../util/splitTextToDocs";
 const {
   builders: { hardline, line, group, softline, ifBreak, fill },
   utils: { stripTrailingHardline },
-} = _doc;
+} = doc;
 
 export function print(
   path: AstPath<AnyNode>,

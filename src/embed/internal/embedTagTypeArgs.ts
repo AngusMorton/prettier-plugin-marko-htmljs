@@ -1,6 +1,5 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { TagTypeArgs } from "../../parser/MarkoNode";
-import _doc from "prettier/doc";
 
 export function embedTagTypeArgs(
   node: TagTypeArgs

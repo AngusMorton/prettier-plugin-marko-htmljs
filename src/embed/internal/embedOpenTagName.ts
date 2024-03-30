@@ -9,7 +9,7 @@ export function embedOpenTagName(
     const docs = await Promise.all(
       node.expressions.map((expression) =>
         textToDoc(forceIntoExpression(expression.valueLiteral), {
-          parser: "htmljsExpressionParser",
+          parser: "marko-htmljs-expression-parser",
         })
       )
     );

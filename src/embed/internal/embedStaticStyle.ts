@@ -1,11 +1,11 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Style } from "../../parser/MarkoNode";
-import _doc from "prettier/doc";
+import { doc } from "prettier";
 import { AstPath, Options } from "prettier";
 
 const {
   builders: { group, indent, hardline },
-} = _doc;
+} = doc;
 
 export function embedStaticStyle(
   path: AstPath<Style>,

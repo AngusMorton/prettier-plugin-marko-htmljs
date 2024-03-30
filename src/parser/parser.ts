@@ -19,9 +19,6 @@ import type {
   HasChildren,
   AttrValue,
 } from "./MarkoNode";
-import * as prettierPluginBabel from "prettier/plugins/babel";
-import { Parser } from "prettier";
-import { type File } from "@babel/types";
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
@@ -35,8 +32,6 @@ export {
   type Position,
   type Location,
 } from "htmljs-parser";
-
-export const jsParser: Parser<File> = prettierPluginBabel.parsers["babel-ts"];
 
 export type Parsed = ReturnType<typeof parse>;
 
@@ -169,19 +164,16 @@ class Builder implements ParserHandlers {
     this.#comments = undefined;
   }
   onScriptlet(range: Ranges.Scriptlet) {
-    const body = this.#code.slice(range.value.start, range.value.end);
-    // TODO: Do something similar... but not as hacky.
-    // @ts-expect-error
-    const bodyAst = jsParser.parse(body) as File;
+    const bodyText = this.#parser.read(range.value);
+
     pushBody(this.#parentNode, {
       type: "Scriptlet",
       parent: this.#parentNode,
       comments: makeCommentsLeading(this.#comments),
       value: range.value,
-      valueLiteral: body,
+      valueLiteral: bodyText,
       block: range.block,
       start: range.start,
-      jsAst: bodyAst.program.body,
       end: range.end,
       sourceSpan: this.#parser.locationAt(range),
     });
@@ -461,13 +453,10 @@ class Builder implements ParserHandlers {
       end: range.end,
     };
 
-    attrNamed.name = name
+    attrNamed.name = name;
     attrNamed.value = value;
 
-    pushAttr(
-      parent,
-      attrNamed,
-    );
+    pushAttr(parent, attrNamed);
   }
   onTagShorthandClass(range: Ranges.Template) {
     const parent = this.#parentNode as ParentTag;
@@ -597,7 +586,9 @@ class Builder implements ParserHandlers {
       type: "AttrMethod",
       parent,
       typeParams: range.typeParams,
-      typeParamsLiteral: range.typeParams ? this.#code.slice(range.typeParams.start, range.typeParams.end) : undefined,
+      typeParamsLiteral: range.typeParams
+        ? this.#code.slice(range.typeParams.start, range.typeParams.end)
+        : undefined,
       params: range.params,
       paramsLiteral: this.#code.slice(range.params.start, range.params.end),
       body: range.body,

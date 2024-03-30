@@ -4,7 +4,7 @@ import { expect, it, describe } from "vitest";
 import { dirname, join, basename } from "path";
 import { parse } from "../src/parser/parser";
 
-const plugins = [new URL("../dist/index.js", import.meta.url).href];
+const plugins = [new URL("../dist/plugin.mjs", import.meta.url).href];
 
 const inputFiles = import.meta.glob(
   ["./fixtures/*/*.marko", "!./fixtures/*/*/__snapshots__"],
@@ -60,7 +60,7 @@ async function format(
 ): Promise<string> {
   try {
     return await prettier.format(contents, {
-      parser: "htmljs",
+      parser: "marko-htmljs",
       plugins,
       ...options,
     });

@@ -7,7 +7,7 @@ export function embedPlaceholder(
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   return async (textToDoc) => {
     const body = await textToDoc(forceIntoExpression(node.valueLiteral), {
-      parser: "htmljsExpressionParser",
+      parser: "marko-htmljs-expression-parser",
     });
     return ["$", node.escape ? "" : "!", "{", body, "}"];
   };

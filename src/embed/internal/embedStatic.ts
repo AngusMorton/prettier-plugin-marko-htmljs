@@ -1,11 +1,11 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Static } from "../../parser/MarkoNode";
-import _doc from "prettier/doc";
+import { doc } from "prettier";
 import { endsWithBrace } from "../util";
 
 const {
   builders: { group, indent, hardline, softline, ifBreak },
-} = _doc;
+} = doc;
 
 export function embedStatic(
   node: Static

@@ -8,8 +8,8 @@ export function previousSibling(
     return undefined;
   }
 
-  const children = getChildren(node.parent);
   // @ts-expect-error
+  const children = node.body ?? [];
   const index = children.indexOf(node);
   if (index < 0) {
     return undefined;

@@ -18,6 +18,7 @@ export function embedTagVariable(
     attrs &&
     attrs.type === "AttrNamed" &&
     attrs.name.value === "" &&
+    attrs.value?.type === "AttrValue" &&
     attrs.value?.valueLiteral
       ? attrs.value?.valueLiteral
       : "";
@@ -56,7 +57,7 @@ export function embedTagVariable(
       }
 
       let valueDoc = await textToDoc(assignmentValue, {
-        parser: "htmljsExpressionParser",
+        parser: "marko-htmljs-expression-parser",
       });
       return ["/", contents, "=", valueDoc];
     } catch (e) {

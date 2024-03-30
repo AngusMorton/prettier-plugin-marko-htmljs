@@ -161,6 +161,7 @@ export interface ShorthandId extends Ranges.Template {
 export interface ShorthandClassName extends Ranges.Template {
   type: "ShorthandClassName";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface TagTypeArgs extends Ranges.Value {
@@ -238,7 +239,6 @@ export interface Scriptlet extends Ranges.Value, Commentable, HasLocation {
   parent: ParentNode;
   block: boolean;
   valueLiteral: string;
-  jsAst: Statement[];
 }
 
 export interface AttrNamed extends Range {
@@ -273,8 +273,11 @@ export interface AttrMethod extends Range {
   type: "AttrMethod";
   parent: AttrNamed;
   typeParams: undefined | Ranges.Value;
+  typeParamsLiteral?: string;
+  paramsLiteral: string;
   params: Range;
   body: Range;
+  bodyLiteral: string;
 }
 
 export interface AttrSpread extends Ranges.Value {

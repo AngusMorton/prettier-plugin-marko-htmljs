@@ -1,7 +1,6 @@
 import { AstPath, Options } from "prettier";
 import { AnyNode, Scriptlet, Style, Tag, TagVar } from "../parser/MarkoNode";
 import { HtmlJsPrinter } from "../HtmlJsPrinter";
-import _doc from "prettier/doc";
 import { embedScriptlet } from "./internal/embedScriptlet";
 import { embedPlaceholder } from "./internal/embedPlaceholder";
 import { embedClass } from "./internal/embedClass";
@@ -83,16 +82,16 @@ export function embed(
   }
 
   if (node.type === "AttrSpread") {
-    return embedAttrSpread(node)
+    return embedAttrSpread(node);
   }
 
   if (node.type === "Style") {
-    return embedStaticStyle(path as AstPath<Style>, options)
+    return embedStaticStyle(path as AstPath<Style>, options);
   }
 
   if (node.type === "TagVar") {
-    return embedTagVariable(path as AstPath<TagVar>, options)
+    return embedTagVariable(path as AstPath<TagVar>, options);
   }
-  
+
   return null;
 }

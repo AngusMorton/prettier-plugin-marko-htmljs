@@ -1,11 +1,11 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { TagParams } from "../../parser/MarkoNode";
-import _doc from "prettier/doc";
+import { doc } from "prettier";
 
 const {
   builders: { group, softline },
   utils: { mapDoc },
-} = _doc;
+} = doc;
 
 export function embedTagParams(
   node: TagParams

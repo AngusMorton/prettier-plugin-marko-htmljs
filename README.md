@@ -73,6 +73,5 @@ Marko code written in concise mode will be rewritten as HTML tags (probably?). I
 
 - Preserve `<pre>` tags content.
 - Style less/sass support. (style.less / style.sass / style.js / etc.)
-- Tags API Support.
 - Prettier ignore directive support.
 - Merge shorthand class names into "class" attribute.

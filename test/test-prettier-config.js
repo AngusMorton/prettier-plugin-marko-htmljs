@@ -1,10 +1,8 @@
-// const plugins = [new URL("../dist/index.js", import.meta.url).href];
-
-const htmljs = await import("../dist/index.js");
+const htmljs = await import("../dist/plugin.mjs");
 
 /** @type {import("prettier").Config} */
 export default {
-  parser: "htmljs",
+  parser: "marko-htmljs",
   htmlWhitespaceSensitivity: "ignore",
   plugins: [htmljs],
 };

@@ -1,5 +1,4 @@
 import { ChildNode, StaticNode } from "../parser/MarkoNode";
-import { getChildren } from "../printer/tag/utils";
 
 export function nextSibling(
   node: ChildNode | StaticNode
@@ -8,8 +7,8 @@ export function nextSibling(
     return undefined;
   }
 
-  const children = getChildren(node.parent);
   // @ts-expect-error
+  const children = node.body ?? [];
   const index = children.indexOf(node);
   if (index < 0) {
     return undefined;

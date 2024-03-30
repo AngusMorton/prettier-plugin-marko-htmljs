@@ -3,18 +3,11 @@ import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { AttrNamed } from "../../parser/MarkoNode";
 import { forceIntoExpression } from "../forceIntoExpression";
 import { needsParenthesis } from "../needsParenthesis";
-import {
-  isEmptyDoc,
-  isStringDoc,
-  removeParentheses,
-  trim,
-  trimLeft,
-} from "../util";
-import _doc from "prettier/doc";
+import { doc } from "prettier";
 
 const {
   builders: { group, indent, ifBreak, softline },
-} = _doc;
+} = doc;
 
 export function emebdAttrNamed(
   node: AttrNamed
@@ -36,7 +29,7 @@ export function emebdAttrNamed(
             let formattedValue = await textToDoc(
               forceIntoExpression(valueWithNoParentheses),
               {
-                parser: "htmljsExpressionParser",
+                parser: "marko-htmljs-expression-parser",
               }
             );
             // formattedValue = removeLeadingSemicolon(formattedValue);

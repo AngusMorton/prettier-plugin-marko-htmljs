@@ -1,13 +1,13 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Tag, Text } from "../../parser/MarkoNode";
-import _doc from "prettier/doc";
+import { doc } from "prettier";
 import { printClosingTag, printOpeningTag } from "../../printer/tag/tag";
 import { AstPath } from "prettier";
 import { isEmptyNode } from "../../printer/tag/utils";
 
 const {
   builders: { group, indent, hardline },
-} = _doc;
+} = doc;
 
 export function embedStyleTag(
   node: Tag

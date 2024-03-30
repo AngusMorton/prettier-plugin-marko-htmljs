@@ -1,18 +1,18 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
-import { Tag } from "../../parser/MarkoNode";
-import _doc from "prettier/doc";
+import { AnyNode, Tag } from "../../parser/MarkoNode";
+import { doc } from "prettier";
 import {
   printAttrs,
   printClosingTag,
   printOpeningTag,
 } from "../../printer/tag/tag";
-import { AstPath, Doc, Options } from "prettier";
+import type { AstPath, Doc, Options } from "prettier";
 import { isEmptyNode } from "../../printer/tag/utils";
 
 const {
   builders: { group, indent, hardline, dedent, softline },
   utils: { mapDoc },
-} = _doc;
+} = doc;
 
 export function embedScriptTag(
   path: AstPath<Tag>,
@@ -49,7 +49,7 @@ export function embedScriptTag(
       let placeholderId = 0;
       let placeholders: Doc[] = [];
       path.each((childPath) => {
-        const childNode = childPath.node;
+        const childNode = childPath.node as AnyNode;
         if (childNode.type === "Text") {
           embeddedCode += childNode.value;
         } else {

@@ -15,7 +15,7 @@ export const languages: SupportLanguage[] = [
   {
     name: "marko",
     aceMode: "text",
-    parsers: ["htmljs"],
+    parsers: ["marko-htmljs"],
     aliases: ["markojs"],
     tmScope: "text.marko",
     codemirrorMode: "htmlmixed",
@@ -30,13 +30,13 @@ export const options: SupportOptions = {};
 
 const babelParser = prettierPluginBabel.parsers["babel-ts"];
 export const parsers: Record<string, Parser<AnyNode>> = {
-  htmljs: {
+  "marko-htmljs": {
     parse: (source) => parse(source),
-    astFormat: "htmljs-ast",
+    astFormat: "marko-htmljs",
     locStart: (node: AnyNode) => node.start,
     locEnd: (node: AnyNode) => node.end,
   },
-  htmljsExpressionParser: {
+  "marko-htmljs-expression-parser": {
     ...babelParser,
     parse: (text: string, options: any) => {
       const ast = babelParser.parse(text, options);
@@ -47,7 +47,7 @@ export const parsers: Record<string, Parser<AnyNode>> = {
 
 // https://prettier.io/docs/en/plugins.html#printers
 export const printers: Record<string, Printer> = {
-  "htmljs-ast": {
+  "marko-htmljs": {
     print,
     embed,
     getVisitorKeys,
