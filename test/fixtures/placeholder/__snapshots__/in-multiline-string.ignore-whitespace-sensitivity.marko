@@ -1,0 +1,11 @@
+import { formatDistance } from "./formatDistance";
+export interface Input {
+  value: number;
+  noDecimals?: boolean;
+}
+--
+${formatDistance(input.value, $global.intl!, {
+  system: $global.featureConfig.DistanceUnit,
+  noDecimals: input.noDecimals,
+})}
+--

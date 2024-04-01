@@ -89,6 +89,11 @@ function printProgram(
         // we handle it ourselves.
         childNode.value = childNode.value.trim();
       }
+      if (!childNode.value) {
+        // Skip the node if the text was just whitespace.
+        return result;
+      }
+
       result.push(
         group(["--", line, print(childPath), ifBreak([softline, "--"])]),
       );

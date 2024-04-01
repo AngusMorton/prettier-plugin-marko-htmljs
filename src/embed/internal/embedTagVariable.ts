@@ -1,6 +1,7 @@
 import { AstPath, Doc, Options } from "prettier";
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { TagVar } from "../../parser/MarkoNode";
+import { forceIntoExpression } from "../forceIntoExpression";
 
 export function embedTagVariable(
   path: AstPath<TagVar>,
@@ -56,7 +57,7 @@ export function embedTagVariable(
         return ["/", contents];
       }
 
-      let valueDoc = await textToDoc(assignmentValue, {
+      let valueDoc = await textToDoc(forceIntoExpression(assignmentValue), {
         parser: "marko-htmljs-expression-parser",
       });
       return ["/", contents, "=", valueDoc];
