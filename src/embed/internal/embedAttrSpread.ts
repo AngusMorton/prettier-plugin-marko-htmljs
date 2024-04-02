@@ -11,9 +11,13 @@ export function embedAttrSpread(
         parser: "marko-htmljs-expression-parser",
       });
       return ["...", doc];
-    } catch (e) {
-      console.log(e);
-      throw e;
+    } catch (error) {
+      if (process.env.PRETTIER_DEBUG) {
+        throw error;
+      }
+
+      console.error(error);
+      return ["...", node.valueLiteral];
     }
   };
 }
