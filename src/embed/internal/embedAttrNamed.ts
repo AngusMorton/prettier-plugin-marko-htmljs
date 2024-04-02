@@ -1,4 +1,4 @@
-import { Doc } from "prettier";
+import { AstPath, Doc, Options, ParserOptions } from "prettier";
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { AttrNamed } from "../../parser/MarkoNode";
 import { forceIntoExpression } from "../forceIntoExpression";
@@ -10,15 +10,18 @@ const {
 } = doc;
 
 export function emebdAttrNamed(
-  node: AttrNamed,
+  path: AstPath<AttrNamed>,
+  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
+  const node = path.node;
   const name = node.name.value;
   const isDefaultAttribute = !name;
-
-  if (node.value) {
-    switch (node.value.type) {
+  const nodeValue = node.value;
+  if (nodeValue) {
+    switch (nodeValue.type) {
       case "AttrValue":
-        const value = node.value.valueLiteral;
+        const value = nodeValue.valueLiteral;
+
         return async (textToDoc) => {
           try {
             // Remove parentheses and whitespace because we're going to add our own and we don't want to double up.
@@ -32,14 +35,12 @@ export function emebdAttrNamed(
                 parser: "marko-htmljs-expression-parser",
               },
             );
-            // formattedValue = removeLeadingSemicolon(formattedValue);
             // Simple string docs don't need parenthesis because we don't break them even
             // though they exceed the line length.
             const docNeedsParenthesis = needsParenthesis(formattedValue);
-
             return group([
               name,
-              "=",
+              nodeValue?.bound ? ":=" : "=",
               group([
                 docNeedsParenthesis ? "(" : "",
                 docNeedsParenthesis
@@ -48,25 +49,32 @@ export function emebdAttrNamed(
                 docNeedsParenthesis ? [softline, ")"] : "",
               ]),
             ]);
-          } catch (e) {
-            console.error(e);
-            throw e;
+          } catch (error) {
+            if (process.env.PRETTIER_DEBUG) {
+              throw error;
+            }
+
+            console.error(error);
+            return [name, nodeValue.bound ? ":=" : "=", value];
           }
         };
       case "AttrMethod":
-        const methodValue = node.value;
         return async (textToDoc) => {
           try {
             const templateName = !name ? "_" : name;
-            const template = `function ${templateName}${methodValue.paramsLiteral}${methodValue.bodyLiteral}`;
+            const template = `function ${templateName}${nodeValue.paramsLiteral}${nodeValue.bodyLiteral}`;
             const doc = await textToDoc(template, { parser: "babel-ts" });
 
             (doc as Doc[]).shift();
             const result = [isDefaultAttribute ? "" : name, doc];
             return result;
-          } catch (e) {
-            console.error(e);
-            throw e;
+          } catch (error) {
+            if (process.env.PRETTIER_DEBUG) {
+              throw error;
+            }
+
+            console.error(error);
+            return [name, nodeValue.paramsLiteral, nodeValue.bodyLiteral];
           }
         };
     }
@@ -88,9 +96,13 @@ export function emebdAttrNamed(
         }
 
         return [name, docs];
-      } catch (e) {
-        console.error(e);
-        throw e;
+      } catch (error) {
+        if (process.env.PRETTIER_DEBUG) {
+          throw error;
+        }
+
+        console.error(error);
+        return [name, "(", args, ")"];
       }
     };
   } else {

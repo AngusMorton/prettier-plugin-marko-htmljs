@@ -12,6 +12,6 @@
     "outDir": "./dist",
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"]
   }
 }

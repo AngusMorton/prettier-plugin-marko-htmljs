@@ -1,5 +1,12 @@
 import { AstPath, Options } from "prettier";
-import { AnyNode, Scriptlet, Style, Tag, TagVar } from "../parser/MarkoNode";
+import {
+  AnyNode,
+  AttrNamed,
+  Scriptlet,
+  Style,
+  Tag,
+  TagVar,
+} from "../parser/MarkoNode";
 import { HtmlJsPrinter } from "../HtmlJsPrinter";
 import { embedScriptlet } from "./internal/embedScriptlet";
 import { embedPlaceholder } from "./internal/embedPlaceholder";
@@ -46,7 +53,7 @@ export function embed(
   }
 
   if (node.type === "AttrNamed") {
-    return emebdAttrNamed(node);
+    return emebdAttrNamed(path as AstPath<AttrNamed>, options);
   }
 
   if (node.type === "TagParams") {
