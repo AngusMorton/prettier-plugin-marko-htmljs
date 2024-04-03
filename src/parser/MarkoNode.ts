@@ -151,6 +151,7 @@ export interface AttrTag extends Range, Commentable, HasLocation {
 export interface OpenTagName extends Ranges.Template {
   type: "OpenTagName";
   parent: ParentTag;
+  valueLiteral: string;
 }
 
 export interface ShorthandId extends Ranges.Template {

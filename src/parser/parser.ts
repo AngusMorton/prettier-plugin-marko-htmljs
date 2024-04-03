@@ -361,6 +361,7 @@ class Builder implements ParserHandlers {
       })),
       start: range.start,
       end: range.end,
+      valueLiteral: this.#code.slice(range.start, range.end),
     };
     const tag =
       (this.#parentNode =

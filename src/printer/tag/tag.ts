@@ -356,7 +356,7 @@ export function printTagName(
   if (node.nameText) {
     return node.nameText;
   } else {
-    return ["${", path.call(print, "name"), "}"];
+    return path.call(print, "name");
   }
 }
 
