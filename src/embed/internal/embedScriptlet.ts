@@ -41,9 +41,18 @@ export function embedScriptlet(
       }
 
       return ["$ ", body];
-    } catch (e) {
-      console.error(e);
-      return node.valueLiteral;
+    } catch (error) {
+      if (process.env.PRETTIER_DEBUG) {
+        throw error;
+      }
+
+      console.error(error);
+      return [
+        "$ ",
+        node.block ? "{" : "",
+        node.valueLiteral,
+        node.block ? "}" : "",
+      ];
     }
   };
 }
