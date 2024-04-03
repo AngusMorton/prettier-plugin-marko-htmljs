@@ -61,9 +61,17 @@ export function embedTagVariable(
         parser: "marko-htmljs-expression-parser",
       });
       return ["/", contents, "=", valueDoc];
-    } catch (e) {
-      console.error(e);
-      throw e;
+    } catch (error) {
+      if (process.env.PRETTIER_DEBUG) {
+        throw error;
+      }
+
+      console.error(error);
+      if (!assignmentValue) {
+        return ["/", variableName];
+      } else {
+        return ["/", variableName, "=", assignmentValue];
+      }
     }
   };
 }

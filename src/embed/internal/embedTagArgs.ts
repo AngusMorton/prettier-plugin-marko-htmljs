@@ -17,9 +17,13 @@ export function embedTagArgs(
       // @ts-expect-error - docs is always an array.
       docs = docs[1];
       return docs;
-    } catch (e) {
-      console.error(e);
-      throw e;
+    } catch (error) {
+      if (process.env.PRETTIER_DEBUG) {
+        throw error;
+      }
+
+      console.error(error);
+      return ["(", node.valueLiteral, ")"];
     }
   };
 }

@@ -24,7 +24,6 @@ export function embedScriptTag(
   }
 
   return async (textToDoc, print, path, options) => {
-    const attrGroupId = Symbol("attrGroupId");
     try {
       if (isEmptyNode(node)) {
         // We have no children, so print the script tag on a single line if possible.
@@ -84,9 +83,10 @@ export function embedScriptTag(
         hardline,
         printClosingTag(path, options, print),
       ]);
-    } catch (e) {
-      console.log(e);
-      throw e;
+    } catch (error) {
+      // TODO: Fallback to a manually printed script tag if we can't parse the content.
+      console.error(error);
+      throw error;
     }
   };
 }

@@ -46,10 +46,13 @@ export function embedTagParams(
       });
 
       return group(["|", doc, "|"]);
-    } catch (e) {
-      console.error("Error printing TagParams", e);
-      console.error(node);
-      throw e;
+    } catch (error) {
+      if (process.env.PRETTIER_DEBUG) {
+        throw error;
+      }
+
+      console.error(error);
+      return ["|", node.valueLiteral, "|"];
     }
   };
 }

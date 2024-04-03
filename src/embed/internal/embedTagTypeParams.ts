@@ -21,9 +21,13 @@ export function embedTagTypeParams(
       docs = docs[1].contents;
 
       return docs;
-    } catch (e) {
-      console.error(e);
-      throw e;
+    } catch (error) {
+      if (process.env.PRETTIER_DEBUG) {
+        throw error;
+      }
+
+      console.error(error);
+      return ["<", node.valueLiteral, ">"];
     }
   };
 }
