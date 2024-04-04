@@ -33,12 +33,13 @@ export function embedScriptTag(
             indent(
               group([
                 ...printAttrs(path, options, print),
-                options.bracketSameLine ? dedent(softline) : "",
+                !options.bracketSameLine ? dedent(softline) : "",
               ]),
             ),
             ">",
-            printClosingTag(path, options, print),
+            options.bracketSameLine ? softline : "",
           ]),
+          printClosingTag(path, options, print),
         ];
       }
 
@@ -74,7 +75,7 @@ export function embedScriptTag(
           indent(
             group([
               ...printAttrs(path, options, print),
-              options.bracketSameLine ? dedent(softline) : "",
+              !options.bracketSameLine ? dedent(softline) : "",
             ]),
           ),
           ">",
