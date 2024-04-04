@@ -1,7 +1,7 @@
 {
   "name": "prettier-plugin-marko-htmljs",
   "description": "A prettier plugin for parsing and printing Marko files that uses the htmljs-parser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "./dist/plugin.mjs",
   "module": "./dist/plugin.mjs",
