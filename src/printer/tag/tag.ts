@@ -115,25 +115,16 @@ export function printTag(
     ),
   ];
 
-  // Unfortunately, htmljs does not follow tag names so the following tag
-  // will fail to parse because the closing tag is not recognized:
-  //
-  // <span class="dolorum atque aspernatur"
-  //   >Est molestiae sunt facilis qui rem.</span
-  //                                         ^^^^
-  //    The closing "span\n" tag does not match the corresponding opening "span" tag
-  // >
-
-  // if (hugStart && hugEnd) {
-  //   const huggedContent = [
-  //     softline,
-  //     group([">", body(), printClosingTag(path, opts, print)]),
-  //   ];
-  //   return group([
-  //     ...openingTag,
-  //     isEmpty ? group(huggedContent) : group(indent(huggedContent)),
-  //   ]);
-  // }
+  if (hugStart && hugEnd) {
+    const huggedContent = [
+      softline,
+      group([">", body(), printClosingTag(path, opts, print)]),
+    ];
+    return group([
+      ...openingTag,
+      isEmpty ? group(huggedContent) : group(indent(huggedContent)),
+    ]);
+  }
 
   // No hugging of content means it's either a block element and/or there's whitespace at the start/end
   let noHugSeparatorStart: Doc = softline;
@@ -141,7 +132,7 @@ export function printTag(
 
   let didSetEndSeparator = false;
 
-  if (!hugStart && firstChild && firstChild.type === "Text") {
+  if (firstChild && firstChild.type === "Text") {
     if (
       isTextNodeStartingWithLinebreak(firstChild) &&
       firstChild !== lastChild &&
@@ -150,37 +141,32 @@ export function printTag(
       noHugSeparatorStart = hardline;
       noHugSeparatorEnd = hardline;
       didSetEndSeparator = true;
-    } else if (isInlineTag) {
-      noHugSeparatorStart = line;
     }
     trimTextNodeLeft(firstChild);
   }
-  if (!hugEnd && lastChild && lastChild.type === "Text") {
-    if (isInlineTag && !didSetEndSeparator) {
-      noHugSeparatorEnd = line;
-    }
+  if (lastChild && lastChild.type === "Text") {
     trimTextNodeRight(lastChild);
   }
 
-  // if (hugStart) {
-  //   return group([
-  //     ...openingTag,
-  //     indent([softline, group([">", body()])]),
-  //     noHugSeparatorEnd,
-  //     printClosingTag(path, opts, print),
-  //   ]);
-  // }
+  if (hugStart) {
+    return group([
+      ...openingTag,
+      indent([softline, group([">", body()])]),
+      noHugSeparatorEnd,
+      printClosingTag(path, opts, print),
+    ]);
+  }
 
-  // if (hugEnd) {
-  //   return group([
-  //     ...openingTag,
-  //     ">",
-  //     indent([
-  //       noHugSeparatorStart,
-  //       group([body(), printClosingTag(path, opts, print)]),
-  //     ]),
-  //   ]);
-  // }
+  if (hugEnd) {
+    return group([
+      ...openingTag,
+      ">",
+      indent([
+        noHugSeparatorStart,
+        group([body(), printClosingTag(path, opts, print)]),
+      ]),
+    ]);
+  }
 
   if (isEmpty) {
     return group([

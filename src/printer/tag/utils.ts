@@ -135,12 +135,26 @@ export function shouldHugStart(node: Tag | AttrTag, options: Options): boolean {
     return true;
   }
 
-  if (options.htmlWhitespaceSensitivity === "ignore") {
-    return false;
-  }
+  // Unfortunately, htmljs does not follow end tag names so the following tag
+  // will fail to parse because the closing tag is not recognized:
 
-  const firstChild = children[0];
-  return !isTextNodeStartingWithWhitespace(firstChild);
+  // <span class="dolorum atque aspernatur"
+  //   >Est molestiae sunt facilis qui rem.</span
+  //                                         ^^^^
+  //    The closing "span\n" tag does not match the corresponding opening "span" tag
+  // >
+  //
+  // This means we can't hug start and end, so we can't be properly whitespace sensitive,
+  // which is probably fine for most cases but is a deviation from the HTML formatting rules
+  // that Prettier uses.
+  return false;
+
+  // if (options.htmlWhitespaceSensitivity === "ignore") {
+  //   return false;
+  // }
+
+  // const firstChild = children[0];
+  // return !isTextNodeStartingWithWhitespace(firstChild);
 }
 
 export function shouldHugEnd(node: Tag | AttrTag, options: Options): boolean {
@@ -157,10 +171,24 @@ export function shouldHugEnd(node: Tag | AttrTag, options: Options): boolean {
     return true;
   }
 
-  if (options.htmlWhitespaceSensitivity === "ignore") {
-    return false;
-  }
+  // Unfortunately, htmljs does not follow end tag names so the following tag
+  // will fail to parse because the closing tag is not recognized:
 
-  const lastChild = children[children.length - 1];
-  return !isTextNodeEndingWithWhitespace(lastChild);
+  // <span class="dolorum atque aspernatur"
+  //   >Est molestiae sunt facilis qui rem.</span
+  //                                         ^^^^
+  //    The closing "span\n" tag does not match the corresponding opening "span" tag
+  // >
+  //
+  // This means we can't hug start and end, so we can't be properly whitespace sensitive,
+  // which is probably fine for most cases but is a deviation from the HTML formatting rules
+  // that Prettier uses.
+  return false;
+
+  // if (options.htmlWhitespaceSensitivity === "ignore") {
+  //   return false;
+  // }
+
+  // const lastChild = children[children.length - 1];
+  // return !isTextNodeEndingWithWhitespace(lastChild);
 }
