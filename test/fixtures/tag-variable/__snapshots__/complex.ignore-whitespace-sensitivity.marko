@@ -1,0 +1,20 @@
+<let/showAll=false />
+<const/itemList=Array.isArray(input.item) ? input.item : [input.item] />
+<const/hideFullList=(itemList.length > 5 && !showAll) />
+
+<div class="space-y-px">
+  <for|item, index| of=itemList>
+    <const/isHidden=(hideFullList && index > 4) />
+    <div ...{ class: isHidden ? "hidden" : "" }><${item} /></div>
+  </for>
+</div>
+<if=hideFullList>
+  <button
+    type="button"
+    onClick() {
+      showAll = true;
+    }
+  >
+    <${input.showMore} />
+  </button>
+</if>

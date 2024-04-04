@@ -1,7 +1,9 @@
-import { AstPath, Doc, Options } from "prettier";
+import { AstPath, Doc, Options, doc } from "prettier";
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { TagVar } from "../../parser/MarkoNode";
 import { forceIntoExpression } from "../forceIntoExpression";
+import { needsParenthesis } from "../needsParenthesis";
+const { group, indent, softline } = doc.builders;
 
 export function embedTagVariable(
   path: AstPath<TagVar>,
@@ -60,7 +62,15 @@ export function embedTagVariable(
       let valueDoc = await textToDoc(forceIntoExpression(assignmentValue), {
         parser: "marko-htmljs-expression-parser",
       });
-      return ["/", contents, "=", valueDoc];
+      const valueNeedsParens = needsParenthesis(valueDoc);
+      return [
+        "/",
+        contents,
+        "=",
+        valueNeedsParens
+          ? group(["(", indent([softline, valueDoc]), softline, ")"])
+          : valueDoc,
+      ];
     } catch (error) {
       if (process.env.PRETTIER_DEBUG) {
         throw error;
