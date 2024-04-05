@@ -433,13 +433,6 @@ function printChildren(
   function handleTextChild(idx: number, childNode: Text) {
     handleWhitespaceOfPrevTextNode = false;
 
-    if (idx === 0) {
-      childDocs.push(printChild(idx));
-      return;
-    } else if (idx === children.length - 1) {
-      childDocs.push(printChild(idx));
-      return;
-    }
 
     const prevNode = children[idx - 1];
     const nextNode = children[idx + 1];
