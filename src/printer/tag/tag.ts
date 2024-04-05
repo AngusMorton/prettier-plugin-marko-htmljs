@@ -434,11 +434,9 @@ function printChildren(
     handleWhitespaceOfPrevTextNode = false;
 
     if (idx === 0) {
-      const childDoc = printChild(idx);
       childDocs.push(printChild(idx));
       return;
     } else if (idx === children.length - 1) {
-      const childDoc = printChild(idx);
       childDocs.push(printChild(idx));
       return;
     }
@@ -448,7 +446,6 @@ function printChildren(
 
     if (
       isTextNodeStartingWithWhitespace(childNode) &&
-      // If node is empty, go straight through to checking the right end
       !isEmptyTextNode(childNode)
     ) {
       if (
