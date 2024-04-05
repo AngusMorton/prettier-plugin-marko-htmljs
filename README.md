@@ -2,11 +2,45 @@
 
 This is a prettier plugin for Marko that uses the htmljs parser instead of the `@marko/compiler` to parse the AST.
 
-Some differences between this plugin and `prettier-plugin-marko` include:
+## Installation
+This plugin isn't built into the Marko VSCode plugin, so you'll need to install and configure it separately to use it.
 
-### Empty lines follow Prettier's rules
+```console
+npm install --save-dev prettier-plugin-marko-htmljs
+```
 
-This is arguably a bug in `prettier-plugin-marko`. In this plugin, empty lines are collapsed into a single line in the same way as the HTML plugin. Similarly whitespace between top-level static elements follow the same rules.
+Then configure prettier using a `.prettierrc` configuration file:
+
+```json
+{
+  "plugins": ["prettier-plugin-marko-htmljs"],
+}
+```
+
+#### VSCode Usage
+
+In your `.vscode/settings.json` configuration, you'll need to configure the Prettier VSCode plugin to use `prettier-plugin-marko-htmljs` instead of the Marko plugin. 
+
+```json
+{
+  "[marko]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
+```
+
+#### CLI Usage
+
+```console
+npx prettier --write . "**/*.marko"
+```
+
+### Differences with prettier-plugin-marko
+This plugin aims to follow Prettier's rules for formatting HTML where possible, for example:
+
+#### Empty lines follow Prettier's rules
+
+This is arguably a bug in `prettier-plugin-marko`. In this plugin, empty lines are collapsed into a single line in the same way as the HTML plugin. Similarly, whitespace between top-level static elements follows the same rules.
 
 See: https://prettier.io/docs/en/rationale.html#empty-lines
 
@@ -30,7 +64,7 @@ Becomes:
 <div>
 ```
 
-### Non-void tags have separate close tag
+#### Non-void tags have a separate close tag
 
 **Why? Compatibility with Prettier's HTML formatting.**
 
@@ -44,7 +78,7 @@ Becomes:
 <div></div>
 ```
 
-### Support for bracketSameLine
+#### Support for bracketSameLine
 
 prettier-plugin-htmljs will respect your `bracketSameLine` configuration to control the position of the end brackets.
 
@@ -63,15 +97,13 @@ prettier-plugin-htmljs will respect your `bracketSameLine` configuration to cont
   data-testid="this should be multi-line" />
 ```
 
-### No concise mode support
+#### No concise mode support
 
-Marko code written in concise mode will be rewritten as HTML tags (probably?). It's entirely untested and unsupported.
+Marko code written in "concise mode" is entirely untested and unsupported, it might work, but it might not.
 
-**Why? Code length isn't worth optimizing for and concise mode increase the barrier to entry for new devs. But also because I didn't want to implement it.**
-
-## TODO:
+## Known Issues
 
 - Preserve `<pre>` tags content.
 - Style less/sass support. (style.less / style.sass / style.js / etc.)
 - Prettier ignore directive support.
-- Merge shorthand class names into "class" attribute.
+- Shorthand class names are not merged into the "class" attribute.
