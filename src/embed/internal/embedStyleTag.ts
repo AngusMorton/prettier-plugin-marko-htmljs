@@ -21,21 +21,24 @@ export function embedStyleTag(
         printClosingTag(path, options, print),
       ]);
     }
-
     const textChild = node.body?.[0]!;
     if (textChild.type !== "Text") {
       // The style tag can only have Text has children,
       throw Error("Body of script tag is not Text " + textChild.type);
     }
+    let content;
+    try {
+      content = await textToDoc((textChild as Text).value, {
+        parser: "css",
+      });
+    } catch (error) {
+      // There was probably an unrecoverable syntax error, print as-is.
+      content = (textChild as Text).value.trim();
+    }
 
     return [
       group([...printOpeningTag(path as AstPath<Tag>, options, print), ">"]),
-      indent([
-        hardline,
-        await textToDoc((textChild as Text).value, {
-          parser: "css",
-        }),
-      ]),
+      indent([hardline, content]),
       hardline,
       printClosingTag(path, options, print),
     ];

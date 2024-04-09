@@ -21,3 +21,13 @@ $ {
   type="checkbox"
   on-change((event) => console.info(`Checked? ${event.target.checked}`))
 />
+
+<div foo></div>
+<div
+  foo(
+    { aaaaaaaaaa: 1, bbbbbbbbbb: 2, cccccccccc: 3 },
+    aaaaaaaaaa,
+    bbbbbbbbbb,
+    cccccccccc,
+  )
+></div>

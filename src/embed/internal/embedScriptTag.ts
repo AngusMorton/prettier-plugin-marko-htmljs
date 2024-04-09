@@ -6,7 +6,7 @@ import {
   printClosingTag,
   printOpeningTag,
 } from "../../printer/tag/tag";
-import type { AstPath, Doc, Options } from "prettier";
+import type { AstPath, Doc, Options, ParserOptions } from "prettier";
 import { isEmptyNode } from "../../printer/tag/utils";
 
 const {
@@ -16,7 +16,7 @@ const {
 
 export function embedScriptTag(
   path: AstPath<Tag>,
-  options: Options,
+  options: ParserOptions,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {
@@ -61,13 +61,23 @@ export function embedScriptTag(
       // Format the collected code and then replace any placeholders
       // with the printed docs so they are formatted correctly.
       // This ensures that things like placeholders format correctly.
-      const content = await textToDoc(embeddedCode, {
-        parser: "babel-ts",
-      });
-      const replacedContent = replaceEmbeddedPlaceholders(
-        content,
-        placeholders,
-      );
+      let replacedContent: Doc;
+      try {
+        const content = await textToDoc(embeddedCode, {
+          parser: "babel-ts",
+        });
+        replacedContent = replaceEmbeddedPlaceholders(content, placeholders);
+      } catch (error) {
+        if (!node.body) {
+          replacedContent = "";
+        } else {
+          // There was probably a syntax error in the embedded code, so just print
+          // the tag as-is.
+          replacedContent = (options.originalText as string)
+            .slice(node.body[0].start, node.body[node.body.length - 1].end)
+            .trim();
+        }
+      }
 
       return group([
         group([
