@@ -17,6 +17,15 @@ export function emebdAttrNamed(
   const name = node.name.value;
   const isDefaultAttribute = !name;
   const nodeValue = node.value;
+
+  // Check if this is a class attribute with shorthand classes
+  const parentTag = node.parent;
+  const hasShorthandClasses =
+    name === "class" &&
+    parentTag &&
+    parentTag.shorthandClassNames &&
+    parentTag.shorthandClassNames.length > 0;
+
   if (nodeValue) {
     switch (nodeValue.type) {
       case "AttrValue":
@@ -24,8 +33,40 @@ export function emebdAttrNamed(
 
         return async (textToDoc) => {
           try {
+            let processedValue = value;
+
+            // Special handling for class attribute with shorthand classes
+            if (hasShorthandClasses) {
+              const shorthandClasses = parentTag.shorthandClassNames!.map(
+                (cn) => cn.valueLiteral.replace(/^\./, ""),
+              );
+
+              // Create array format with shorthand classes first
+              if (value.trim().startsWith("{")) {
+                // Object format: {test: true, apple: true} -> ["shorthand", {test: true, apple: true}]
+                processedValue = `[${shorthandClasses.map((c) => `"${c}"`).join(", ")}, ${value}]`;
+              } else if (
+                value.trim().startsWith("[") &&
+                value.trim().endsWith("]")
+              ) {
+                // Array format: ["test", "apple"] -> ["test", "apple", "shorthand"]
+                const withoutBrackets = value.trim().slice(1, -1);
+                processedValue = `[${withoutBrackets}, ${shorthandClasses.map((c) => `"${c}"`).join(", ")}]`;
+              } else if (
+                value.trim().startsWith('"') &&
+                value.trim().endsWith('"')
+              ) {
+                // String format: "test" -> "test shorthand"
+                const withoutQuotes = value.trim().slice(1, -1);
+                processedValue = `"${withoutQuotes} ${shorthandClasses.join(" ")}"`;
+              } else {
+                // Other formats - just add shorthand classes as string
+                processedValue = `"${shorthandClasses.join(" ")}"`;
+              }
+            }
+
             // Remove parentheses and whitespace because we're going to add our own and we don't want to double up.
-            const valueWithNoParentheses = value.replace(
+            const valueWithNoParentheses = processedValue.replace(
               /^\s*\(\s*(.*?)\s*\)\s*$/,
               "$1",
             );

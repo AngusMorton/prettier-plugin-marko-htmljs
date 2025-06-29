@@ -281,25 +281,54 @@ export function printAttrs(
 ) {
   const node = path.node;
 
-  if (!node || !node.attrs) {
+  if (!node) {
     return "";
   }
 
-  const hasDefaultAttribute =
-    node.attrs &&
-    node.attrs.length > 0 &&
-    node.attrs[0].type === "AttrNamed" &&
-    node.attrs[0].name.value === "";
+  const result: Doc[] = [];
 
-  const attributeLine =
-    opts.singleAttributePerLine && node.attrs.length > 1 ? hardline : line;
-  return path.map((path, index) => {
-    if (index === 0 && hasDefaultAttribute) {
-      // We've already printed the default attribute, so skip it.
-      return "";
+  // Check if we have shorthand classes and need to create a synthetic class attribute. This
+  // is necessary if we have a shorthand class attribute but no explicit `class` attribute.
+  if (node.shorthandClassNames && node.shorthandClassNames.length > 0) {
+    const hasExistingClassAttr = node.attrs?.some(
+      (attr) => attr.type === "AttrNamed" && attr.name.value === "class",
+    );
+
+    if (!hasExistingClassAttr) {
+      // Create a synthetic class attribute for shorthand classes only
+      const shorthandClasses = node.shorthandClassNames.map((cn) =>
+        cn.valueLiteral.replace(/^\./, ""),
+      );
+      const attributeLine =
+        opts.singleAttributePerLine && (node.attrs?.length || 0) > 1
+          ? hardline
+          : line;
+      result.push([attributeLine, `class="${shorthandClasses.join(" ")}"`]);
     }
-    return [attributeLine, path.call(print)];
-  }, "attrs");
+  }
+
+  if (node.attrs) {
+    const hasDefaultAttribute =
+      node.attrs.length > 0 &&
+      node.attrs[0].type === "AttrNamed" &&
+      node.attrs[0].name.value === "";
+
+    const attributeLine =
+      opts.singleAttributePerLine && node.attrs.length > 1 ? hardline : line;
+
+    for (let i = 0; i < node.attrs.length; i++) {
+      const attr = node.attrs[i];
+
+      if (i === 0 && hasDefaultAttribute) {
+        // Skip default attribute as it's handled elsewhere
+        continue;
+      }
+
+      result.push([attributeLine, path.call(print, "attrs", i)]);
+    }
+  }
+
+  return result;
 }
 
 export function printClosingTag(
@@ -432,7 +461,6 @@ function printChildren(
 
   function handleTextChild(idx: number, childNode: Text) {
     handleWhitespaceOfPrevTextNode = false;
-
 
     const prevNode = children[idx - 1];
     const nextNode = children[idx + 1];
