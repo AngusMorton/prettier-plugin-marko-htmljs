@@ -1,8 +1,11 @@
 ## (An Incomplete) Prettier Plugin for Marko
 
+[![CI](https://github.com/AngusMorton/prettier-plugin-marko-htmljs/actions/workflows/ci.yml/badge.svg)](https://github.com/AngusMorton/prettier-plugin-marko-htmljs/actions/workflows/ci.yml)
+
 This is a prettier plugin for Marko that uses the htmljs parser instead of the `@marko/compiler` to parse the AST.
 
 ## Installation
+
 This plugin isn't built into the Marko VSCode plugin, so you'll need to install and configure it separately to use it.
 
 ```console
@@ -13,13 +16,13 @@ Then configure prettier using a `.prettierrc` configuration file:
 
 ```json
 {
-  "plugins": ["prettier-plugin-marko-htmljs"],
+  "plugins": ["prettier-plugin-marko-htmljs"]
 }
 ```
 
 #### VSCode Usage
 
-In your `.vscode/settings.json` configuration, you'll need to configure the Prettier VSCode plugin to use `prettier-plugin-marko-htmljs` instead of the Marko plugin. 
+In your `.vscode/settings.json` configuration, you'll need to configure the Prettier VSCode plugin to use `prettier-plugin-marko-htmljs` instead of the Marko plugin.
 
 ```json
 {
@@ -36,6 +39,7 @@ npx prettier --write . "**/*.marko"
 ```
 
 ### Differences with prettier-plugin-marko
+
 This plugin aims to follow Prettier's rules for formatting HTML where possible, for example:
 
 #### Empty lines follow Prettier's rules
@@ -100,6 +104,40 @@ prettier-plugin-htmljs will respect your `bracketSameLine` configuration to cont
 #### No concise mode support
 
 Marko code written in "concise mode" is entirely untested and unsupported, it might work, but it might not.
+
+## Development
+
+This project uses `pnpm` for package management. To set up the development environment:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Build the plugin
+pnpm build
+
+# Format code
+pnpm format
+
+# Type check
+pnpm tsc --noEmit
+```
+
+### CI/CD
+
+The project uses GitHub Actions for continuous integration. The CI workflow:
+
+- Runs on Node.js versions 18, 20, and 22
+- Validates TypeScript types
+- Checks code formatting with Prettier
+- Runs the test suite
+- Builds the plugin and verifies output artifacts
 
 ## Known Issues
 
