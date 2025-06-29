@@ -1,14 +1,4 @@
-export type IconTypeA =
-  | "error"
-  | "information"
-  | "unknown"
-  | "success"
-  | "warning"
-  | "suggestion"
-  | "fatal"
-  | "unknown";
-
-export type IconTypeB<T> =
+export type IconTypeA = (
   | "error"
   | "information"
   | "unknown"
@@ -17,69 +7,21 @@ export type IconTypeB<T> =
   | "suggestion"
   | "fatal"
   | "unknown"
-  | T;
+);
 
-export type IconTypeC<
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  J,
-  K,
-  L,
-  M,
-  N,
-  O,
-  P,
-  Q,
-  R,
-  S,
-  T,
-  U,
-  V,
-  W,
-  X,
-  Y,
-  Z,
-<<<<<<< Updated upstream
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  J,
-  K,
-  L,
-  M,
-  N,
-=======
-  AA,
-  BB,
-  CC,
-  DD,
-  EE,
-  FF,
-  GG,
-  HH,
-  II,
-  JJ,
-  KK,
-  LL,
-  MM,
-  NN,
->>>>>>> Stashed changes
-> = true;
+export type IconTypeB<T> = (
+  | "error"
+  | "information"
+  | "unknown"
+  | "success"
+  | "warning"
+  | "suggestion"
+  | "fatal"
+  | "unknown"
+  | T
+);
 
-export var x =
+export var x = (
   "error" ||
   "information" ||
   "unknown" ||
@@ -87,9 +29,10 @@ export var x =
   "warning" ||
   "suggestion" ||
   "fatal" ||
-  "unknown";
+  "unknown"
+);
 
-export const y =
+export const y = (
     "error" ||
     "information" ||
     "unknown" ||
@@ -97,5 +40,6 @@ export const y =
     "warning" ||
     "suggestion" ||
     "fatal" ||
-    "unknown",
-  z = true;
+    "unknown"
+);
+export const z = true;
