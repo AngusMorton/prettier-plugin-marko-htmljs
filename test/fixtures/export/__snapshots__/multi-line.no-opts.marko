@@ -1,4 +1,14 @@
-export type IconTypeA = (
+export type IconTypeA =
+  | "error"
+  | "information"
+  | "unknown"
+  | "success"
+  | "warning"
+  | "suggestion"
+  | "fatal"
+  | "unknown";
+
+export type IconTypeB<T> =
   | "error"
   | "information"
   | "unknown"
@@ -7,18 +17,8 @@ export type IconTypeA = (
   | "suggestion"
   | "fatal"
   | "unknown"
-);
-export type IconTypeB<T> = (
-  | "error"
-  | "information"
-  | "unknown"
-  | "success"
-  | "warning"
-  | "suggestion"
-  | "fatal"
-  | "unknown"
-  | T
-);
+  | T;
+
 export type IconTypeC<
   A,
   B,
@@ -46,22 +46,23 @@ export type IconTypeC<
   X,
   Y,
   Z,
-  AA,
-  BB,
-  CC,
-  DD,
-  EE,
-  FF,
-  GG,
-  HH,
-  II,
-  JJ,
-  KK,
-  LL,
-  MM,
-  NN
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
 > = true;
-export var x = (
+
+export var x =
   "error" ||
   "information" ||
   "unknown" ||
@@ -69,16 +70,15 @@ export var x = (
   "warning" ||
   "suggestion" ||
   "fatal" ||
-  "unknown"
-);
-export const y = (
-  "error" ||
-  "information" ||
-  "unknown" ||
-  "success" ||
-  "warning" ||
-  "suggestion" ||
-  "fatal" ||
-  "unknown"
-);
-export const z = true;
+  "unknown";
+
+export const y =
+    "error" ||
+    "information" ||
+    "unknown" ||
+    "success" ||
+    "warning" ||
+    "suggestion" ||
+    "fatal" ||
+    "unknown",
+  z = true;
