@@ -6,7 +6,7 @@ import {
   printClosingTag,
   printOpeningTag,
 } from "../../printer/tag/tag";
-import type { AstPath, Doc, Options, ParserOptions } from "prettier";
+import type { AstPath, Doc, Options } from "prettier";
 import { isEmptyNode } from "../../printer/tag/utils";
 
 const {
@@ -16,7 +16,7 @@ const {
 
 export function embedScriptTag(
   path: AstPath<Tag>,
-  options: ParserOptions,
+  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {

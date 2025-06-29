@@ -281,25 +281,88 @@ export function printAttrs(
 ) {
   const node = path.node;
 
-  if (!node || !node.attrs) {
+  if (!node) {
     return "";
   }
 
-  const hasDefaultAttribute =
-    node.attrs &&
-    node.attrs.length > 0 &&
-    node.attrs[0].type === "AttrNamed" &&
-    node.attrs[0].name.value === "";
-
-  const attributeLine =
-    opts.singleAttributePerLine && node.attrs.length > 1 ? hardline : line;
-  return path.map((path, index) => {
-    if (index === 0 && hasDefaultAttribute) {
-      // We've already printed the default attribute, so skip it.
-      return "";
+  const result: Doc[] = [];
+  
+  // Handle shorthand classes by creating a synthetic class attribute
+  if (node.shorthandClassNames && node.shorthandClassNames.length > 0) {
+    const shorthandClasses = node.shorthandClassNames.map(cn => cn.valueLiteral.replace(/^\./, '')); // Remove leading dot
+    
+    // Check if there's already a class attribute in the existing attrs
+    let existingClassAttr: any = null;
+    let existingClassIndex = -1;
+    
+    if (node.attrs) {
+      for (let i = 0; i < node.attrs.length; i++) {
+        const attr = node.attrs[i];
+        if (attr.type === "AttrNamed" && attr.name.value === "class") {
+          existingClassAttr = attr;
+          existingClassIndex = i;
+          break;
+        }
+      }
     }
-    return [attributeLine, path.call(print)];
-  }, "attrs");
+    
+    const attributeLine = opts.singleAttributePerLine && (node.attrs?.length || 0) > 1 ? hardline : line;
+    
+    if (existingClassAttr && existingClassAttr.value) {
+      // Merge with existing class attribute
+      const existingValue = existingClassAttr.value.valueLiteral || "";
+      let newValue: string;
+      
+      if (existingValue.startsWith('[') && existingValue.endsWith(']')) {
+        // Array format: ["test", "apple"] -> ["test", "apple", "shorthand"]
+        const withoutBrackets = existingValue.slice(1, -1);
+        newValue = `[${withoutBrackets}, ${shorthandClasses.map(c => `"${c}"`).join(', ')}]`;
+      } else if (existingValue.startsWith('{')) {
+        // Object format: {test: true, apple: true} -> ["shorthand", {test: true, apple: true}]
+        newValue = `[${shorthandClasses.map(c => `"${c}"`).join(', ')}, ${existingValue}]`;
+      } else if (existingValue.startsWith('"') && existingValue.endsWith('"')) {
+        // String format: "test" -> "test shorthand"
+        const withoutQuotes = existingValue.slice(1, -1);
+        newValue = `"${withoutQuotes} ${shorthandClasses.join(' ')}"`;
+      } else {
+        // Other formats
+        newValue = `"${shorthandClasses.join(' ')}"`;
+      }
+      
+      result.push([attributeLine, `class=${newValue}`]);
+    } else {
+      // Create new class attribute
+      const classValue = `"${shorthandClasses.join(' ')}"`;
+      result.push([attributeLine, `class=${classValue}`]);
+    }
+  }
+
+  // Process regular attributes
+  if (node.attrs) {
+    const hasDefaultAttribute = node.attrs.length > 0 && 
+      node.attrs[0].type === "AttrNamed" && 
+      node.attrs[0].name.value === "";
+    
+    const attributeLine = opts.singleAttributePerLine && node.attrs.length > 1 ? hardline : line;
+    
+    for (let i = 0; i < node.attrs.length; i++) {
+      const attr = node.attrs[i];
+      
+      if (i === 0 && hasDefaultAttribute) {
+        // Skip default attribute as it's handled elsewhere
+        continue;
+      }
+      
+      // Skip class attribute if we have shorthand classes (we already handled it above)
+      if (attr.type === "AttrNamed" && attr.name.value === "class" && node.shorthandClassNames && node.shorthandClassNames.length > 0) {
+        continue;
+      }
+      
+      result.push([attributeLine, path.call(print, "attrs", i)]);
+    }
+  }
+
+  return result;
 }
 
 export function printClosingTag(
@@ -432,7 +495,6 @@ function printChildren(
 
   function handleTextChild(idx: number, childNode: Text) {
     handleWhitespaceOfPrevTextNode = false;
-
 
     const prevNode = children[idx - 1];
     const nextNode = children[idx + 1];
