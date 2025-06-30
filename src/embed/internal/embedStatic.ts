@@ -10,8 +10,15 @@ const {
 export function embedStatic(
   node: Static,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
+  const statementKindMatch = node.valueLiteral.match(/(static|client|server)/);
+  if (!statementKindMatch) {
+    throw new Error("Expected 'static', 'client', or 'server' in static node");
+  }
+
+  const statementPrefix = statementKindMatch[0] + " ";
+
   // "static" at the root level is not valid JS, so we need to remove it and add it back later.
-  const statement = node.valueLiteral.replace(/static/, "");
+  const statement = node.valueLiteral.replace(/static|client|server/, "");
   return async (textToDoc) => {
     try {
       const body = await textToDoc(statement, {
@@ -20,7 +27,7 @@ export function embedStatic(
 
       if (!endsWithBrace(body)) {
         return group([
-          "static ",
+          statementPrefix,
           ifBreak("{"),
           indent([softline, body]),
           softline,
@@ -28,14 +35,14 @@ export function embedStatic(
         ]);
       }
 
-      return ["static ", body];
+      return [statementPrefix, body];
     } catch (error) {
       if (process.env.PRETTIER_DEBUG) {
         throw error;
       }
 
       console.error(error);
-      return ["static ", node.valueLiteral];
+      return [statementPrefix, node.valueLiteral];
     }
   };
 }
