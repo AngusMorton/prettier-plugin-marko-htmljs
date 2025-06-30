@@ -45,7 +45,7 @@ export function embed(
   }
 
   if (node.type === "Tag" && node.nameText && node.nameText === "script") {
-    return embedScriptTag(path as AstPath<Tag>, options);
+    return embedScriptTag(path as AstPath<Tag>);
   }
 
   if (node.type === "Tag" && node.nameText && node.nameText === "style") {

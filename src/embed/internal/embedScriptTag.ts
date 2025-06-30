@@ -16,7 +16,6 @@ const {
 
 export function embedScriptTag(
   path: AstPath<Tag>,
-  options: ParserOptions,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {
