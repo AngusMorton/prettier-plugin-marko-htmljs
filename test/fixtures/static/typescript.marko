@@ -1,3 +1,11 @@
 static const x:   number = 3   as  const
 static function xPlus(val: number) { return x + val }
 static let xMap = new Map<  string , number  >()
+
+client const y:   number = 3   as  const
+client function yPlus(val: number) { return y + val }
+client let yMap = new Map<  string , number  >()
+
+server const z:   number = 3   as  const
+server function zPlus(val: number) { return z + val }
+server let zMap = new Map<  string , number  >()

@@ -298,6 +298,8 @@ class Builder implements ParserHandlers {
           this.#comments = undefined;
           return TagType.statement;
         case "static":
+        case "client":
+        case "server":
           this.#program.static.push(
             (this.#staticNode = {
               type: "Static",
