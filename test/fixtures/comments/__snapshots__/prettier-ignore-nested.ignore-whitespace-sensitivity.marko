@@ -1,0 +1,20 @@
+<for|item| of=[1, 2, 3]>
+  <!-- prettier-ignore -->
+  <div  >${item}     </div>
+</for>
+
+<if(true)>
+  <!-- prettier-ignore -->
+  <span >  Conditional content</span>
+
+  <span>I'll be formatted normally</span>
+</if>
+
+<div class="ignores text nodes">
+  <!-- prettier-ignore -->
+Content
+  <div>nested</div>
+  here
+
+  <div>but i will be formatted normally</div>
+</div>

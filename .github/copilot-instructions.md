@@ -39,9 +39,10 @@ pnpm format          # Format codebase with Prettier
 ```
 
 ### Testing
+Never try to filter for specific tests files, always run all tests to ensure consistency.
 
 ```bash
-pnpm test            # Run all tests once
+pnpm test            # Run tests
 pnpm test:watch      # Run tests in watch mode
 ```
 

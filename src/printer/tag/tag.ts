@@ -17,6 +17,10 @@ import {
   trimTextNodeRight,
 } from "./utils";
 import { AttrTag, Tag, Text } from "../../parser/MarkoNode";
+import {
+  isPrettierIgnoreComment,
+  getOriginalSource,
+} from "../../util/prettierIgnore";
 const {
   group,
   indent,
@@ -28,6 +32,7 @@ const {
   indentIfBreak,
   ifBreak,
   breakParent,
+  literalline,
 } = doc.builders;
 
 export function printTag(
@@ -398,11 +403,74 @@ function printChildren(
     return "";
   }
 
+  const originalText = opts.originalText as string;
   const childDocs: Doc[] = [];
   let handleWhitespaceOfPrevTextNode = false;
 
+  // Process children and handle prettier-ignore
   for (let i = 0; i < children.length; i++) {
     const childNode = children[i];
+
+    // Check if this is a prettier-ignore comment
+    if (childNode.type === "Comment" && isPrettierIgnoreComment(childNode)) {
+      // Add the comment itself
+      childDocs.push(printChild(i));
+
+      // Find the next non-comment child and preserve its original source
+      let preserveFromIndex = i + 1;
+      let nextChild = null;
+
+      for (let j = i + 1; j < children.length; j++) {
+        const candidate = children[j];
+
+        if (candidate.type !== "Comment") {
+          nextChild = candidate;
+
+          // Don't skip whitespace-only text nodes - they might be important for layout
+          // Instead, check if this is the actual content to ignore
+          if (candidate.type === "Text" && isEmptyTextNode(candidate)) {
+            // This is whitespace - check if there's a non-whitespace node after it
+            if (j + 1 < children.length && children[j + 1].type !== "Comment") {
+              // The whitespace is followed by actual content, so preserve both
+              preserveFromIndex = j;
+            }
+            continue;
+          }
+
+          // This is the actual content to ignore
+          break;
+        }
+      }
+
+      if (nextChild) {
+        // Preserve from the whitespace (if any) to the ignored content
+        let endIndex = children.indexOf(nextChild);
+        let preserveSource = "";
+
+        for (let k = preserveFromIndex; k <= endIndex; k++) {
+          preserveSource += getOriginalSource(children[k], originalText);
+        }
+
+        // Preserve the content as-is
+        const lines = preserveSource.split("\n");
+        if (lines.length === 1) {
+          childDocs.push(lines[0]);
+        } else {
+          for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+            if (lineIdx > 0) {
+              childDocs.push(literalline);
+            }
+            childDocs.push(lines[lineIdx]);
+          }
+        }
+
+        // Skip to after the ignored content
+        i = endIndex;
+        handleWhitespaceOfPrevTextNode = false;
+      }
+      continue;
+    }
+
     if (childNode.type === "Text") {
       handleTextChild(i, childNode);
     } else if (isBlockElement(childNode, opts)) {
@@ -479,7 +547,7 @@ function printChildren(
     ) {
       if (
         isInlineElement(prevNode, opts) &&
-        !isTextNodeStartingWithLinebreak(childNode)
+        !isTextNodeEndingWithLinebreak(childNode)
       ) {
         trimTextNodeLeft(childNode);
         const lastChildDoc = childDocs.pop()!;
@@ -488,7 +556,7 @@ function printChildren(
 
       if (
         isBlockElement(prevNode, opts) &&
-        !isTextNodeStartingWithLinebreak(childNode)
+        !isTextNodeEndingWithLinebreak(childNode)
       ) {
         trimTextNodeLeft(childNode);
       }
