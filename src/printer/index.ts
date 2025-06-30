@@ -1,11 +1,13 @@
 import { type AstPath, type Doc, type ParserOptions } from "prettier";
 import { PrintFn, isEmptyTextNode, trimTextNodeLeft } from "./tag/utils";
-import { AnyNode, Program, Tag, Comment, AttrTag } from "../parser/MarkoNode";
+import { AnyNode, Program, Tag, Comment, AttrTag, ChildNode } from "../parser/MarkoNode";
 import { printTag } from "./tag/tag";
 import { doc } from "prettier";
 import { printComment } from "./comment";
 import { isTextLike } from "../util/isTextLike";
 import { splitTextToDocs } from "../util/splitTextToDocs";
+import { isPrettierIgnoreComment, getOriginalSource } from "../util/prettierIgnore";
+
 const {
   builders: { hardline, line, group, softline, ifBreak, fill },
   utils: { stripTrailingHardline },
@@ -80,9 +82,44 @@ function printProgram(
   print: PrintFn,
 ) {
   const parentNode = path.node;
+  const originalText = opts.originalText as string;
+  
+  // Track which nodes should be ignored due to prettier-ignore comments
+  const ignoredNodeIndexes = new Set<number>();
+  
+  // First pass: identify nodes that should be ignored
+  parentNode.body.forEach((node, index) => {
+    if (node.type === "Comment" && isPrettierIgnoreComment(node)) {
+      // Find the next non-comment node to ignore
+      for (let i = index + 1; i < parentNode.body.length; i++) {
+        const nextNode = parentNode.body[i];
+        if (nextNode.type !== "Comment") {
+          ignoredNodeIndexes.add(i);
+          break;
+        }
+      }
+    }
+  });
+
   const children = path.map((childPath, childIndex) => {
     const childNode = childPath.node;
     let result: Doc[] = [];
+    
+    // If this node should be ignored, return its original source
+    if (ignoredNodeIndexes.has(childIndex)) {
+      const originalSource = getOriginalSource(childNode, originalText);
+      result.push(originalSource);
+      result.push(hardline);
+      
+      const nextNode = parentNode.body[childIndex + 1];
+      if (nextNode) {
+        if (nextNode.sourceSpan.start.line - childNode.sourceSpan.end.line > 1) {
+          result.push(hardline);
+        }
+      }
+      return result;
+    }
+    
     if (isTextLike(childNode) && childNode.type !== "Comment") {
       if (childNode.type === "Text") {
         // Remove leading or trailing whitespace from text nodes because
