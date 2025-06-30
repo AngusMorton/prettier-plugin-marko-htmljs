@@ -369,6 +369,14 @@ export function printTagName(
   // The name of a tag can be either a string literal, or an dynamic tag name.
   // See: https://markojs.com/docs/syntax/#dynamic-tagname
   if (node.nameText) {
+    if (node.nameText === "style") {
+      // Special case for style tag because we need to preserve the class shorthand
+      // which is used for specifying the style processor.
+      if (node.shorthandClassNames?.length) {
+        const lang = node.shorthandClassNames[0].valueLiteral;
+        return node.nameText + lang;
+      }
+    }
     return node.nameText;
   } else {
     return path.call(print, "name");
