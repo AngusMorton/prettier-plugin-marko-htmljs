@@ -26,10 +26,11 @@ export function embedStyleTag(
       // The style tag can only have Text has children,
       throw Error("Body of script tag is not Text " + textChild.type);
     }
+    const langExtension = node.shorthandClassNames?.[0]?.valueLiteral;
     let content;
     try {
       content = await textToDoc((textChild as Text).value, {
-        parser: "css",
+        parser: langExtension ? getParserNameFromExt(langExtension) : "css",
       });
     } catch (error) {
       // There was probably an unrecoverable syntax error, print as-is.
@@ -43,4 +44,23 @@ export function embedStyleTag(
       printClosingTag(path, options, print),
     ];
   };
+}
+
+function getParserNameFromExt(ext: string) {
+  switch (ext) {
+    case ".css":
+      return "css";
+    case ".less":
+      return "less";
+    case ".scss":
+      return "scss";
+    case ".js":
+    case ".mjs":
+    case ".cjs":
+      return "babel";
+    case ".ts":
+    case ".mts":
+    case ".cts":
+      return "babel-ts";
+  }
 }

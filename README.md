@@ -142,6 +142,4 @@ The project uses GitHub Actions for continuous integration. The CI workflow:
 ## Known Issues
 
 - Preserve `<pre>` tags content.
-- Style less/sass support. (style.less / style.sass / style.js / etc.)
 - Prettier ignore directive support.
-- Shorthand class names are not merged into the "class" attribute.
