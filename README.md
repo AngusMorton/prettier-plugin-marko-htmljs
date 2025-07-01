@@ -101,6 +101,25 @@ prettier-plugin-htmljs will respect your `bracketSameLine` configuration to cont
   data-testid="this should be multi-line" />
 ```
 
+#### prettier-ignore support
+
+You can use `prettier-ignore` comments to prevent formatting of specific elements or code blocks:
+
+```marko
+<!-- prettier-ignore -->
+<div    class="keep-this-formatting"   >
+    <span  >This won't be reformatted</span>
+</div>
+
+<div>
+  <!-- prettier-ignore -->
+  <span    class="also-ignored"   >This preserves original formatting</span>
+  <span>But this will be formatted normally</span>
+</div>
+```
+
+The plugin supports prettier-ignore for both top-level elements and nested children, preserving the original source exactly as written.
+
 #### No concise mode support
 
 Marko code written in "concise mode" is entirely untested and unsupported, it might work, but it might not.
@@ -142,4 +161,3 @@ The project uses GitHub Actions for continuous integration. The CI workflow:
 ## Known Issues
 
 - Preserve `<pre>` tags content.
-- Prettier ignore directive support.
