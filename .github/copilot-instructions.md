@@ -39,6 +39,7 @@ pnpm format          # Format codebase with Prettier
 ```
 
 ### Testing
+
 Never try to filter for specific tests files, always run all tests to ensure consistency.
 
 ```bash
@@ -142,3 +143,65 @@ This is a standard Prettier plugin that exports:
 - `options` - Plugin-specific formatting options
 
 The plugin integrates with Prettier's ecosystem and can be used via CLI, API, or editor extensions.
+
+## Prettier-Ignore Implementation
+
+### Overview
+
+The plugin supports `prettier-ignore` directives for both top-level and nested nodes, preserving original source exactly as written without any reformatting.
+
+### Core Files
+
+- **`src/util/prettierIgnore.ts`** - Detection and source extraction utilities
+- **`src/printer/index.ts`** - Top-level ignore handling in `printProgram()`
+- **`src/printer/tag/tag.ts`** - Nested ignore handling in `printChildren()`
+
+### Detection Logic
+
+```typescript
+// In src/util/prettierIgnore.ts
+isPrettierIgnoreComment(node: Comment) -> boolean
+// Checks for "prettier-ignore" in HTML, line, or block comments
+
+getOriginalSource(node: AnyNode, originalText: string) -> string
+// Extracts exact original source text for a node using start/end positions
+```
+
+### Top-Level Ignore (src/printer/index.ts)
+
+- **Location**: `printProgram()` function
+- **Logic**: Detects ignore comments in program body, skips formatting next non-comment node
+- **Preservation**: Uses original source directly in doc output
+- **Handles**: Root-level tags, imports, exports, scriptlets
+
+### Nested Ignore (src/printer/tag/tag.ts)
+
+- **Location**: `printChildren()` function
+- **Logic**:
+  1. Detects ignore comments among tag children
+  2. Finds next non-comment child to ignore
+  3. Preserves whitespace between comment and ignored content
+  4. Reconstructs content using `literalline` for multi-line preservation
+- **Handles**: Child elements, text nodes, mixed content
+
+### Key Implementation Details
+
+- **Whitespace Preservation**: Includes whitespace nodes between ignore comment and target
+- **Multi-line Handling**: Uses `literalline` to prevent indentation drift
+- **Idempotency**: Careful doc construction prevents formatting changes on subsequent passes
+- **Source Extraction**: Uses AST node positions to extract exact original text
+
+### Test Coverage
+
+- `test/fixtures/comments/prettier-ignore.marko` - Basic functionality
+- `test/fixtures/comments/prettier-ignore-complex.marko` - Multi-line structures
+- `test/fixtures/comments/prettier-ignore-nested.marko` - Nested children
+- All variants tested: no-opts, html-sensitivity, bracket-same-line
+
+### Debugging Ignore Issues
+
+1. Check `isPrettierIgnoreComment()` detection logic
+2. Verify `getOriginalSource()` extracts correct text
+3. Test idempotency with format-twice comparisons
+4. Examine whitespace handling in `printChildren()`
+5. Use minimal reproduction in test fixtures

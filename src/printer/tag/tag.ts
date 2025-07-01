@@ -547,7 +547,7 @@ function printChildren(
     ) {
       if (
         isInlineElement(prevNode, opts) &&
-        !isTextNodeEndingWithLinebreak(childNode)
+        !isTextNodeStartingWithLinebreak(childNode)
       ) {
         trimTextNodeLeft(childNode);
         const lastChildDoc = childDocs.pop()!;
@@ -556,7 +556,7 @@ function printChildren(
 
       if (
         isBlockElement(prevNode, opts) &&
-        !isTextNodeEndingWithLinebreak(childNode)
+        !isTextNodeStartingWithLinebreak(childNode)
       ) {
         trimTextNodeLeft(childNode);
       }
