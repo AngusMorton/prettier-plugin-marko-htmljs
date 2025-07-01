@@ -25,13 +25,10 @@ import {
 const {
   group,
   indent,
-  join,
   line,
   dedent,
   softline,
   hardline,
-  indentIfBreak,
-  ifBreak,
   breakParent,
   literalline,
 } = doc.builders;
@@ -124,7 +121,7 @@ export function printTag(
   if (hugStart && hugEnd) {
     const huggedContent = [
       softline,
-      group([">", body(), printClosingTag(path, opts, print)]),
+      group([">", body(), printClosingTag(path)]),
     ];
     return group([
       ...openingTag,
@@ -136,8 +133,6 @@ export function printTag(
   let noHugSeparatorStart: Doc = softline;
   let noHugSeparatorEnd: Doc = softline;
 
-  let didSetEndSeparator = false;
-
   if (firstChild && firstChild.type === "Text") {
     if (
       isTextNodeStartingWithLinebreak(firstChild) &&
@@ -146,7 +141,6 @@ export function printTag(
     ) {
       noHugSeparatorStart = hardline;
       noHugSeparatorEnd = hardline;
-      didSetEndSeparator = true;
     }
     trimTextNodeLeft(firstChild);
   }
@@ -159,7 +153,7 @@ export function printTag(
       ...openingTag,
       indent([softline, group([">", body()])]),
       noHugSeparatorEnd,
-      printClosingTag(path, opts, print),
+      printClosingTag(path),
     ]);
   }
 
@@ -167,20 +161,12 @@ export function printTag(
     return group([
       ...openingTag,
       ">",
-      indent([
-        noHugSeparatorStart,
-        group([body(), printClosingTag(path, opts, print)]),
-      ]),
+      indent([noHugSeparatorStart, group([body(), printClosingTag(path)])]),
     ]);
   }
 
   if (isEmpty) {
-    return group([
-      ...openingTag,
-      ">",
-      body(),
-      printClosingTag(path, opts, print),
-    ]);
+    return group([...openingTag, ">", body(), printClosingTag(path)]);
   }
 
   return group([
@@ -188,7 +174,7 @@ export function printTag(
     ">",
     indent([noHugSeparatorStart, body()]),
     noHugSeparatorEnd,
-    printClosingTag(path, opts, print),
+    printClosingTag(path),
   ]);
 }
 
@@ -323,8 +309,6 @@ export function printAttrs(
       opts.singleAttributePerLine && node.attrs.length > 1 ? hardline : line;
 
     for (let i = 0; i < node.attrs.length; i++) {
-      const attr = node.attrs[i];
-
       if (i === 0 && hasDefaultAttribute) {
         // Skip default attribute as it's handled elsewhere
         continue;
@@ -337,11 +321,7 @@ export function printAttrs(
   return result;
 }
 
-export function printClosingTag(
-  path: AstPath<Tag | AttrTag>,
-  opts: Options,
-  print: PrintFn,
-) {
+export function printClosingTag(path: AstPath<Tag | AttrTag>) {
   const node = path.node;
 
   if (!node) {

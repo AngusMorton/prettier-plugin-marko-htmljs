@@ -60,7 +60,7 @@ export function findIgnoredNode(
     if (candidate.type !== "Comment") {
       if (preserveWhitespace) {
         // For children: check if there's whitespace before the actual content
-        let preserveFromIndex = i;
+        const preserveFromIndex = i;
 
         // If this is whitespace-only text, check if there's content after it
         if (candidate.type === "Text" && isEmptyTextNode(candidate)) {

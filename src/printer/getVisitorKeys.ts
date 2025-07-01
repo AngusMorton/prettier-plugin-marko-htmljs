@@ -8,7 +8,7 @@ const dontTraverse = new Set([
 ]);
 
 export function getVisitorKeys(
-  node: any,
+  node: Record<string, unknown>,
   nonTraversableKeys: Set<string>,
 ): string[] {
   return Object.keys(node).filter((key) => {

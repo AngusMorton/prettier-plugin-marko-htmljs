@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import prettier, { type Options as PrettierOptions } from "prettier";
 import { expect, it } from "vitest";
 import { writeFileSync } from "fs";
 import { join } from "path";
@@ -33,24 +33,25 @@ export async function format(
 /**
  * Utility to get `[input, output]` files
  */
-function getFiles(file: any, path: string) {
-  let input: string = file[`/test/fixtures/${path}/input.marko`];
-  let output: string = file[`/test/fixtures/${path}/output.marko`];
+function getFiles(file: Record<string, unknown>, path: string) {
+  let input: string = file[`/test/fixtures/${path}/input.marko`] as string;
+  let output: string = file[`/test/fixtures/${path}/output.marko`] as string;
   // workaround: normalize end of lines to pass windows ci
   if (input) input = input.replace(/(\r\n|\r)/gm, "\n");
   if (output) output = output.replace(/(\r\n|\r)/gm, "\n");
   return { input, output };
 }
 
-function getOptions(files: any, path: string) {
+function getOptions(files: Record<string, unknown>, path: string) {
   if (files[`/test/fixtures/${path}/options.js`] !== undefined) {
-    return files[`/test/fixtures/${path}/options.js`].default;
+    return (files[`/test/fixtures/${path}/options.js`] as { default: unknown })
+      .default;
   }
 
   let opts: object;
   try {
-    opts = JSON.parse(files[`/test/fixtures/${path}/options.json`]);
-  } catch (e) {
+    opts = JSON.parse(files[`/test/fixtures/${path}/options.json`] as string);
+  } catch {
     opts = {};
   }
   return opts;
@@ -61,14 +62,18 @@ function getOptions(files: any, path: string) {
  * @param {any} files Files from import.meta.glob.
  * @param {string} path Fixture path.
  */
-export function test(name: string, files: any, path: string) {
+export function test(
+  name: string,
+  files: Record<string, unknown>,
+  path: string,
+) {
   it(`${path}\n${name}`, async () => {
     const { input, output } = getFiles(files, path);
 
-    expect(input, "Missing input file").to.not.be.undefined;
-    expect(output, "Missing output file").to.not.be.undefined;
+    void expect(input, "Missing input file").to.not.be.undefined;
+    void expect(output, "Missing output file").to.not.be.undefined;
 
-    const opts = getOptions(files, path);
+    const opts = getOptions(files, path) as PrettierOptions;
 
     const formatted = await format(input, opts);
     const outPath = join("test/fixtures", path, "output-snapshot.marko");

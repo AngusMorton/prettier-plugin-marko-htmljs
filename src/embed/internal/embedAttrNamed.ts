@@ -1,4 +1,4 @@
-import { AstPath, Doc, Options, ParserOptions } from "prettier";
+import { AstPath, Doc } from "prettier";
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { AttrNamed } from "../../parser/MarkoNode";
 import { forceIntoExpression } from "../forceIntoExpression";
@@ -6,12 +6,11 @@ import { needsParenthesis } from "../needsParenthesis";
 import { doc } from "prettier";
 
 const {
-  builders: { group, indent, ifBreak, softline },
+  builders: { group, indent, softline },
 } = doc;
 
 export function emebdAttrNamed(
   path: AstPath<AttrNamed>,
-  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   const name = node.name.value;
@@ -28,7 +27,7 @@ export function emebdAttrNamed(
 
   if (nodeValue) {
     switch (nodeValue.type) {
-      case "AttrValue":
+      case "AttrValue": {
         const value = nodeValue.valueLiteral;
 
         return async (textToDoc) => {
@@ -99,6 +98,7 @@ export function emebdAttrNamed(
             return [name, nodeValue.bound ? ":=" : "=", value];
           }
         };
+      }
       case "AttrMethod":
         return async (textToDoc) => {
           try {
@@ -121,7 +121,7 @@ export function emebdAttrNamed(
     }
   } else if (node.args) {
     const args = node.args.valueLiteral;
-    return async (textToDoc, print, path, options) => {
+    return async (textToDoc) => {
       try {
         // We need to wrap the args in a fake function call so that babel-ts can
         // parse it. We also disable semicolons because we don't want to print

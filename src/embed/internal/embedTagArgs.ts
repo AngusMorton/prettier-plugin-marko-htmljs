@@ -5,7 +5,7 @@ export function embedTagArgs(
   node: TagArgs,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const value = node.valueLiteral;
-  return async (textToDoc, print, path, options) => {
+  return async (textToDoc) => {
     try {
       // We need to wrap the args in a fake function call so that babel-ts can
       // parse it. We also disable semicolons because we don't want to print

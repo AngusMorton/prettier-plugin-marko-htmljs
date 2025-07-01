@@ -57,7 +57,7 @@ class Builder implements ParserHandlers {
   #staticNode: StaticNode | undefined;
   #attrNode: AttrNamed | undefined;
   #comments: Repeatable<Comment>;
-  // @ts-expect-error
+  // @ts-expect-error MarkoParser type not fully defined
   #parser: MarkoParser;
 
   constructor(code: string) {
@@ -451,7 +451,7 @@ class Builder implements ParserHandlers {
       value: range,
       bound: false,
       // Wrap the value in backticks to make it a string literal that will be formatted correctly.
-      valueLiteral: `\"${this.#code.slice(range.start + 1, range.end)}\"`,
+      valueLiteral: `"${this.#code.slice(range.start + 1, range.end)}"`,
       start: range.start,
       end: range.end,
     };

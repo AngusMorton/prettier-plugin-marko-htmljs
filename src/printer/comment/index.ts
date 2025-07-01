@@ -1,14 +1,10 @@
-import { AstPath, Doc, Options, doc } from "prettier";
+import { AstPath, Doc, doc } from "prettier";
 import { Comment } from "../../parser/MarkoNode";
-import { PrintFn } from "../tag/utils";
-const { join, hardline, softline } = doc.builders;
+const { join, hardline } = doc.builders;
 
 export function printComment(
   // Path to the current comment node
   commentPath: AstPath<Comment>,
-  // Current options
-  options: Options,
-  print: PrintFn,
 ): Doc {
   const commentText = commentPath.node.valueLiteral;
 

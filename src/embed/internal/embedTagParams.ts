@@ -1,22 +1,21 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
-import { TagParams } from "../../parser/MarkoNode";
 import { doc } from "prettier";
 
 const {
-  builders: { group, softline },
+  builders: { group },
   utils: { mapDoc },
 } = doc;
 
-export function embedTagParams(
-  node: TagParams,
-): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
+export function embedTagParams(node: {
+  valueLiteral: string;
+}): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const params = node.valueLiteral;
 
   if (params.trim() === "") {
     return "||";
   }
 
-  return async (textToDoc, print, path, options) => {
+  return async (textToDoc) => {
     try {
       let doc = await textToDoc(`function _(${params}){}`, {
         parser: "babel-ts",

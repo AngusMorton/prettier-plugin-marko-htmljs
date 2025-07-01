@@ -7,7 +7,7 @@ export function nextSibling(
     return undefined;
   }
 
-  // @ts-expect-error
+  // @ts-expect-error accessing body property on parent node
   const children = node.body ?? [];
   const index = children.indexOf(node);
   if (index < 0) {

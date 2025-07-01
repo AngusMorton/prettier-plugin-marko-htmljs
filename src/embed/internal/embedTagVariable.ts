@@ -1,4 +1,4 @@
-import { AstPath, Doc, Options, doc } from "prettier";
+import { AstPath, Doc, doc } from "prettier";
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { TagVar } from "../../parser/MarkoNode";
 import { forceIntoExpression } from "../forceIntoExpression";
@@ -7,7 +7,6 @@ const { group, indent, softline } = doc.builders;
 
 export function embedTagVariable(
   path: AstPath<TagVar>,
-  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {
@@ -15,7 +14,7 @@ export function embedTagVariable(
   }
 
   const variableName = node.valueLiteral;
-  // @ts-ignore
+
   const attrs = node.parent.attrs && node.parent.attrs[0];
   const assignmentValue =
     attrs &&
@@ -26,12 +25,12 @@ export function embedTagVariable(
       ? attrs.value?.valueLiteral
       : "";
 
-  if (assignmentValue) {
-    // @ts-ignore
-    node.parent.attrs = node.parent.attrs?.slice(1);
+  if (assignmentValue && node.parent.attrs) {
+    // @ts-expect-error modifying parent attrs
+    node.parent.attrs = node.parent.attrs.slice(1);
   }
 
-  return async (textToDoc, print, path, options) => {
+  return async (textToDoc) => {
     try {
       // We need to wrap the args in a fake function call so that babel-ts can
       // parse it. We also disable semicolons because we don't want to print
@@ -40,7 +39,7 @@ export function embedTagVariable(
         parser: "babel-ts",
       });
 
-      // @ts-ignore
+      // @ts-expect-error type casting docs to access nested properties
       const contents = (docs as Doc[])[0].contents[1].contents;
       for (let i = contents.length; i--; ) {
         const item = contents[i];

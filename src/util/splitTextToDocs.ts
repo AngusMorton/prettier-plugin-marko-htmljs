@@ -2,7 +2,7 @@ import type { Doc } from "prettier";
 import { doc } from "prettier";
 
 const {
-  builders: { group, indent, ifBreak, softline, hardline, join, line },
+  builders: { hardline, join, line },
 } = doc;
 
 export function splitTextToDocs(text: string): Doc[] {

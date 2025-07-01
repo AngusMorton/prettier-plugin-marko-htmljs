@@ -1,7 +1,7 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Style } from "../../parser/MarkoNode";
 import { doc } from "prettier";
-import { AstPath, Options } from "prettier";
+import { AstPath } from "prettier";
 
 const {
   builders: { group, indent, hardline },
@@ -9,7 +9,6 @@ const {
 
 export function embedStaticStyle(
   path: AstPath<Style>,
-  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {
@@ -24,7 +23,7 @@ export function embedStaticStyle(
 
   const styleParser = node.ext?.slice(1) ?? "css";
 
-  return async (textToDoc, print, path, options) => {
+  return async (textToDoc) => {
     try {
       // Format the collected code and then replace any placeholders
       // with the printed docs so they are formatted correctly.
@@ -34,7 +33,7 @@ export function embedStaticStyle(
         content = await textToDoc(trimmed, {
           parser: styleParser,
         });
-      } catch (error) {
+      } catch {
         // There was probably an unrecoverable syntax error, print as-is.
         content = trimmed.trim();
       }

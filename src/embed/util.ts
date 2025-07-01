@@ -99,7 +99,7 @@ export function isEmptyDoc(doc: Doc): boolean {
   }
 
   if (isDocCommand(doc) && doc.type === "line") {
-    // @ts-expect-error
+    // @ts-expect-error accessing keepIfLonely property on line doc
     return !doc.keepIfLonely;
   }
 

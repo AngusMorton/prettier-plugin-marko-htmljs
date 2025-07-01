@@ -1,4 +1,3 @@
-import { Statement } from "@babel/types";
 import { Location, Range, Ranges, TagType } from "htmljs-parser";
 
 export type Repeated<T> = [T, ...T[]] | [...T[], T] | [T, ...T[], T];

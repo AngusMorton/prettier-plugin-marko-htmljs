@@ -6,7 +6,7 @@ import {
   printClosingTag,
   printOpeningTag,
 } from "../../printer/tag/tag";
-import type { AstPath, Doc, Options } from "prettier";
+import type { AstPath, Doc } from "prettier";
 import { isEmptyNode } from "../../printer/tag/utils";
 
 const {
@@ -16,7 +16,6 @@ const {
 
 export function embedScriptTag(
   path: AstPath<Tag>,
-  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {
@@ -39,7 +38,7 @@ export function embedScriptTag(
             ">",
             options.bracketSameLine ? softline : "",
           ]),
-          printClosingTag(path, options, print),
+          printClosingTag(path),
         ];
       }
 
@@ -67,7 +66,7 @@ export function embedScriptTag(
           parser: "babel-ts",
         });
         replacedContent = replaceEmbeddedPlaceholders(content, placeholders);
-      } catch (error) {
+      } catch {
         if (!node.body) {
           replacedContent = "";
         } else {
@@ -92,7 +91,7 @@ export function embedScriptTag(
         ]),
         indent([hardline, replacedContent]),
         hardline,
-        printClosingTag(path, options, print),
+        printClosingTag(path),
       ]);
     } catch (error) {
       // TODO: Fallback to a manually printed script tag if we can't parse the content.
