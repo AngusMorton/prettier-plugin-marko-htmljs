@@ -34,57 +34,65 @@ export function getOriginalSource(
   return sourceCode.slice(node.start, node.end);
 }
 
-// Re-indents preserved content to match the current indentation context.
-// This maintains the relative indentation of the original content while
-// adjusting the base indentation to the current level.
-export function reindentPreservedContent(
-  originalContent: string,
-  currentIndent: string,
-): string {
-  const lines = originalContent.split("\n");
+// Result of finding an ignored node after a prettier-ignore comment
+export interface IgnoreResult {
+  // Index of the node that should be ignored
+  ignoredNodeIndex: number;
+  // Index where the preserved content starts (may include whitespace before the ignored node)
+  preserveFromIndex?: number;
+}
 
-  if (lines.length === 1) {
-    // Single line content - no indentation needed
-    return originalContent;
-  }
+// Finds the next non-comment node that should be ignored after a prettier-ignore comment
+export function findIgnoredNode(
+  nodes: Array<{ type: string }>,
+  ignoreCommentIndex: number,
+  options: {
+    // For children: preserve whitespace before the ignored node
+    preserveWhitespace?: boolean;
+  } = {},
+): IgnoreResult | null {
+  const { preserveWhitespace = false } = options;
 
-  // Find the minimum indentation (excluding empty lines)
-  let minIndent = Infinity;
-  const nonEmptyLines = lines.slice(1).filter((line) => line.trim().length > 0);
+  // Find the next non-comment node to ignore
+  for (let i = ignoreCommentIndex + 1; i < nodes.length; i++) {
+    const candidate = nodes[i];
 
-  for (const line of nonEmptyLines) {
-    const match = line.match(/^(\s*)/);
-    if (match) {
-      minIndent = Math.min(minIndent, match[1].length);
+    if (candidate.type !== "Comment") {
+      if (preserveWhitespace) {
+        // For children: check if there's whitespace before the actual content
+        let preserveFromIndex = i;
+
+        // If this is whitespace-only text, check if there's content after it
+        if (candidate.type === "Text" && isEmptyTextNode(candidate)) {
+          // Check if there's a non-whitespace node after it
+          if (i + 1 < nodes.length && nodes[i + 1].type !== "Comment") {
+            // The whitespace is followed by actual content, preserve both
+            return {
+              ignoredNodeIndex: i + 1,
+              preserveFromIndex: i,
+            };
+          }
+          continue;
+        }
+
+        return {
+          ignoredNodeIndex: i,
+          preserveFromIndex,
+        };
+      } else {
+        // For program: just return the node index
+        return {
+          ignoredNodeIndex: i,
+        };
+      }
     }
   }
 
-  // If no indentation found or infinite, use 0
-  if (minIndent === Infinity) {
-    minIndent = 0;
-  }
+  return null;
+}
 
-  // Re-indent all lines
-  const reindentedLines = lines.map((line, index) => {
-    if (index === 0) {
-      // First line keeps its original position
-      return line;
-    }
-
-    if (line.trim().length === 0) {
-      // Empty lines stay empty
-      return "";
-    }
-
-    // Remove the common indentation and add the current indent
-    const originalIndent = line.match(/^(\s*)/)?.[1] || "";
-    const contentAfterIndent = line.slice(
-      Math.min(originalIndent.length, minIndent),
-    );
-    const relativeIndent = originalIndent.slice(minIndent);
-
-    return currentIndent + relativeIndent + contentAfterIndent;
-  });
-
-  return reindentedLines.join("\n");
+// Helper function to check if a text node is empty/whitespace-only
+// This is used by findIgnoredNode when preserveWhitespace is true
+function isEmptyTextNode(node: { type: string; value?: string }): boolean {
+  return node.type === "Text" && (!node.value || node.value.trim() === "");
 }

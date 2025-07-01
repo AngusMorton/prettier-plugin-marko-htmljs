@@ -20,6 +20,7 @@ import { AttrTag, Tag, Text } from "../../parser/MarkoNode";
 import {
   isPrettierIgnoreComment,
   getOriginalSource,
+  findIgnoredNode,
 } from "../../util/prettierIgnore";
 const {
   group,
@@ -417,37 +418,17 @@ function printChildren(
       childDocs.push(printChild(i));
 
       // Find the next non-comment child and preserve its original source
-      let preserveFromIndex = i + 1;
-      let nextChild = null;
+      const ignoreResult = findIgnoredNode(children, i, {
+        preserveWhitespace: true,
+      });
 
-      for (let j = i + 1; j < children.length; j++) {
-        const candidate = children[j];
+      if (ignoreResult) {
+        const { ignoredNodeIndex, preserveFromIndex } = ignoreResult;
+        const startIndex = preserveFromIndex ?? ignoredNodeIndex;
 
-        if (candidate.type !== "Comment") {
-          nextChild = candidate;
-
-          // Don't skip whitespace-only text nodes - they might be important for layout
-          // Instead, check if this is the actual content to ignore
-          if (candidate.type === "Text" && isEmptyTextNode(candidate)) {
-            // This is whitespace - check if there's a non-whitespace node after it
-            if (j + 1 < children.length && children[j + 1].type !== "Comment") {
-              // The whitespace is followed by actual content, so preserve both
-              preserveFromIndex = j;
-            }
-            continue;
-          }
-
-          // This is the actual content to ignore
-          break;
-        }
-      }
-
-      if (nextChild) {
         // Preserve from the whitespace (if any) to the ignored content
-        let endIndex = children.indexOf(nextChild);
         let preserveSource = "";
-
-        for (let k = preserveFromIndex; k <= endIndex; k++) {
+        for (let k = startIndex; k <= ignoredNodeIndex; k++) {
           preserveSource += getOriginalSource(children[k], originalText);
         }
 
@@ -465,7 +446,7 @@ function printChildren(
         }
 
         // Skip to after the ignored content
-        i = endIndex;
+        i = ignoredNodeIndex;
         handleWhitespaceOfPrevTextNode = false;
       }
       continue;
