@@ -17,6 +17,11 @@ import {
   trimTextNodeRight,
 } from "./utils";
 import { AttrTag, Tag, Text } from "../../parser/MarkoNode";
+import {
+  isPrettierIgnoreComment,
+  getOriginalSource,
+  findIgnoredNode,
+} from "../../util/prettierIgnore";
 const {
   group,
   indent,
@@ -28,6 +33,7 @@ const {
   indentIfBreak,
   ifBreak,
   breakParent,
+  literalline,
 } = doc.builders;
 
 export function printTag(
@@ -398,11 +404,54 @@ function printChildren(
     return "";
   }
 
+  const originalText = opts.originalText as string;
   const childDocs: Doc[] = [];
   let handleWhitespaceOfPrevTextNode = false;
 
+  // Process children and handle prettier-ignore
   for (let i = 0; i < children.length; i++) {
     const childNode = children[i];
+
+    // Check if this is a prettier-ignore comment
+    if (childNode.type === "Comment" && isPrettierIgnoreComment(childNode)) {
+      // Add the comment itself
+      childDocs.push(printChild(i));
+
+      // Find the next non-comment child and preserve its original source
+      const ignoreResult = findIgnoredNode(children, i, {
+        preserveWhitespace: true,
+      });
+
+      if (ignoreResult) {
+        const { ignoredNodeIndex, preserveFromIndex } = ignoreResult;
+        const startIndex = preserveFromIndex ?? ignoredNodeIndex;
+
+        // Preserve from the whitespace (if any) to the ignored content
+        let preserveSource = "";
+        for (let k = startIndex; k <= ignoredNodeIndex; k++) {
+          preserveSource += getOriginalSource(children[k], originalText);
+        }
+
+        // Preserve the content as-is
+        const lines = preserveSource.split("\n");
+        if (lines.length === 1) {
+          childDocs.push(lines[0]);
+        } else {
+          for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+            if (lineIdx > 0) {
+              childDocs.push(literalline);
+            }
+            childDocs.push(lines[lineIdx]);
+          }
+        }
+
+        // Skip to after the ignored content
+        i = ignoredNodeIndex;
+        handleWhitespaceOfPrevTextNode = false;
+      }
+      continue;
+    }
+
     if (childNode.type === "Text") {
       handleTextChild(i, childNode);
     } else if (isBlockElement(childNode, opts)) {

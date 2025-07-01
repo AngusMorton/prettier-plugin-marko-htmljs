@@ -44,12 +44,12 @@ jobs:
       - name: Check formatting
         run: pnpm prettier --check .
 
+      - name: Build
+        run: pnpm build
+
       - name: Run tests
         run: pnpm test
         continue-on-error: true
-
-      - name: Build
-        run: pnpm build
 
       - name: Test build output exists
         run: |
