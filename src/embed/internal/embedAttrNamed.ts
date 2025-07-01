@@ -70,7 +70,7 @@ export function emebdAttrNamed(
               /^\s*\(\s*(.*?)\s*\)\s*$/,
               "$1",
             );
-            let formattedValue = await textToDoc(
+            const formattedValue = await textToDoc(
               forceIntoExpression(valueWithNoParentheses),
               {
                 parser: "marko-htmljs-expression-parser",
@@ -126,7 +126,7 @@ export function emebdAttrNamed(
         // We need to wrap the args in a fake function call so that babel-ts can
         // parse it. We also disable semicolons because we don't want to print
         // any semicolons because Marko doesn't use them in tag params.
-        let docs = await textToDoc(`_(${args})`, {
+        const docs = await textToDoc(`_(${args})`, {
           parser: "babel-ts",
           semi: false,
         });

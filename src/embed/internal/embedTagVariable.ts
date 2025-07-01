@@ -36,7 +36,7 @@ export function embedTagVariable(
       // We need to wrap the args in a fake function call so that babel-ts can
       // parse it. We also disable semicolons because we don't want to print
       // any semicolons because Marko doesn't use them in tag params.
-      let docs = await textToDoc(`var ${variableName}=_`, {
+      const docs = await textToDoc(`var ${variableName}=_`, {
         parser: "babel-ts",
       });
 
@@ -59,7 +59,7 @@ export function embedTagVariable(
         return ["/", contents];
       }
 
-      let valueDoc = await textToDoc(forceIntoExpression(assignmentValue), {
+      const valueDoc = await textToDoc(forceIntoExpression(assignmentValue), {
         parser: "marko-htmljs-expression-parser",
       });
       const valueNeedsParens = needsParenthesis(valueDoc);

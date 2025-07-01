@@ -47,7 +47,7 @@ export function embedScriptTag(
       // nodes if it includes placeholders/etc.
       let embeddedCode = "";
       let placeholderId = 0;
-      let placeholders: Doc[] = [];
+      const placeholders: Doc[] = [];
       path.each((childPath) => {
         const childNode = childPath.node as AnyNode;
         if (childNode.type === "Text") {

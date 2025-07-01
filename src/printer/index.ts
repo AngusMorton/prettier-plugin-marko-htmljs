@@ -110,7 +110,7 @@ function printProgram(
 
   const children = path.map((childPath, childIndex) => {
     const childNode = childPath.node;
-    let result: Doc[] = [];
+    const result: Doc[] = [];
 
     // If this node should be ignored, return its original source
     if (ignoredNodeIndexes.has(childIndex)) {

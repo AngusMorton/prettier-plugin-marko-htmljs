@@ -45,7 +45,7 @@ export function trimRight(
   group: Doc[],
   isWhitespace: (doc: Doc) => boolean,
 ): void {
-  let lastNonWhitespace = group.length
+  const lastNonWhitespace = group.length
     ? findLastIndex((doc) => !isEmptyDoc(doc) && !isWhitespace(doc), group)
     : 0;
 
