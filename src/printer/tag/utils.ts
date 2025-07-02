@@ -13,7 +13,7 @@ export function isEmptyNode(node: Tag | AttrTag): boolean {
   return getChildren(node).every((child) => isEmptyTextNode(child));
 }
 
-export function isNodeWithChildren(node: Tag | AttrTag) {
+function isNodeWithChildren(node: Tag | AttrTag) {
   return !!node.body;
 }
 
@@ -55,11 +55,11 @@ export function isTextNodeEndingWithLinebreak(
   return node.type === "Text" && endsWithLinebreak(node.value, nLines);
 }
 
-export function startsWithLinebreak(text: string, nrLines = 1): boolean {
+function startsWithLinebreak(text: string, nrLines = 1): boolean {
   return new RegExp(`^([\\t\\f\\r ]*\\n){${nrLines}}`).test(text);
 }
 
-export function endsWithLinebreak(text: string, nrLines = 1): boolean {
+function endsWithLinebreak(text: string, nrLines = 1): boolean {
   return new RegExp(`(\\n[\\t\\f\\r ]*){${nrLines}}$`).test(text);
 }
 

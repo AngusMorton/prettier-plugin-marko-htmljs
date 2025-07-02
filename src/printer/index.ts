@@ -73,9 +73,6 @@ export function print(
       return printTag(path as AstPath<Tag>, opts, print);
     case "Comment":
       return printComment(path as AstPath<Comment>);
-    default:
-      console.error("Unhandled NodeType:", node.type);
-      console.error(node);
   }
 
   return "";

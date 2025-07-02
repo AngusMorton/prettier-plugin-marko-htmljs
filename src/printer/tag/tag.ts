@@ -206,7 +206,7 @@ export function printOpeningTag(
   ];
 }
 
-export function printTypeArgs(
+function printTypeArgs(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn,
@@ -218,7 +218,7 @@ export function printTypeArgs(
   }
 }
 
-export function printTagVariables(
+function printTagVariables(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn,
@@ -230,7 +230,7 @@ export function printTagVariables(
   }
 }
 
-export function printTypeParams(
+function printTypeParams(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn,
@@ -242,7 +242,7 @@ export function printTypeParams(
   }
 }
 
-export function printTagParams(
+function printTagParams(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn,
@@ -254,7 +254,7 @@ export function printTagParams(
   }
 }
 
-export function printTagArguments(
+function printTagArguments(
   path: AstPath<Tag | AttrTag>,
   opts: Options,
   print: PrintFn,
@@ -342,7 +342,7 @@ export function printClosingTag(path: AstPath<Tag | AttrTag>) {
   }
 }
 
-export function printTagName(
+function printTagName(
   path: AstPath<Tag | AttrTag>,
   print: PrintFn,
 ): Doc {

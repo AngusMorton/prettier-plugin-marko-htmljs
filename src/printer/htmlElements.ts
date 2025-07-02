@@ -1,5 +1,5 @@
 export type TagName = keyof HTMLElementTagNameMap | "svg";
-export type MarcoBuiltinTags =
+type MarcoBuiltinTags =
   | "if"
   | "if-else"
   | "else"

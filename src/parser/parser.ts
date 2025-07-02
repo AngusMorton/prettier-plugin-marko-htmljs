@@ -22,18 +22,7 @@ import type {
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
-export const UNFINISHED = Number.MAX_SAFE_INTEGER;
-
-export {
-  getLines,
-  getPosition,
-  getLocation,
-  type Ranges,
-  type Position,
-  type Location,
-} from "htmljs-parser";
-
-export type Parsed = ReturnType<typeof parse>;
+const UNFINISHED = Number.MAX_SAFE_INTEGER;
 
 export function parse(code: string) {
   const builder = new Builder(code);

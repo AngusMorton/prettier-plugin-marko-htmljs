@@ -35,7 +35,7 @@ export function getOriginalSource(
 }
 
 // Result of finding an ignored node after a prettier-ignore comment
-export interface IgnoreResult {
+interface IgnoreResult {
   // Index of the node that should be ignored
   ignoredNodeIndex: number;
   // Index where the preserved content starts (may include whitespace before the ignored node)
