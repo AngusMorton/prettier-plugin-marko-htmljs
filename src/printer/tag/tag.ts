@@ -342,10 +342,7 @@ export function printClosingTag(path: AstPath<Tag | AttrTag>) {
   }
 }
 
-function printTagName(
-  path: AstPath<Tag | AttrTag>,
-  print: PrintFn,
-): Doc {
+function printTagName(path: AstPath<Tag | AttrTag>, print: PrintFn): Doc {
   const node = path.node;
 
   if (!node) {
