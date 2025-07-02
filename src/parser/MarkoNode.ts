@@ -1,39 +1,7 @@
-import { Statement } from "@babel/types";
 import { Location, Range, Ranges, TagType } from "htmljs-parser";
 
-export type Repeated<T> = [T, ...T[]] | [...T[], T] | [T, ...T[], T];
+type Repeated<T> = [T, ...T[]] | [...T[], T] | [T, ...T[], T];
 export type Repeatable<T> = undefined | Repeated<T>;
-
-export type NodeType =
-  | "Program"
-  | "Tag"
-  | "OpenTagName"
-  | "ShorthandId"
-  | "ShorthandClassName"
-  | "TagTypeArgs"
-  | "TagTypeParams"
-  | "TagVar"
-  | "TagArgs"
-  | "TagParams"
-  | "AttrNamed"
-  | "AttrName"
-  | "AttrArgs"
-  | "AttrValue"
-  | "AttrMethod"
-  | "AttrSpread"
-  | "AttrTag"
-  | "Text"
-  | "CDATA"
-  | "Doctype"
-  | "Declaration"
-  | "Comment"
-  | "Placeholder"
-  | "Scriptlet"
-  | "Import"
-  | "Export"
-  | "Class"
-  | "Style"
-  | "Static";
 
 export type AnyNode =
   | Program
@@ -88,11 +56,11 @@ export interface HasChildren {
   body: ChildNode[] | undefined;
 }
 
-export interface Commentable {
+interface Commentable {
   comments: Repeatable<Comment>;
 }
 
-export interface HasLocation {
+interface HasLocation {
   sourceSpan: Location;
 }
 
@@ -154,7 +122,7 @@ export interface OpenTagName extends Ranges.Template {
   valueLiteral: string;
 }
 
-export interface ShorthandId extends Ranges.Template {
+interface ShorthandId extends Ranges.Template {
   type: "ShorthandId";
   parent: ParentTag;
 }
@@ -189,7 +157,7 @@ export interface TagArgs extends Ranges.Value {
   valueLiteral: string;
 }
 
-export interface TagParams extends Ranges.Value {
+interface TagParams extends Ranges.Value {
   type: "TagParams";
   parent: ParentTag;
   valueLiteral: string;
@@ -201,19 +169,19 @@ export interface Text extends Range, HasLocation {
   value: string;
 }
 
-export interface CDATA extends Ranges.Value, HasLocation {
+interface CDATA extends Ranges.Value, HasLocation {
   type: "CDATA";
   parent: ParentNode;
   valueLiteral: string;
 }
 
-export interface Doctype extends Ranges.Value, HasLocation {
+interface Doctype extends Ranges.Value, HasLocation {
   type: "DocType";
   parent: ParentNode;
   valueLiteral: string;
 }
 
-export interface Declaration extends Ranges.Value, HasLocation {
+interface Declaration extends Ranges.Value, HasLocation {
   type: "Declaration";
   parent: ParentNode;
   valueLiteral: string;
@@ -256,7 +224,7 @@ export interface AttrName extends Range {
   value: string;
 }
 
-export interface AttrArgs extends Ranges.Value {
+interface AttrArgs extends Ranges.Value {
   type: "AttrArgs";
   parent: AttrNamed;
   valueLiteral: string;
@@ -270,7 +238,7 @@ export interface AttrValue extends Range {
   bound: boolean;
 }
 
-export interface AttrMethod extends Range {
+interface AttrMethod extends Range {
   type: "AttrMethod";
   parent: AttrNamed;
   typeParams: undefined | Ranges.Value;

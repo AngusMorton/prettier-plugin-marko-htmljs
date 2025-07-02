@@ -38,7 +38,7 @@ export const parsers: Record<string, Parser<AnyNode>> = {
   },
   "marko-htmljs-expression-parser": {
     ...babelParser,
-    parse: (text: string, options: any) => {
+    parse: (text: string, options: Parameters<typeof babelParser.parse>[1]) => {
       const ast = babelParser.parse(text, options);
       return { ...ast, program: ast.program.body[0].expression };
     },

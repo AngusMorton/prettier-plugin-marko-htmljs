@@ -1,16 +1,15 @@
-import { AstPath, Options } from "prettier";
+import { AstPath } from "prettier";
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Scriptlet } from "../../parser/MarkoNode";
 import { endsWithBrace } from "../util";
 import { doc } from "prettier";
 
 const {
-  builders: { group, indent, hardline, softline, ifBreak, join },
+  builders: { group, indent, softline, ifBreak },
 } = doc;
 
 export function embedScriptlet(
   path: AstPath<Scriptlet>,
-  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   if (!node) {

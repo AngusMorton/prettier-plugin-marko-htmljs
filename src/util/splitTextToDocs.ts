@@ -2,7 +2,7 @@ import type { Doc } from "prettier";
 import { doc } from "prettier";
 
 const {
-  builders: { group, indent, ifBreak, softline, hardline, join, line },
+  builders: { hardline, join, line },
 } = doc;
 
 export function splitTextToDocs(text: string): Doc[] {
@@ -25,10 +25,10 @@ export function splitTextToDocs(text: string): Doc[] {
   return docs;
 }
 
-export function startsWithLinebreak(text: string, nrLines = 1): boolean {
+function startsWithLinebreak(text: string, nrLines = 1): boolean {
   return new RegExp(`^([\\t\\f\\r ]*\\n){${nrLines}}`).test(text);
 }
 
-export function endsWithLinebreak(text: string, nrLines = 1): boolean {
+function endsWithLinebreak(text: string, nrLines = 1): boolean {
   return new RegExp(`(\\n[\\t\\f\\r ]*){${nrLines}}$`).test(text);
 }

@@ -1,4 +1,4 @@
-import { AstPath, Options } from "prettier";
+import { AstPath } from "prettier";
 import {
   AnyNode,
   AttrNamed,
@@ -28,12 +28,11 @@ import { embedTagVariable } from "./internal/embedTagVariable";
 
 export function embed(
   path: AstPath<AnyNode>,
-  options: Options,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
 
   if (node.type === "Scriptlet") {
-    return embedScriptlet(path as AstPath<Scriptlet>, options);
+    return embedScriptlet(path as AstPath<Scriptlet>);
   }
 
   if (node.type === "Placeholder") {
@@ -45,15 +44,15 @@ export function embed(
   }
 
   if (node.type === "Tag" && node.nameText && node.nameText === "script") {
-    return embedScriptTag(path as AstPath<Tag>, options);
+    return embedScriptTag(path as AstPath<Tag>);
   }
 
   if (node.type === "Tag" && node.nameText && node.nameText === "style") {
-    return embedStyleTag(node);
+    return embedStyleTag(path as AstPath<Tag>);
   }
 
   if (node.type === "AttrNamed") {
-    return emebdAttrNamed(path as AstPath<AttrNamed>, options);
+    return emebdAttrNamed(path as AstPath<AttrNamed>);
   }
 
   if (node.type === "TagParams") {
@@ -93,11 +92,11 @@ export function embed(
   }
 
   if (node.type === "Style") {
-    return embedStaticStyle(path as AstPath<Style>, options);
+    return embedStaticStyle(path as AstPath<Style>);
   }
 
   if (node.type === "TagVar") {
-    return embedTagVariable(path as AstPath<TagVar>, options);
+    return embedTagVariable(path as AstPath<TagVar>);
   }
 
   return null;

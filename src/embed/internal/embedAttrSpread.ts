@@ -5,7 +5,7 @@ import { forceIntoExpression } from "../forceIntoExpression";
 export function embedAttrSpread(
   node: AttrSpread,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
-  return async (textToDoc, print, path, options) => {
+  return async (textToDoc) => {
     try {
       const doc = await textToDoc(forceIntoExpression(node.valueLiteral), {
         parser: "marko-htmljs-expression-parser",

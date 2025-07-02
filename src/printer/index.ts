@@ -1,13 +1,6 @@
 import { type AstPath, type Doc, type ParserOptions } from "prettier";
-import { PrintFn, isEmptyTextNode, trimTextNodeLeft } from "./tag/utils";
-import {
-  AnyNode,
-  Program,
-  Tag,
-  Comment,
-  AttrTag,
-  ChildNode,
-} from "../parser/MarkoNode";
+import { PrintFn, isEmptyTextNode } from "./tag/utils";
+import { AnyNode, Program, Tag, Comment, AttrTag } from "../parser/MarkoNode";
 import { printTag } from "./tag/tag";
 import { doc } from "prettier";
 import { printComment } from "./comment";
@@ -42,7 +35,7 @@ export function print(
       return "<!doctype html>";
     case "Declaration":
       return ["<?", node.valueLiteral, "?>"];
-    case "Text":
+    case "Text": {
       // Text nodes only exist as children to other nodes/tags.
       // So... I don't think we need to print them if they're whitespace only.
       // We do need to add appropriate whitespace before/after which we can do using the
@@ -71,17 +64,15 @@ export function print(
       const text = node.value
         .replace(/(?<!\\)\\(?!\\)/, "\\\\")
         .replace(/\${/, "\\${")
-        .replace(/\$\!{/, "\\$!{");
+        .replace(/\$!{/, "\\$!{");
       return fill(splitTextToDocs(text));
+    }
     case "AttrTag":
       return printTag(path as AstPath<AttrTag>, opts, print);
     case "Tag":
       return printTag(path as AstPath<Tag>, opts, print);
     case "Comment":
-      return printComment(path as AstPath<Comment>, opts, print);
-    default:
-      console.error("Unhandled NodeType:", node.type);
-      console.error(node);
+      return printComment(path as AstPath<Comment>);
   }
 
   return "";
@@ -110,7 +101,7 @@ function printProgram(
 
   const children = path.map((childPath, childIndex) => {
     const childNode = childPath.node;
-    let result: Doc[] = [];
+    const result: Doc[] = [];
 
     // If this node should be ignored, return its original source
     if (ignoredNodeIndexes.has(childIndex)) {

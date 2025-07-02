@@ -35,7 +35,7 @@ export function getOriginalSource(
 }
 
 // Result of finding an ignored node after a prettier-ignore comment
-export interface IgnoreResult {
+interface IgnoreResult {
   // Index of the node that should be ignored
   ignoredNodeIndex: number;
   // Index where the preserved content starts (may include whitespace before the ignored node)
@@ -60,7 +60,7 @@ export function findIgnoredNode(
     if (candidate.type !== "Comment") {
       if (preserveWhitespace) {
         // For children: check if there's whitespace before the actual content
-        let preserveFromIndex = i;
+        const preserveFromIndex = i;
 
         // If this is whitespace-only text, check if there's content after it
         if (candidate.type === "Text" && isEmptyTextNode(candidate)) {
