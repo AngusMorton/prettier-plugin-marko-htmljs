@@ -43,11 +43,19 @@ export function embed(
     return embedClass(node);
   }
 
-  if (node.type === "Tag" && node.nameText && node.nameText === "script") {
+  if (
+    node.type === "Tag" &&
+    node.nameText &&
+    (node.nameText === "script" || node.nameText === "html-script")
+  ) {
     return embedScriptTag(path as AstPath<Tag>);
   }
 
-  if (node.type === "Tag" && node.nameText && node.nameText === "style") {
+  if (
+    node.type === "Tag" &&
+    node.nameText &&
+    (node.nameText === "style" || node.nameText === "html-style")
+  ) {
     return embedStyleTag(path as AstPath<Tag>);
   }
 

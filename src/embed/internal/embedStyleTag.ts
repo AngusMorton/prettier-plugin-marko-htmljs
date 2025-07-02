@@ -1,9 +1,10 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
-import { Tag, Text } from "../../parser/MarkoNode";
+import { Tag } from "../../parser/MarkoNode";
 import { doc } from "prettier";
 import { printClosingTag, printOpeningTag } from "../../printer/tag/tag";
 import { AstPath } from "prettier";
-import { isEmptyNode } from "../../printer/tag/utils";
+import { getChildren, isEmptyNode } from "../../printer/tag/utils";
+import { getOriginalSource } from "../../util/prettierIgnore";
 
 const {
   builders: { group, indent, hardline },
@@ -22,20 +23,27 @@ export function embedStyleTag(
         printClosingTag(path),
       ]);
     }
-    const textChild = node.body?.[0] as Text;
-    if (textChild.type !== "Text") {
-      // The style tag can only have Text has children,
-      throw Error("Body of script tag is not Text " + textChild.type);
-    }
+
+    const children = getChildren(node);
+    const firstChild = children[0];
+    const lastChild = children[children.length - 1];
+    const originalSource = getOriginalSource(
+      {
+        start: firstChild.start,
+        end: lastChild.end,
+      },
+      options.originalText as string,
+    );
+
     const langExtension = node.shorthandClassNames?.[0]?.valueLiteral;
     let content;
     try {
-      content = await textToDoc((textChild as Text).value, {
+      content = await textToDoc(originalSource, {
         parser: langExtension ? getParserNameFromExt(langExtension) : "css",
       });
     } catch {
       // There was probably an unrecoverable syntax error, print as-is.
-      content = (textChild as Text).value.trim();
+      content = originalSource.trim();
     }
 
     return [
