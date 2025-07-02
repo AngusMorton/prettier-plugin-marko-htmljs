@@ -51,6 +51,8 @@ export function embedScriptTag(
         const childNode = childPath.node as AnyNode;
         if (childNode.type === "Text") {
           embeddedCode += childNode.value;
+        } else if (childNode.type === "Comment") {
+          embeddedCode += childNode.valueLiteral;
         } else {
           embeddedCode += `__EMBEDDED_PLACEHOLDER_${placeholderId++}__`;
           placeholders.push(print(childPath));
