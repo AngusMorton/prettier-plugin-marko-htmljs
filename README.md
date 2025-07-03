@@ -160,4 +160,4 @@ The project uses GitHub Actions for continuous integration. The CI workflow:
 
 ## Known Issues
 
-- Preserve `<pre>` tags content.
+- The plugin does not support concise mode Marko syntax.
