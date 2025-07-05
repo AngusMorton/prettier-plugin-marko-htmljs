@@ -5,6 +5,7 @@ import { printClosingTag, printOpeningTag } from "../../printer/tag/tag";
 import { AstPath } from "prettier";
 import { getChildren, isEmptyNode } from "../../printer/tag/utils";
 import { getOriginalSource } from "../../util/prettierIgnore";
+import { tryPrint } from "../util";
 
 const {
   builders: { group, indent, hardline },
@@ -15,43 +16,47 @@ export function embedStyleTag(
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
   const node = path.node;
   return async (textToDoc, print, _, options) => {
-    if (isEmptyNode(node)) {
-      // We have no children, so print the script tag on a single line if possible.
-      return group([
-        ...printOpeningTag(path as AstPath<Tag>, options, print),
-        ">",
-        printClosingTag(path),
-      ]);
-    }
+    return tryPrint({
+      async print() {
+        if (isEmptyNode(node)) {
+          // We have no children, so print the script tag on a single line if possible.
+          return group([
+            ...printOpeningTag(path as AstPath<Tag>, options, print),
+            ">",
+            printClosingTag(path),
+          ]);
+        }
 
-    const children = getChildren(node);
-    const firstChild = children[0];
-    const lastChild = children[children.length - 1];
-    const originalSource = getOriginalSource(
-      {
-        start: firstChild.start,
-        end: lastChild.end,
+        const children = getChildren(node);
+        const firstChild = children[0];
+        const lastChild = children[children.length - 1];
+        const originalSource = getOriginalSource(
+          {
+            start: firstChild.start,
+            end: lastChild.end,
+          },
+          options.originalText as string,
+        );
+
+        const langExtension = node.shorthandClassNames?.[0]?.valueLiteral;
+        const content = await textToDoc(originalSource, {
+          parser: langExtension ? getParserNameFromExt(langExtension) : "css",
+        });
+
+        return [
+          group([
+            ...printOpeningTag(path as AstPath<Tag>, options, print),
+            ">",
+          ]),
+          indent([hardline, content]),
+          hardline,
+          printClosingTag(path),
+        ];
       },
-      options.originalText as string,
-    );
-
-    const langExtension = node.shorthandClassNames?.[0]?.valueLiteral;
-    let content;
-    try {
-      content = await textToDoc(originalSource, {
-        parser: langExtension ? getParserNameFromExt(langExtension) : "css",
-      });
-    } catch {
-      // There was probably an unrecoverable syntax error, print as-is.
-      content = originalSource.trim();
-    }
-
-    return [
-      group([...printOpeningTag(path as AstPath<Tag>, options, print), ">"]),
-      indent([hardline, content]),
-      hardline,
-      printClosingTag(path),
-    ];
+      fallback() {
+        return getOriginalSource(node, options.originalText as string);
+      },
+    });
   };
 }
 

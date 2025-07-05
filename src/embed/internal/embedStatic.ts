@@ -1,7 +1,7 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Static } from "../../parser/MarkoNode";
 import { doc } from "prettier";
-import { endsWithBrace } from "../util";
+import { endsWithBrace, tryPrint } from "../util";
 
 const {
   builders: { group, indent, softline, ifBreak },
@@ -20,29 +20,27 @@ export function embedStatic(
   // "static" at the root level is not valid JS, so we need to remove it and add it back later.
   const statement = node.valueLiteral.replace(/static|client|server/, "");
   return async (textToDoc) => {
-    try {
-      const body = await textToDoc(statement, {
-        parser: "babel-ts",
-      });
+    return tryPrint({
+      async print() {
+        const body = await textToDoc(statement, {
+          parser: "babel-ts",
+        });
 
-      if (!endsWithBrace(body)) {
-        return group([
-          statementPrefix,
-          ifBreak("{"),
-          indent([softline, body]),
-          softline,
-          ifBreak("}"),
-        ]);
-      }
+        if (!endsWithBrace(body)) {
+          return group([
+            statementPrefix,
+            ifBreak("{"),
+            indent([softline, body]),
+            softline,
+            ifBreak("}"),
+          ]);
+        }
 
-      return [statementPrefix, body];
-    } catch (error) {
-      if (process.env.PRETTIER_DEBUG) {
-        throw error;
-      }
-
-      console.error(error);
-      return [statementPrefix, node.valueLiteral];
-    }
+        return [statementPrefix, body];
+      },
+      fallback() {
+        return [statementPrefix, node.valueLiteral];
+      },
+    });
   };
 }
