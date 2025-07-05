@@ -1,4 +1,6 @@
 import { Doc } from "prettier";
+import { HtmlJsPrinter } from "../HtmlJsPrinter";
+import { tryCatch } from "../util/tryCatch";
 
 export function endsWithBrace(doc: Doc): boolean {
   if (typeof doc === "string") {
@@ -163,4 +165,23 @@ export function isStringDoc(doc: Doc): boolean {
   }
 
   return doc.length === 1 && isStringDoc(doc[0]);
+}
+
+export async function tryPrint({
+  print,
+  fallback,
+}: {
+  print: () => Promise<Doc>;
+  fallback: () => Doc;
+}): Promise<Doc> {
+  const result = await tryCatch(print());
+  if (result.error) {
+    if (process.env.PRETTIER_DEBUG) {
+      throw result.error;
+    }
+
+    console.error(result.error);
+    return fallback();
+  }
+  return result.data;
 }

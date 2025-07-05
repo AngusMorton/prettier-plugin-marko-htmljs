@@ -1,84 +1,17 @@
-export type IconTypeA =
-  | "error"
-  | "information"
-  | "unknown"
-  | "success"
-  | "warning"
-  | "suggestion"
-  | "fatal"
-  | "unknown";
+// We should wrap the right hand side in parentheses to avoid parsing issues.
+// prettier-ignore
+export type IconTypeA = "error" | "information" | "unknown" | "success" | "warning" | "suggestion" | "fatal" | "unknown";
 
-export type IconTypeB<T> =
-  | "error"
-  | "information"
-  | "unknown"
-  | "success"
-  | "warning"
-  | "suggestion"
-  | "fatal"
-  | "unknown"
-  | T;
+// We should wrap the right hand side in parentheses to avoid parsing issues.
+// prettier-ignore
+export type IconTypeB<T> = "error" | "information" | "unknown" | "success" | "warning" | "suggestion" | "fatal" | "unknown" | T;
 
-export type IconTypeC<
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  J,
-  K,
-  L,
-  M,
-  N,
-  O,
-  P,
-  Q,
-  R,
-  S,
-  T,
-  U,
-  V,
-  W,
-  X,
-  Y,
-  Z,
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  J,
-  K,
-  L,
-  M,
-  N,
-> = true;
+// FIXME: Currently, the parser does not support multi-line generics.
+// prettier-ignore
+export type IconTypeC<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, A, B, C, D, E, F, G, H, I, J, K, L, M, N> = true;
 
-export var x =
-  "error" ||
-  "information" ||
-  "unknown" ||
-  "success" ||
-  "warning" ||
-  "suggestion" ||
-  "fatal" ||
-  "unknown";
+// prettier-ignore
+export var x = "error" || "information" || "unknown" || "success" || "warning" || "suggestion" || "fatal" || "unknown";
 
-export const y =
-    "error" ||
-    "information" ||
-    "unknown" ||
-    "success" ||
-    "warning" ||
-    "suggestion" ||
-    "fatal" ||
-    "unknown",
-  z = true;
+// prettier-ignore
+export const y = "error" || "information" || "unknown" || "success" || "warning" || "suggestion" || "fatal" || "unknown", z = true;
