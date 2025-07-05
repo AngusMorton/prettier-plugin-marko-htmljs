@@ -52,7 +52,6 @@ jobs:
 
       - name: Run tests
         run: pnpm test
-        continue-on-error: true
 
       - name: Test build output exists
         run: |
