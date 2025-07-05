@@ -1,5 +1,4 @@
 import { Doc } from "prettier";
-import { HtmlJsPrinter } from "../HtmlJsPrinter";
 import { tryCatch } from "../util/tryCatch";
 
 export function endsWithBrace(doc: Doc): boolean {
