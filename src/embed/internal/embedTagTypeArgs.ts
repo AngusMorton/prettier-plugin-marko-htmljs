@@ -12,14 +12,14 @@ export function embedTagTypeArgs(
         // We need to wrap the args in a fake function call so that babel-ts can
         // parse it. We also disable semicolons because we don't want to print
         // any semicolons because Marko doesn't use them in tag params.
-        let docs = await textToDoc(`function _<${params}>(){}`, {
+        let docs = await textToDoc(`type _ = ${params}`, {
           parser: "babel-ts",
         });
 
         // @ts-expect-error - docs is always an array.
-        docs = docs[1].contents;
+        docs = docs[0].contents[4].contents;
 
-        return docs;
+        return ["<", docs, ">"];
       },
       fallback() {
         return ["<", node.valueLiteral, ">"];

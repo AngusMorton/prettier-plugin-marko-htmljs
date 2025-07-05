@@ -1,0 +1,16 @@
+<if=input.expanded>
+    <lifecycle<{
+      onMount: () => void;
+      onDestroy: () => void;
+             intersectionObserver?: IntersectionObserver;
+    }>
+      onMount() {
+              this.intersectionObserver = new IntersectionObserver(   ([entry]) => {
+          },);
+
+      }
+      onDestroy() {
+       
+      }
+    />
+</if>
