@@ -148,16 +148,6 @@ pnpm format
 pnpm tsc --noEmit
 ```
 
-### CI/CD
-
-The project uses GitHub Actions for continuous integration. The CI workflow:
-
-- Runs on Node.js versions 18, 20, and 22
-- Validates TypeScript types
-- Checks code formatting with Prettier
-- Runs the test suite
-- Builds the plugin and verifies output artifacts
-
 ## Known Issues
 
 - Preserve `<pre>` tags content.
