@@ -19,6 +19,10 @@ export function embedStatic(
   return async (textToDoc, _print, _, opts) => {
     return tryPrint({
       async print() {
+        if (!node.ast) {
+          return getOriginalSource(node, opts.originalText as string);
+        }
+
         const result: Doc[] = [];
         const statements = [...node.ast!.program.body];
         for (const statement of statements) {
