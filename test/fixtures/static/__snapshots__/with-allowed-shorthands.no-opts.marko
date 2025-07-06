@@ -1,0 +1,34 @@
+// These can have their modifiers removed.
+export const Foo = "bar";
+export * from "./foo.marko";
+export function bar() {
+  console.log("c");
+  console.log("d");
+}
+import { Foo } from "./foo.marko";
+import * as foo from "./foo.marko";
+import Bar from "./foo.marko";
+
+import { Foo } from "./foo.marko";
+static console.log("a");
+
+// Client side code should preserve the client modifier.
+client export const Foo = "bar";
+client export * from "./foo.marko";
+client export function bar() {
+  console.log("c");
+  console.log("d");
+}
+client import { Foo } from "./foo.marko";
+client import * as foo from "./foo.marko";
+client import Bar from "./foo.marko";
+
+server export const Foo = "bar";
+server export * from "./foo.marko";
+server export function bar() {
+  console.log("c");
+  console.log("d");
+}
+server import { Foo } from "./foo.marko";
+server import * as foo from "./foo.marko";
+server import Bar from "./foo.marko";

@@ -1,4 +1,5 @@
 import { Location, Range, Ranges, TagType } from "htmljs-parser";
+import { JSParserResult } from "./parseJs";
 
 type Repeated<T> = [T, ...T[]] | [...T[], T] | [T, ...T[], T];
 export type Repeatable<T> = undefined | Repeated<T>;
@@ -208,6 +209,7 @@ export interface Scriptlet extends Ranges.Value, Commentable, HasLocation {
   parent: ParentNode;
   block: boolean;
   valueLiteral: string;
+  ast: JSParserResult;
 }
 
 export interface AttrNamed extends Range {
@@ -285,4 +287,6 @@ export interface Static extends Range, Commentable, HasLocation {
   type: "Static";
   parent: ParentNode;
   valueLiteral: string;
+  name: "static" | "client" | "server";
+  ast?: JSParserResult;
 }
