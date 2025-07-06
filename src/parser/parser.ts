@@ -162,11 +162,11 @@ class Builder implements ParserHandlers {
       comments: makeCommentsLeading(this.#comments),
       value: range.value,
       valueLiteral: bodyText,
+      ast: parseJS(bodyText),
       block: range.block,
       start: range.start,
       end: range.end,
       sourceSpan: this.#parser.locationAt(range),
-      ast: parseJS(bodyText.slice(1)),
     });
     this.#comments = undefined;
   }
@@ -621,28 +621,27 @@ class Builder implements ParserHandlers {
       );
       if (this.#staticNode.type === "Static") {
         // Remove the name of the node
-        this.#staticNode.valueLiteral = this.#staticNode.valueLiteral.trim();
         this.#staticNode.valueLiteral = this.#staticNode.valueLiteral.slice(
           this.#staticNode.name.length,
         );
         this.#staticNode.ast = parseJS(this.#staticNode.valueLiteral);
-        this.#program.body.push(this.#staticNode);
-        this.#staticNode = undefined;
-      } else {
-        this.#attrNode = undefined;
-        const tag = this.#parentNode as ParentTag;
-        tag.open.end = range.end;
-
-        if (range.selfClosed || tag.bodyType === TagType.void) {
-          this.#parentNode = tag.parent;
-          tag.end = range.end;
-          tag.selfClosed = range.selfClosed;
-        }
-        tag.sourceSpan = this.#parser.locationAt({
-          start: tag.start,
-          end: range.end,
-        });
       }
+      this.#program.body.push(this.#staticNode);
+      this.#staticNode = undefined;
+    } else {
+      this.#attrNode = undefined;
+      const tag = this.#parentNode as ParentTag;
+      tag.open.end = range.end;
+
+      if (range.selfClosed || tag.bodyType === TagType.void) {
+        this.#parentNode = tag.parent;
+        tag.end = range.end;
+        tag.selfClosed = range.selfClosed;
+      }
+      tag.sourceSpan = this.#parser.locationAt({
+        start: tag.start,
+        end: range.end,
+      });
     }
   }
   onCloseTagStart(range: Range) {

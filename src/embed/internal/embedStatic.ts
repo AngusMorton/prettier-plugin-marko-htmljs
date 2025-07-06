@@ -16,8 +16,6 @@ const {
 export function embedStatic(
   node: Static,
 ): ReturnType<NonNullable<HtmlJsPrinter["embed"]>> {
-  // "static" at the root level is not valid JS, so we need to remove it and add it back later.
-  // const code = node.valueLiteral.replace(/static|client|server/, "");
   return async (textToDoc, _print, _, opts) => {
     return tryPrint({
       async print() {
