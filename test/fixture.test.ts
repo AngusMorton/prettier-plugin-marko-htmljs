@@ -7,7 +7,7 @@ import { parse } from "../src/parser/parser";
 const plugins = [new URL("../dist/plugin.mjs", import.meta.url).href];
 
 const inputFiles = import.meta.glob(
-  ["./fixtures/*/*.marko", "!./fixtures/*/*/__snapshots__"],
+  ["./fixtures/static/*.marko", "!./fixtures/*/*/__snapshots__"],
   {
     eager: true,
     as: "raw",

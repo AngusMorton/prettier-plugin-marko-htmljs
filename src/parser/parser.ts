@@ -19,6 +19,7 @@ import type {
   HasChildren,
   AttrValue,
 } from "./MarkoNode";
+import { parseJS } from "./parseJs";
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
@@ -165,6 +166,7 @@ class Builder implements ParserHandlers {
       start: range.start,
       end: range.end,
       sourceSpan: this.#parser.locationAt(range),
+      ast: parseJS(bodyText.slice(1)),
     });
     this.#comments = undefined;
   }
@@ -297,6 +299,7 @@ class Builder implements ParserHandlers {
               start: range.start,
               end: UNFINISHED,
               valueLiteral: "UNFINISHED",
+              name: nameText,
               sourceSpan: {
                 start: this.#parser.positionAt(range.start),
                 end: {
@@ -616,22 +619,30 @@ class Builder implements ParserHandlers {
         this.#staticNode.start,
         this.#staticNode.end,
       );
-      this.#program.body.push(this.#staticNode);
-      this.#staticNode = undefined;
-    } else {
-      this.#attrNode = undefined;
-      const tag = this.#parentNode as ParentTag;
-      tag.open.end = range.end;
+      if (this.#staticNode.type === "Static") {
+        // Remove the name of the node
+        this.#staticNode.valueLiteral = this.#staticNode.valueLiteral.trim();
+        this.#staticNode.valueLiteral = this.#staticNode.valueLiteral.slice(
+          this.#staticNode.name.length,
+        );
+        this.#staticNode.ast = parseJS(this.#staticNode.valueLiteral);
+        this.#program.body.push(this.#staticNode);
+        this.#staticNode = undefined;
+      } else {
+        this.#attrNode = undefined;
+        const tag = this.#parentNode as ParentTag;
+        tag.open.end = range.end;
 
-      if (range.selfClosed || tag.bodyType === TagType.void) {
-        this.#parentNode = tag.parent;
-        tag.end = range.end;
-        tag.selfClosed = range.selfClosed;
+        if (range.selfClosed || tag.bodyType === TagType.void) {
+          this.#parentNode = tag.parent;
+          tag.end = range.end;
+          tag.selfClosed = range.selfClosed;
+        }
+        tag.sourceSpan = this.#parser.locationAt({
+          start: tag.start,
+          end: range.end,
+        });
       }
-      tag.sourceSpan = this.#parser.locationAt({
-        start: tag.start,
-        end: range.end,
-      });
     }
   }
   onCloseTagStart(range: Range) {
