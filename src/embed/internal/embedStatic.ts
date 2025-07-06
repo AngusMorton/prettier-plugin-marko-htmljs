@@ -31,6 +31,14 @@ export function embedStatic(
             continue;
           }
 
+          // If the statement is allowed as a top-level statement, we can print it without a name.
+          const allowedShorthandStatements =
+            node.name === "static" &&
+            (statement.type === "ImportDeclaration" ||
+              statement.type === "ExportNamedDeclaration" ||
+              statement.type === "ExportAllDeclaration" ||
+              statement.type === "ExportDefaultDeclaration");
+
           const code = node.valueLiteral
             .slice(statement.start!, statement.end!)
             .trim();
@@ -39,6 +47,7 @@ export function embedStatic(
           });
 
           if (
+            !allowedShorthandStatements &&
             // If the body ends in a brace, parenthesis, or bracket, we can print it inline
             // because the Marko parser will be able to follow the expression.
             !endsWithBrace(body) &&
@@ -55,7 +64,11 @@ export function embedStatic(
               ]),
             ]);
           } else {
-            result.push([`${node.name} `, body]);
+            // If the body ends in a brace,
+            result.push([
+              allowedShorthandStatements ? "" : `${node.name} `,
+              body,
+            ]);
           }
         }
 
