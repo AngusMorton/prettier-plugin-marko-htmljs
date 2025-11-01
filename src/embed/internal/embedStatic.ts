@@ -26,6 +26,11 @@ export function embedStatic(
         const result: Doc[] = [];
         const statements = [...node.ast!.program.body];
         for (const statement of statements) {
+          if (statement.type === "EmptyStatement") {
+            // Don't render empty statements.
+            continue;
+          }
+
           if (statement.type === "BlockStatement") {
             statements.push(...statement.body);
             continue;
