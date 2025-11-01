@@ -179,7 +179,6 @@ export async function tryPrint({
       throw result.error;
     }
 
-    console.error(result.error);
     return fallback();
   }
   return result.data;

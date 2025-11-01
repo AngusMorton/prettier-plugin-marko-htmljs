@@ -19,6 +19,7 @@ import type {
   HasChildren,
   AttrValue,
 } from "./MarkoNode";
+import { parseJS } from "./parseJs";
 
 const styleBlockReg = /((?:\.[^\s\\/:*?"<>|({]+)*)\s*\{/y;
 
@@ -161,6 +162,7 @@ class Builder implements ParserHandlers {
       comments: makeCommentsLeading(this.#comments),
       value: range.value,
       valueLiteral: bodyText,
+      ast: parseJS(bodyText),
       block: range.block,
       start: range.start,
       end: range.end,
@@ -297,6 +299,7 @@ class Builder implements ParserHandlers {
               start: range.start,
               end: UNFINISHED,
               valueLiteral: "UNFINISHED",
+              name: nameText,
               sourceSpan: {
                 start: this.#parser.positionAt(range.start),
                 end: {
@@ -616,6 +619,13 @@ class Builder implements ParserHandlers {
         this.#staticNode.start,
         this.#staticNode.end,
       );
+      if (this.#staticNode.type === "Static") {
+        // Remove the name of the node
+        this.#staticNode.valueLiteral = this.#staticNode.valueLiteral.slice(
+          this.#staticNode.name.length,
+        );
+        this.#staticNode.ast = parseJS(this.#staticNode.valueLiteral);
+      }
       this.#program.body.push(this.#staticNode);
       this.#staticNode = undefined;
     } else {
