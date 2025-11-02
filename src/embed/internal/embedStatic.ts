@@ -1,6 +1,6 @@
 import { HtmlJsPrinter } from "../../HtmlJsPrinter";
 import { Static } from "../../parser/MarkoNode";
-import { Doc, doc } from "prettier";
+import { doc } from "prettier";
 import {
   endsWithBrace,
   endsWithBracket,
@@ -10,7 +10,7 @@ import {
 import { getOriginalSource } from "../../util/prettierIgnore";
 
 const {
-  builders: { group, indent, softline, join, hardline, ifBreak },
+  builders: { group, indent, softline, ifBreak },
 } = doc;
 
 export function embedStatic(
@@ -19,93 +19,26 @@ export function embedStatic(
   return async (textToDoc, _print, _, opts) => {
     return tryPrint({
       async print() {
-        if (!node.ast) {
-          return getOriginalSource(node, opts.originalText as string);
+        const body = await textToDoc(node.valueLiteral, {
+          parser: "babel-ts",
+        });
+
+        if (
+          !endsWithBrace(body) &&
+          !endsWithParenthesis(body) &&
+          !endsWithBracket(body)
+        ) {
+          // If the body ends in a brace, parenthesis, or bracket, we can print it inline
+          // because the Marko parser will be able to follow the expression.
+          return group([
+            node.name + " ",
+            ifBreak("{"),
+            indent([softline, body]),
+            softline,
+            ifBreak("}"),
+          ]);
         }
-
-        const result: Doc[] = [];
-        const statements = [...node.ast!.program.body];
-        for (let i = 0; i < statements.length; i++) {
-          const statement = statements[i];
-          if (statement.type === "EmptyStatement") {
-            // Don't render empty statements.
-            continue;
-          }
-
-          if (statement.type === "BlockStatement") {
-            statements.push(...statement.body);
-            continue;
-          }
-
-          // Extract and output leading comments as formatted JS comments
-          if (statement.leadingComments) {
-            for (const comment of statement.leadingComments) {
-              const commentCode = node.valueLiteral
-                .slice(comment.start!, comment.end!)
-                .trim();
-              const formattedComment = await textToDoc(commentCode, {
-                parser: "babel-ts",
-              });
-              result.push(formattedComment);
-            }
-          }
-
-          // If the statement is allowed as a top-level statement, we can print it without a name.
-          const allowedShorthandStatements =
-            node.name === "static" &&
-            (statement.type === "ImportDeclaration" ||
-              statement.type === "ExportNamedDeclaration" ||
-              statement.type === "ExportAllDeclaration" ||
-              statement.type === "ExportDefaultDeclaration");
-
-          const code = node.valueLiteral
-            .slice(statement.start!, statement.end!)
-            .trim();
-          const body = await textToDoc(code, {
-            parser: "babel-ts",
-          });
-
-          if (
-            !allowedShorthandStatements &&
-            // If the body ends in a brace, parenthesis, or bracket, we can print it inline
-            // because the Marko parser will be able to follow the expression.
-            !endsWithBrace(body) &&
-            !endsWithParenthesis(body) &&
-            !endsWithBracket(body)
-          ) {
-            result.push([
-              group([
-                `${node.name} `,
-                ifBreak("{"),
-                indent([softline, body]),
-                softline,
-                ifBreak("}"),
-              ]),
-            ]);
-          } else {
-            // If the body ends in a brace,
-            result.push([
-              allowedShorthandStatements ? "" : `${node.name} `,
-              body,
-            ]);
-          }
-
-          if (i === statements.length - 1 && statement.trailingComments) {
-            // Only output trailing comments for the last statement because
-            // otherwise they will be duplicated when processing leading comments.
-            for (const comment of statement.trailingComments) {
-              const commentCode = node.valueLiteral
-                .slice(comment.start!, comment.end!)
-                .trim();
-              const formattedComment = await textToDoc(commentCode, {
-                parser: "babel-ts",
-              });
-              result.push(formattedComment);
-            }
-          }
-        }
-
-        return join(hardline, result);
+        return [node.name + " ", body];
       },
       fallback() {
         return getOriginalSource(node, opts.originalText as string);
