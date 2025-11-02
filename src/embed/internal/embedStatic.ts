@@ -25,7 +25,8 @@ export function embedStatic(
 
         const result: Doc[] = [];
         const statements = [...node.ast!.program.body];
-        for (const statement of statements) {
+        for (let i = 0; i < statements.length; i++) {
+          const statement = statements[i];
           if (statement.type === "EmptyStatement") {
             // Don't render empty statements.
             continue;
@@ -34,6 +35,19 @@ export function embedStatic(
           if (statement.type === "BlockStatement") {
             statements.push(...statement.body);
             continue;
+          }
+
+          // Extract and output leading comments as formatted JS comments
+          if (statement.leadingComments) {
+            for (const comment of statement.leadingComments) {
+              const commentCode = node.valueLiteral
+                .slice(comment.start!, comment.end!)
+                .trim();
+              const formattedComment = await textToDoc(commentCode, {
+                parser: "babel-ts",
+              });
+              result.push(formattedComment);
+            }
           }
 
           // If the statement is allowed as a top-level statement, we can print it without a name.
@@ -74,6 +88,20 @@ export function embedStatic(
               allowedShorthandStatements ? "" : `${node.name} `,
               body,
             ]);
+          }
+
+          if (i === statements.length - 1 && statement.trailingComments) {
+            // Only output trailing comments for the last statement because
+            // otherwise they will be duplicated when processing leading comments.
+            for (const comment of statement.trailingComments) {
+              const commentCode = node.valueLiteral
+                .slice(comment.start!, comment.end!)
+                .trim();
+              const formattedComment = await textToDoc(commentCode, {
+                parser: "babel-ts",
+              });
+              result.push(formattedComment);
+            }
           }
         }
 

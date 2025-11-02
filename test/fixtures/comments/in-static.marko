@@ -1,0 +1,24 @@
+
+static {
+    // foo is 123.
+    var foo: number = 123;
+    // Comments should be preserved.
+    var textColor = isLight(bgColor) ? "black" : "white";
+    // Trailing comments should also be preserved.
+}
+
+client {
+    // foo is 123.
+    var foo: number = 123;
+    // Comments should be preserved.
+    var textColor = isLight(bgColor) ? "black" : "white";
+    // Trailing comments should also be preserved.
+}
+
+server {
+    // foo is 123.
+    var foo: number = 123;
+    // Comments should be preserved.
+    var textColor = isLight(bgColor) ? "black" : "white";
+    // Trailing comments should also be preserved.
+}

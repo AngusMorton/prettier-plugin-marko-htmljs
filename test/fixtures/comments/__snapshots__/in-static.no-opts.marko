@@ -1,0 +1,17 @@
+// foo is 123.
+static var foo: number = 123;
+// Comments should be preserved.
+static var textColor = isLight(bgColor) ? "black" : "white";
+// Trailing comments should also be preserved.
+
+// foo is 123.
+client var foo: number = 123;
+// Comments should be preserved.
+client var textColor = isLight(bgColor) ? "black" : "white";
+// Trailing comments should also be preserved.
+
+// foo is 123.
+server var foo: number = 123;
+// Comments should be preserved.
+server var textColor = isLight(bgColor) ? "black" : "white";
+// Trailing comments should also be preserved.
