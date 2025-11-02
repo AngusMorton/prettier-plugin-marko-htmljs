@@ -147,7 +147,3 @@ pnpm format
 # Type check
 pnpm tsc --noEmit
 ```
-
-## Known Issues
-
-- Preserve `<pre>` tags content.
