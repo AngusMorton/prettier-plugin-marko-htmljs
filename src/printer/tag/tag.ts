@@ -59,29 +59,27 @@ export function printTag(
 
   // Check if this is a whitespace-sensitive tag where content must be preserved exactly.
   // These tags have semantic meaning in their whitespace (pre, textarea, etc.).
-  const isWhitespaceSensitive = node.nameText === "pre" || node.nameText === "textarea";
-  
+  const isWhitespaceSensitive =
+    node.nameText === "pre" || node.nameText === "textarea";
+
   if (isWhitespaceSensitive && !isEmpty) {
     const originalText = opts.originalText as string;
     const children = getChildren(node);
-    
+
     let preservedContent = "";
     if (children && children.length > 0) {
       for (const child of children) {
         preservedContent += getOriginalSource(child, originalText);
       }
     }
-    
+
     const openingTag = [
       printOpeningTag(path, opts, print),
       indent(
-        group([
-          ...attributes,
-          !opts.bracketSameLine ? dedent(softline) : "",
-        ]),
+        group([...attributes, !opts.bracketSameLine ? dedent(softline) : ""]),
       ),
     ];
-    
+
     const lines = preservedContent.split("\n");
     const contentDocs: Doc[] = [];
     for (let i = 0; i < lines.length; i++) {
@@ -90,13 +88,8 @@ export function printTag(
       }
       contentDocs.push(lines[i]);
     }
-    
-    return group([
-      ...openingTag,
-      ">",
-      ...contentDocs,
-      printClosingTag(path),
-    ]);
+
+    return group([...openingTag, ">", ...contentDocs, printClosingTag(path)]);
   }
 
   const children = getChildren(node);

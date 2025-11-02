@@ -21,7 +21,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
-    "format:fix": "prettier --check . --write",
+    "format:fix": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest -w"
   },
